@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->unsignedBigInteger('fk_funcao');
+            $table->foreign('fk_funcao')->references('id')->on('funcoes');
             $table->rememberToken();
             $table->timestamps();
         });
