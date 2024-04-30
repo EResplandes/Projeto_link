@@ -11,9 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('funcoes', function (Blueprint $table) {
+        Schema::create('link_usuarios', function (Blueprint $table) {
             $table->id();
-            $table->string('funcao')->unique();
+            $table->unsignedBigInteger('id_usuario');
+            $table->unsignedBigInteger('id_link');
+            $table->foreign('id_usuario')->references('id')->on('users');
+            $table->foreign('id_link')->references('id')->on('link');
             $table->timestamps();
         });
     }
@@ -23,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('funcoes');
+        Schema::dropIfExists('link_usuarios');
     }
 };
