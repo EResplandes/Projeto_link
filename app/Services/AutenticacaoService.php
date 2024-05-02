@@ -10,6 +10,13 @@ use App\Queries\UsersQuery;
 class AutenticacaoService
 {
 
+    protected $usersQuery;
+
+    public function __construct(UsersQuery $usersQuery)
+    {
+        $this->usersQuery = $usersQuery;
+    }
+
     public function login($request)
     {
         // 1º Passo -> Pegando credenciais
@@ -19,9 +26,7 @@ class AutenticacaoService
         if (Auth::attempt(['email' => $credentials['email'], 'password' => $credentials['password']])) {
             $token = JWTAuth::attempt($credentials);
 
-            $query = new UsersQuery(); // Instanciando minhas querys
-
-            $resultado = $query->buscaInformacoes($credentials['email']); // Query responsável por buscar dados do usuário
+            $resultado = $this->usersQuery->buscaInformacoes($credentials['email']); // Query responsável por buscar dados do usuário
 
             // Retornando resposta
             return ['resposta' => 'Autenticação realizada com sucesso!', 'usuario' => $resultado, 'token' => $token, 'status' => Response::HTTP_OK];

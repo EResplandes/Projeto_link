@@ -16,7 +16,7 @@ class FuncaoResource extends JsonResource
     {
         return [
             "id"                    => $this->id,
-            "funcao"                => $this->name,
+            "funcao"                => $this->funcao,
             "superior"              => $this->superior,
             "inferior"              => $this->inferior,
             'dt_criacao_usuario'    => $this->created_at
