@@ -22,9 +22,10 @@ class AutenticacaoService
         // 1º Passo -> Pegando credenciais
         $credentials = $request->all(['email', 'password']);
 
+        $token = JWTAuth::attempt($credentials);
+
         // 2º Passo -> Autenticando e gerando token
-        if (Auth::attempt(['email' => $credentials['email'], 'password' => $credentials['password']])) {
-            $token = JWTAuth::attempt($credentials);
+        if ($token) {
 
             $resultado = $this->usersQuery->buscaInformacoes($credentials['email']); // Query responsável por buscar dados do usuário
 
@@ -33,12 +34,11 @@ class AutenticacaoService
         }
 
         // Retornando caso usuário não seja encontrado
-        return ['resposta' => 'Usuário ou senha inválidos!', 'token' => null, 'status' => Response::HTTP_FORBIDDEN];
+        return ['resposta' => 'Usuário ou senha inválidos!', 'usuario' => null, 'token' => null, 'status' => Response::HTTP_FORBIDDEN];
     }
 
     public function logout($request)
     {
-
         // 1º Passo -> Armazenando token
         $token = $request->input('token');
 
