@@ -12,9 +12,4 @@ class Status extends Model
     protected $table = 'status';
 
     protected $fillable = ['status'];
-
-    public function pedidos()
-    {
-        return $this->hasMany(Status::class, 'id');
-    }
 }

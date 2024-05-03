@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AutenticacaoController;
 use App\Http\Controllers\PedidoController;
@@ -14,8 +13,12 @@ Route::prefix("/autenticacao")->group(function () {
 });
 
 // Módulo de Pedidos
-Route::prefix("/pedidos")->group(function () {
+Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
     Route::controller(PedidoController::class)->group(function () {
         Route::get('/listar-pedidos', 'listarPedidos');
+        Route::get('/listar-emival', 'listarEmival');
+        Route::get('/listar-monica', 'listarMonica');
+        Route::get('/listar-aprovados', 'listarAprovados');
+        Route::get('/listar-reprovados', 'listarReprovados');
     });
 });

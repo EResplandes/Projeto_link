@@ -18,12 +18,4 @@ class Empresa extends Model
     ];
 
     protected $hidden = ['updated_at'];
-
-    public function pedidos()
-    {
-        return $this->hasMany(Empresa::class, 'id');
-    }
-
-    
-
 }

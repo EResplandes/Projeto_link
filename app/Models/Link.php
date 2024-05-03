@@ -11,9 +11,4 @@ class Link extends Model
 
     protected $table = 'link';
 
-    public function pedidos()
-    {
-        return $this->hasMany(Status::class, 'id');
-    }
-
 }

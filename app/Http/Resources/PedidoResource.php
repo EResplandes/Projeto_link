@@ -20,9 +20,9 @@ class PedidoResource extends JsonResource
             "valor"      => $this->valor,
             "urgente"    => $this->urgente,
             "anexo"      => $this->anexo,
-            "empresa"    => new EmpresaResource($this->id_empresa),
-            "status"     => new StatusResource($this->id_status),
-            "link"       => new LinkResource($this->id_link),
+            "empresa"    => new EmpresaResource($this->empresa),
+            "status"     => new StatusResource($this->status),
+            "link"       => new LinkResource($this->link),
         ];
     }
 }

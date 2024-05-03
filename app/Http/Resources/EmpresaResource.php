@@ -19,7 +19,7 @@ class EmpresaResource extends JsonResource
             "nome_empresa"             => $this->nome_empresa,
             "cnpj"                     => $this->cnpj,
             "inscricao_estadual"       => $this->inscricao_estadual,
-            "filial"                   => $this->anexo
+            "filial"                   => $this->filial
         ];
     }
 }
