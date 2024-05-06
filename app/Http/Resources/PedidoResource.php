@@ -15,14 +15,15 @@ class PedidoResource extends JsonResource
     public function toArray($request)
     {
         return [
-            "id"         => $this->id,
-            "descricao"  => $this->descricao,
-            "valor"      => $this->valor,
-            "urgente"    => $this->urgente,
-            "anexo"      => $this->anexo,
-            "empresa"    => new EmpresaResource($this->empresa),
-            "status"     => new StatusResource($this->status),
-            "link"       => new LinkResource($this->link),
+            "id"           => $this->id,
+            "descricao"    => $this->descricao,
+            "valor"        => $this->valor,
+            "urgente"      => $this->urgente,
+            "anexo"        => $this->anexo,
+            "dt_inclusao"  => $this->created_at,
+            "empresa"      => new EmpresaResource($this->empresa),
+            "status"       => new StatusResource($this->status),
+            "link"         => new LinkResource($this->link),
         ];
     }
 }

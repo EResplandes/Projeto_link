@@ -20,5 +20,9 @@ Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
         Route::get('/listar-monica', 'listarMonica');
         Route::get('/listar-aprovados', 'listarAprovados');
         Route::get('/listar-reprovados', 'listarReprovados');
+        Route::put('/aprovar/{id}', 'aprovarPedido');
+        Route::put('/aprovar-ressalva/{id}', 'aprovarRessalva');
+        Route::put('/reprovar/{id}', 'reprovarPedido');
+        Route::delete('/deletar/{id}', 'deletaPedido');
     });
 });

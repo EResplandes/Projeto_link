@@ -44,4 +44,28 @@ class PedidoController extends Controller
         $query = $this->pedidoService->listarReprovados(); // Metódo responsável por listar pedidos com status 3
         return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
     }
+
+    public function aprovarPedido($id)
+    {
+        $query = $this->pedidoService->aprovar($id); // Metódo responsável por aprovar pedidos
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
+    public function aprovarRessalva(Request $request, $id)
+    {
+        $query = $this->pedidoService->aprovarRessalva($request, $id); // Metódo responsável por aprovar com ressalva
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
+    public function reprovarPedido(Request $request, $id)
+    {
+        $query = $this->pedidoService->reprovarPedido($request, $id); // Metódo responsável por reprovar pedido
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
+    public function deletaPedido($id)
+    {
+        $query = $this->pedidoService->deletaPedido($id); // Metódo responsável por deletar pedido de acordo com id
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
 }
