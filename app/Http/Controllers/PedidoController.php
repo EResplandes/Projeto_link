@@ -27,6 +27,12 @@ class PedidoController extends Controller
         return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
     }
 
+    public function listarEmivalFiltro(Request $request)
+    {
+        $query = $this->pedidoService->filtrarEmival($request); // Metódo responsável por listar pedidos com status 1 e filtros
+        return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos'], $query['status']]);
+    }
+
     public function listarMonica()
     {
         $query = $this->pedidoService->listarMonica(); // Metódo responsável por listar pedidos com status 2

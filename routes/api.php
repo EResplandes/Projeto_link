@@ -17,6 +17,7 @@ Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
     Route::controller(PedidoController::class)->group(function () {
         Route::get('/listar-pedidos', 'listarPedidos');
         Route::get('/listar-emival', 'listarEmival');
+        Route::get('/filtro-emival', 'listarEmivalFiltro');
         Route::get('/listar-monica', 'listarMonica');
         Route::get('/listar-aprovados', 'listarAprovados');
         Route::get('/listar-reprovados', 'listarReprovados');
