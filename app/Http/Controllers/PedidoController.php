@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\PedidoService;
+use App\Http\Requests\PedidoRequest;
 
 class PedidoController extends Controller
 {
@@ -72,6 +73,12 @@ class PedidoController extends Controller
     public function deletaPedido($id)
     {
         $query = $this->pedidoService->deletaPedido($id); // Metódo responsável por deletar pedido de acordo com id
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
+    public function cadastraPedido(Request $request)
+    {
+        $query = $this->pedidoService->cadastraPedido($request);
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
 }

@@ -65,11 +65,11 @@ class User extends Authenticatable implements JWTSubject
 
     public function grupo()
     {
-        return $this->hasOne(Grupo::class, 'id');
+        return $this->belongsTo(Grupo::class, 'id_grupo');
     }
 
     public function funcao()
     {
-        return $this->hasOne(Funcao::class, 'id');
+        return $this->belongsTo(Funcao::class, 'id_funcao');
     }
 }

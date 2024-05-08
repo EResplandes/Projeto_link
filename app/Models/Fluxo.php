@@ -5,18 +5,22 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Empresa extends Model
+class Fluxo extends Model
 {
     use HasFactory;
 
-    protected $table = 'empresas';
+    protected $table = 'fluxos';
 
     protected $fillable = [
-        'nome_empresa',
-        'cnpj',
-        'filial',
+        'id_pedido',
+        'id_status',
+        'observacao',
         'created_at'
     ];
 
-    protected $hidden = ['updated_at'];
+    protected $hiddem = [
+        'updated_at'
+    ];
+
+
 }

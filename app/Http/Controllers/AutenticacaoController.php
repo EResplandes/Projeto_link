@@ -27,4 +27,10 @@ class AutenticacaoController extends Controller
         $query = $this->autenticacaoService->logout($request); // Consulta para realizar invalidação do token
         return response()->json(['resposta' => $query['resposta']], $query['status']); // Retornando resposta
     }
+
+    public function verificaToken()
+    {
+        $query = $this->autenticacaoService->verificaToken(); // Valida Token
+        return response()->json(['resposta' => $query['resposta']], $query['status']); // Retornando resposta
+    }
 }

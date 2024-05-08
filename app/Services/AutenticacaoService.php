@@ -48,4 +48,10 @@ class AutenticacaoService
         // 3º Passo -> Retorna respsota
         return ['resposta' => 'Logout realizado com sucesso!', 'status' => Response::HTTP_OK];
     }
+
+    public function verificaToken()
+    {
+        return ['resposta' => 'O Token está válido!', 'status' => Response::HTTP_OK];
+    }
+
 }

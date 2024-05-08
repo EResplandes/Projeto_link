@@ -8,9 +8,18 @@ use App\Models\HistoricoPedidos;
 use App\Models\Chat;
 use App\Http\Resources\PedidoResource;
 use Illuminate\Support\Facades\DB;
+use App\Queries\PedidosQuery;
 
 class PedidoService
 {
+
+    protected $pedidosQuery;
+
+    public function __construct(PedidosQuery $pedidosQuery)
+    {
+        $this->pedidosQuery = $pedidosQuery;
+    }
+
     public function listar()
     {
         // 1º Passo -> Buscar todos os pedidos cadastrados
@@ -216,7 +225,9 @@ class PedidoService
 
             $queryChat = Chat::create($dadosChat);
 
-            // 4º Passo -> Retornar resposta
+            // 4º Passo -> Tirar assinatura do fluxo
+
+            // 5º Passo -> Retornar resposta
             if ($query && $queryHistorico && $queryChat) {
                 DB::commit(); //
                 return ['resposta' => 'Pedido reprovado com sucesso!', 'status' => Response::HTTP_OK];
@@ -255,6 +266,82 @@ class PedidoService
             } else {
                 return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador!', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
             }
+        } catch (\Exception $e) {
+            DB::rollback(); // Se uma exceção ocorrer durante as operações do banco de dados, fazemos o rollback
+
+            return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador!', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+
+            throw $e;
+        }
+    }
+
+    public function cadastraPedido($request)
+    {
+
+        // 1º Passo -> Salvar arquivo e pegar hash gerado
+        $directory = "/pedidos"; // Criando diretório
+
+        $pdf = $request->file('anexo')->store($directory, 'public'); // Salvando imagem do produto
+
+        // 2º Passo -> Montar array a ser inserido
+        $dadosPedido = [
+            'descricao' => $request->input('descricao'),
+            'valor' => $request->input('valor'),
+            'urgente' => $request->input('urgente'),
+            'anexo' => $pdf,
+            'id_link' => $request->input('id_link'),
+            'id_empresa' => $request->input('id_empresa'),
+            'id_status' => 6
+        ];
+
+        DB::beginTransaction();
+
+        try {
+
+            // 3º Passo -> Cadastrar pedido com status para soleni
+            $queryPedido = Pedido::create($dadosPedido);
+
+            $idPedido = $queryPedido->id;
+
+            // 4º Passo -> Inserir Fluxo
+            $fluxoArray = $request->input('fluxo');
+            $fluxoArray = json_decode($fluxoArray, true); // Transformando JSON em Array
+
+            // Verificando se array foi preenchido
+            if (empty($fluxoArray)) {
+                return ['resposta' => 'O fluxo é obrigatório!', 'status' => Response::HTTP_BAD_REQUEST];
+            }
+
+            // Insere os itens na tabela fluxos
+            if ($fluxoArray != null || $fluxoArray != '') {
+                foreach ($fluxoArray as $item) {
+                    DB::table('fluxos')->insert([
+                        'id_usuario' => $item['id_usuario'],
+                        'id_pedido' => $idPedido,
+                        'assinado' => 0,
+                    ]);
+                }
+            } else {
+                return ['resposta' => 'Occoreu algum problema, tente mais tarde!', 'status' => Response::HTTP_BAD_REQUEST];
+            }
+
+            // 5º Passo -> Cadastrar no historico_pedido
+            $dadosHistorico = [
+                'id_pedido' => $idPedido,
+                'id_status' => 6,
+                'observacao' => 'O pedido foi enviado para Análise (SOLENI)!'
+            ];
+
+            HistoricoPedidos::create($dadosHistorico); // Inserindo log
+
+            if ($queryPedido) {
+                DB::commit();
+                return ['resposta' => 'Pedido cadastrado com sucesso!', 'status' => Response::HTTP_CREATED];
+            } else {
+                return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador!', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+            }
+
+            // 5º Passo -> Retornar resposta
         } catch (\Exception $e) {
             DB::rollback(); // Se uma exceção ocorrer durante as operações do banco de dados, fazemos o rollback
 
