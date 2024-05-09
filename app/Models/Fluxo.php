@@ -22,5 +22,13 @@ class Fluxo extends Model
         'updated_at'
     ];
 
+    public function pedido()
+    {
+        return $this->belongsTo(Pedido::class, 'id_pedido');
+    }
 
+    public function usuario()
+    {
+        return $this->belongsTo(User::class, 'id_usuario');
+    }
 }

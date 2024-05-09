@@ -13,9 +13,13 @@ class Status extends Model
 
     protected $fillable = ['status'];
 
+    protected $hidden = [
+        'created_at',
+        'updated_at'
+    ];
+
     public function user()
     {
         return $this->hasMany(User::class, 'id');
     }
-
 }

@@ -52,6 +52,12 @@ class PedidoController extends Controller
         return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
     }
 
+    public function listarAnalise()
+    {
+        $query = $this->pedidoService->listarAnalise(); // Metódo responsável por listar pedidos com status 6
+        return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
+    }
+
     public function aprovarPedido($id)
     {
         $query = $this->pedidoService->aprovar($id); // Metódo responsável por aprovar pedidos

@@ -37,4 +37,5 @@ class Pedido extends Model
     {
         return $this->belongsTo(Link::class, 'id_link');
     }
+
 }

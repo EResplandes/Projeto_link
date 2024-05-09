@@ -17,4 +17,13 @@ class Chat extends Model
         'mensagem',
         'created_at'
     ];
+
+    protected $hidden = [
+        'updated_at'
+    ];
+
+    public function usuario()
+    {
+        return $this->belongsTo(User::class, 'id_usuario');
+    }
 }

@@ -2,10 +2,14 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AutenticacaoController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\EmpresaController;
+use App\Http\Controllers\FluxoController;
 use App\Http\Controllers\FuncionarioController;
 use App\Http\Controllers\LinkController;
 use App\Http\Controllers\PedidoController;
+use App\Http\Controllers\StatusController;
+use App\Models\Fluxo;
 
 // Módulo de Autenticação
 Route::prefix("/autenticacao")->group(function () {
@@ -25,6 +29,7 @@ Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
         Route::get('/listar-monica', 'listarMonica');
         Route::get('/listar-aprovados', 'listarAprovados');
         Route::get('/listar-reprovados', 'listarReprovados');
+        Route::get('/listar-analise', 'listarAnalise');
         Route::put('/aprovar/{id}', 'aprovarPedido');
         Route::put('/aprovar-ressalva/{id}', 'aprovarRessalva');
         Route::put('/reprovar/{id}', 'reprovarPedido');
@@ -52,5 +57,26 @@ Route::prefix('/funcionarios')->middleware('jwt.auth')->group(function () {
     Route::controller(FuncionarioController::class)->group(function () {
         Route::get('/listar-gerentes', 'listarGerentes');
         Route::get('/listar-diretores', 'listarDiretores');
+    });
+});
+
+// Módulo de Status
+Route::prefix('/status')->middleware('jwt.auth')->group(function () {
+    Route::controller(StatusController::class)->group(function () {
+        Route::get('/listar-status', 'listarStatus');
+    });
+});
+
+// Módulo de Chat
+Route::prefix('/chat')->middleware('jwt.auth')->group(function () {
+    Route::controller(ChatController::class)->group(function () {
+        Route::get('/listar-conversa/{id?}', 'buscaConversa');
+    });
+});
+
+// Módulo de Fluxo
+Route::prefix('/fluxo')->middleware('jwt.auth')->group(function () {
+    Route::controller(FluxoController::class)->group(function () {
+        Route::get('/listar-fluxo/{id?}', 'listarFluxo');
     });
 });

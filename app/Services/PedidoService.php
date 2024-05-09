@@ -7,6 +7,7 @@ use App\Models\Pedido;
 use App\Models\HistoricoPedidos;
 use App\Models\Chat;
 use App\Http\Resources\PedidoResource;
+use App\Http\Resources\PedidoFluxoResource;
 use Illuminate\Support\Facades\DB;
 use App\Queries\PedidosQuery;
 
@@ -23,7 +24,7 @@ class PedidoService
     public function listar()
     {
         // 1º Passo -> Buscar todos os pedidos cadastrados
-        $query = PedidoResource::collection(Pedido::all());
+        $query = PedidoResource::collection(Pedido::orderBy('created_at', 'desc')->get());
 
         // 2º Passo -> Retornar resposta
         if ($query) {
@@ -118,6 +119,19 @@ class PedidoService
         // 2º Passo -> Retornar resposta
         if ($query) {
             return ['resposta' => 'Pedidos reprovados!', 'pedidos' => $query, 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+    }
+
+    public function listarAnalise()
+    {
+        // 1º Passo -> Buscar pedidos com status 3
+        $query = PedidoFluxoResource::collection(Pedido::where('id_status', 6)->get());
+
+        // 3º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Pedidos em análise listados com sucesso!', 'pedidos' => $query, 'status' => Response::HTTP_OK];
         } else {
             return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
         }
