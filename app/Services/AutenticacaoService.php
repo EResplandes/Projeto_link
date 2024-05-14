@@ -2,6 +2,8 @@
 
 namespace App\Services;
 
+use App\Http\Resources\UsersResource;
+use App\Models\User;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -54,4 +56,16 @@ class AutenticacaoService
         return ['resposta' => 'O Token está válido!', 'status' => Response::HTTP_OK];
     }
 
+    public function listar()
+    {
+        // 1º Passo -> Buscar todos usuários com suas respectivas permissões e funções
+        $query = UsersResource::collection(User::all());
+
+        // 2º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Usuários listados com sucesso!', "usuarios" => $query, 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'status' => Response::HTTP_BAD_REQUEST];
+        }
+    }
 }

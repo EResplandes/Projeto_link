@@ -8,8 +8,10 @@ use App\Models\HistoricoPedidos;
 use App\Models\Chat;
 use App\Http\Resources\PedidoResource;
 use App\Http\Resources\PedidoFluxoResource;
+use App\Http\Resources\FluxoPedidoResource;
 use Illuminate\Support\Facades\DB;
 use App\Queries\PedidosQuery;
+use App\Models\Fluxo;
 
 class PedidoService
 {
@@ -178,7 +180,7 @@ class PedidoService
             // 1º Passo -> Aprovar pedido
             $query = Pedido::where('id', $id)->update(['id_status' => 5]);
 
-            // 2º Passo -> Cadastrar no histórico 
+            // 2º Passo -> Cadastrar no histórico
             $dados = [
                 'id_pedido' => $id,
                 'id_status' => 5,
@@ -363,5 +365,64 @@ class PedidoService
 
             throw $e;
         }
+    }
+
+    public function listarEmFluxo($id)
+    {
+        // 1º Passo -> Buscar pedidos
+        $query = FluxoPedidoResource::collection(Fluxo::where('id_usuario', $id)->where('assinado', 0)->get());
+
+        // 2º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Pedidos listados com sucesso!', 'pedidos' => $query, 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+    }
+
+    public function aprovaEmFluxo($id)
+    {
+        DB::beginTransaction();
+
+        try {
+
+            // 1ª Passo -> Aprovar pedido de acordo com id_fluxo enviado
+            $query = Fluxo::where('id', $id)->update(['assinado' => 1]);
+
+            // 2º Passo -> Pegar id do pedido referente a esse fluxo
+            $idPedido = Fluxo::where('id', $id)->pluck('id_pedido');
+
+            // 3º Passo -> Verificar se todo o fluxo referente a esse pedido foi aprovado
+            $this->pedidosQuery->verificaFluxoAprovado($idPedido);
+
+            // 4º Passo -> Cadastra histórico
+            $dados = [
+                'id_pedido' => $idPedido,
+                'id_status' => 7,
+                'observacao' => 'O pedido foi aprovado por um gerente/diretor!'
+            ];
+
+            $historico = HistoricoPedidos::insert($dados); // Salvando
+
+            // 5º Passo -> Retornar resposta
+            if ($query) {
+                DB::commit();
+                return ['resposta' => 'Pedido aprovado com sucesso!', 'status' => Response::HTTP_OK];
+            } else {
+                return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+            }
+        } catch (\Exception $e) {
+            DB::rollback(); // Se uma exceção ocorrer durante as operações do banco de dados, fazemos o rollback
+
+            return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador!', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+
+            throw $e;
+        }
+    }
+
+    public function reprovarEmFluxo($id)
+    {
+        // 1º Passo -> Tirar Assinatura da Primeira assinatura mais baixa
+
     }
 }

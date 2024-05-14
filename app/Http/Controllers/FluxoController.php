@@ -20,4 +20,10 @@ class FluxoController extends Controller
         $query = $this->fluxoService->listarFluxo($id); // Método responsável por buscar fluxo de pedido
         return response()->json(['resposta' => $query['resposta'], 'fluxo' => $query['fluxo']], $query['status']);
     }
+
+    public function aprovarFluxo($id)
+    {
+        $query = $this->fluxoService->aprovarFluxo($id); // Método responsável por aprovar fluxo e enciar para aprovação
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
 }

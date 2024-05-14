@@ -3,13 +3,13 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AutenticacaoController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\FluxoController;
 use App\Http\Controllers\FuncionarioController;
 use App\Http\Controllers\LinkController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\StatusController;
-use App\Models\Fluxo;
 
 // Módulo de Autenticação
 Route::prefix("/autenticacao")->group(function () {
@@ -17,6 +17,7 @@ Route::prefix("/autenticacao")->group(function () {
         Route::post('/login', 'login');
         Route::post('/logout', 'logout');
         Route::get('/token', 'verificaToken')->middleware('jwt.auth');
+        Route::get('/listar-usuarios', 'listarUsuarios')->middleware('jwt.auth');
     });
 });
 
@@ -29,9 +30,11 @@ Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
         Route::get('/listar-monica', 'listarMonica');
         Route::get('/listar-aprovados', 'listarAprovados');
         Route::get('/listar-reprovados', 'listarReprovados');
+        Route::get('listar-gerente/{id?}', 'listarEmFluxo');
         Route::get('/listar-analise', 'listarAnalise');
         Route::put('/aprovar/{id}', 'aprovarPedido');
         Route::put('/aprovar-ressalva/{id}', 'aprovarRessalva');
+        Route::get('/aprovar-fluxo/{id?}', 'aprovarEmFluxo');
         Route::put('/reprovar/{id}', 'reprovarPedido');
         Route::delete('/deletar/{id}', 'deletaPedido');
         Route::post('/cadastrar', 'cadastraPedido');
@@ -49,6 +52,8 @@ Route::prefix('/links')->middleware('jwt.auth')->group(function () {
 Route::prefix('/empresas')->middleware('jwt.auth')->group(function () {
     Route::controller(EmpresaController::class)->group(function () {
         Route::get('/listar-empresas', 'listarEmpresas');
+        Route::post('/cadastrar-empresa', 'cadastrarEmpresa');
+        Route::delete('/deletar-empresa/{id}', 'deletarEmpresa');
     });
 });
 
@@ -78,5 +83,13 @@ Route::prefix('/chat')->middleware('jwt.auth')->group(function () {
 Route::prefix('/fluxo')->middleware('jwt.auth')->group(function () {
     Route::controller(FluxoController::class)->group(function () {
         Route::get('/listar-fluxo/{id?}', 'listarFluxo');
+        Route::put('/aprovar-fluxo/{id?}', 'aprovarFluxo');
+    });
+});
+
+// Módulo de Dashboard
+Route::prefix('dashboard')->middleware('jwt.auth')->group(function () {
+    Route::controller(DashboardController::class)->group(function () {
+        Route::get('/', 'listarInformacoes');
     });
 });

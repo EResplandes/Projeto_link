@@ -84,7 +84,19 @@ class PedidoController extends Controller
 
     public function cadastraPedido(Request $request)
     {
-        $query = $this->pedidoService->cadastraPedido($request);
+        $query = $this->pedidoService->cadastraPedido($request); // Metódo responsável por cadastrar pedido
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
+    public function listarEmFluxo($id)
+    {
+        $query = $this->pedidoService->listarEmFluxo($id); // Metódo responsável por listar pedidos em fluxo
+        return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
+    }
+
+    public function aprovarEmFluxo($id)
+    {
+        $query = $this->pedidoService->aprovaEmFluxo($id); // Metódo responsável por aprovar pedido que está em fluxo
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
 }

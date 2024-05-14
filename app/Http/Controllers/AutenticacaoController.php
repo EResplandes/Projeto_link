@@ -33,4 +33,10 @@ class AutenticacaoController extends Controller
         $query = $this->autenticacaoService->verificaToken(); // Valida Token
         return response()->json(['resposta' => $query['resposta']], $query['status']); // Retornando resposta
     }
+
+    public function listarUsuarios()
+    {
+        $query = $this->autenticacaoService->listar(); // Busca todos usuários
+        return response()->json(['response' => $query['resposta'], 'usuarios' => $query['usuarios']], $query['status']);
+    }
 }
