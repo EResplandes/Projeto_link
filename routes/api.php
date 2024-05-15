@@ -31,7 +31,6 @@ Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
         Route::get('/listar-reprovados', 'listarReprovados');
         Route::get('listar-gerente/{id?}', 'listarEmFluxo');
         Route::get('/listar-analise', 'listarAnalise');
-        Route::put('/aprovar/{id}', 'aprovarPedido');
         Route::put('/aprovar-ressalva/{id}', 'aprovarRessalva');
         Route::get('/aprovar-fluxo/{id?}', 'aprovarEmFluxo');
         Route::put('/reprovar/{id}', 'reprovarPedido');
@@ -44,9 +43,11 @@ Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
 // Rotas App Emival
 Route::prefix('/app')->group(function () {
     Route::controller(PedidoController::class)->group(function () {
-        Route::get('/listar-emival', 'listarEmival');
-        Route::put('/aprovar/{id}', 'aprovarPedido');
+        Route::get('/listarEmivalMenorQuinhentos', 'listarEmivalMenorQuinhentos');
+        Route::get('/listarEmivalMenorMil', 'listarEmivalMenorMil');
+        Route::get('/listarEmivalMaiorMil', 'listarEmivalMaiorMil');
         Route::put('/aprovar-ressalva/{id}', 'aprovarRessalva');
+        Route::put('/aprovar', 'aprovarPedido');
     });
 });
 

@@ -36,10 +36,16 @@ class PedidoService
         }
     }
 
-    public function listarEmival()
+    public function listarEmivalMenorQuinhentos()
     {
         // 1ª Passo -> Buscar todos os pedidos com status 1
-        $query = PedidoResource::collection(Pedido::where('id_status', 1)->where('id_link', 2)->orderBy('urgente', 'desc')->get());
+        $query = PedidoResource::collection(
+            Pedido::where('id_status', 1)
+                ->where('id_link', 2)
+                ->where('valor', '<', 500.01) // Filtro para valores abaixo de 500
+                ->orderBy('urgente', 'desc')
+                ->get()
+        );
 
         // 2º Passo -> Retornar resposta
         if ($query) {
@@ -48,6 +54,46 @@ class PedidoService
             return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
         }
     }
+
+    public function listarEmivalMenorMil()
+    {
+        // 1ª Passo -> Buscar todos os pedidos com status 1
+        $query = PedidoResource::collection(
+            Pedido::where('id_status', 1)
+                ->where('id_link', 2)
+                ->where('valor', '>', 500.01)
+                ->where('valor', '<', 1000.01) // Filtro para valores abaixo de 500
+                ->orderBy('urgente', 'desc')
+                ->get()
+        );
+
+        // 2º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Pedidos para o Dr. Emival Caiado!', 'pedidos' => $query, 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+    }
+
+    public function listarEmivalMaiorMil()
+    {
+        // 1ª Passo -> Buscar todos os pedidos com status 1
+        $query = PedidoResource::collection(
+            Pedido::where('id_status', 1)
+                ->where('id_link', 2)
+                ->where('valor', '>', 1000) // Filtro para valores abaixo de 500
+                ->orderBy('urgente', 'desc')
+                ->get()
+        );
+
+        // 2º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Pedidos para o Dr. Emival Caiado!', 'pedidos' => $query, 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+    }
+
 
     public function filtrarEmival($request)
     {
@@ -139,30 +185,54 @@ class PedidoService
         }
     }
 
-    public function aprovar($id)
+    public function aprovar($request)
     {
-
         DB::beginTransaction();
 
+        $pedidosArray = $request['pedidos'];
+        $pedidosArray = json_decode($pedidosArray, true); // Transformando JSON em Array
+
+        // dd($pedidosArray);
         try {
-            // 1º Passo -> Aprovar pedido
-            $query = Pedido::where('id', $id)->update(['id_status' => 4]);
+            // 1º Passo -> Itera sobre o array de objetos
+            foreach ($pedidosArray as $item) {
+                // Verifica se o status do pedido é 4
+                if ($item['status'] == 4) {
+                    // Atualiza o pedido na tabela Pedidos
+                    $insertPedido = Pedido::where('id', $item['id'])->update(['id_status' => 4]);
 
-            // 2º Passo -> Cadastrar no histórico os dados do pedido
-            $dados = [
-                'id_pedido' => $id,
-                'id_status' => 4,
-                'observacao' => 'Pedido aprovado!'
-            ];
+                    // Registrando no histórico
+                    $insertHistorico = HistoricoPedidos::insert([
+                        'id_pedido' => $item['id'],
+                        'id_status' => 4,
+                        'observacao' => 'O pedido foi aprovado pelo Dr. Emival!'
+                    ]);
 
-            // 3º Passo -> Registrando histórico
-            $queryHistorico = HistoricoPedidos::create($dados);
+                    DB::commit();
+                } else {
 
-            // 4º Passo -> Retornar resposta
-            if ($query && $queryHistorico) {
-                DB::commit(); //
-                return ['resposta' => 'Pedido aprovado com sucesso!', 'status' => Response::HTTP_OK];
+                    // 1º Passo -> Alterar dados do pedido para reprovado
+                    Pedido::where('id', $item['id'])->update(['id_status' => 3]);
+
+                    // 2º Passo -> Registrando no histórico
+                    HistoricoPedidos::create([
+                        'id_pedido' => $item['id'],
+                        'id_status' => 3,
+                        'observacao' => 'O pedido foi reprovado pelo Dr. Emival!'
+                    ]);
+
+                    // 3º Passo -> Inserir chat
+                    Chat::create([
+                        'id_pedido' => $item['id'],
+                        'id_usuario' => 1,
+                        'mensagem' => $item['mensagem']
+                    ]);
+                }
             }
+
+            DB::commit();
+
+            return ['resposta' => 'Pedidos aprovados com sucesso!', 'status' => Response::HTTP_OK];
         } catch (\Exception $e) {
             DB::rollback(); // Se uma exceção ocorrer durante as operações do banco de dados, fazemos o rollback
 

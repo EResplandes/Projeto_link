@@ -22,9 +22,21 @@ class PedidoController extends Controller
         return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
     }
 
-    public function listarEmival()
+    public function listarEmivalMenorQuinhentos()
     {
-        $query = $this->pedidoService->listarEmival(); // Metódo responsável por listar pedidos com status 1
+        $query = $this->pedidoService->listarEmivalMenorQuinhentos(); // Metódo responsável por listar pedidos com status 1 e valor abaixo de 500
+        return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
+    }
+
+    public function listarEmivalMenorMil()
+    {
+        $query = $this->pedidoService->listarEmivalMenorMil(); // Metódo responsável por listar pedidos com status 1 e valor entre 500,01 e 1000
+        return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
+    }
+
+    public function listarEmivalMaiorMil()
+    {
+        $query = $this->pedidoService->listarEmivalMaiorMil(); // Metódo responsável por listar pedidos com status 1 e valor maior que 1000
         return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
     }
 
@@ -58,9 +70,9 @@ class PedidoController extends Controller
         return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
     }
 
-    public function aprovarPedido($id)
+    public function aprovarPedido(Request $request)
     {
-        $query = $this->pedidoService->aprovar($id); // Metódo responsável por aprovar pedidos
+        $query = $this->pedidoService->aprovar($request); // Metódo responsável por aprovar pedidos
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
 
