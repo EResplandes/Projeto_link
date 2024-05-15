@@ -15,6 +15,7 @@ class HistoricoPedidos extends Model
         'id_pedido',
         'id_status',
         'observacao',
-        'created_at'
+        'created_at',
+        'updated_at'
     ];
 }

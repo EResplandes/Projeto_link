@@ -88,6 +88,12 @@ class PedidoController extends Controller
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
 
+    public function cadastraPedidoSemFluxo(Request $request)
+    {
+        $query = $this->pedidoService->cadastraPedidoSemFluxo($request); // Metódo responsável por cadastrar pedido
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
     public function listarEmFluxo($id)
     {
         $query = $this->pedidoService->listarEmFluxo($id); // Metódo responsável por listar pedidos em fluxo

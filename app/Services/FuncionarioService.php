@@ -5,6 +5,9 @@ namespace App\Services;
 use Illuminate\Http\Response;
 use App\Models\User;
 use App\Http\Resources\UserResource;
+use App\Http\Resources\UsersResource;
+use App\Models\Funcao;
+use App\Models\Grupo;
 
 class FuncionarioService
 {
@@ -34,4 +37,64 @@ class FuncionarioService
         }
     }
 
+    public function listarFuncionarios()
+    {
+        // 1º Passo -> Buscar todos usuários com suas respectivas permissões e funções
+        $query = UsersResource::collection(User::all());
+
+        // 2º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Usuários listados com sucesso!', "usuarios" => $query, 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'status' => Response::HTTP_BAD_REQUEST];
+        }
+    }
+
+    public function cadastrar($request)
+    {
+        // 1º Passo -> Montar array a ser inserido
+        $dados = [
+            'name' => $request->input('nome'),
+            'email' => $request->input('email'),
+            'password' => bcrypt('!Rialma2023'),
+            'id_funcao' => $request->input('id_funcao'),
+            'id_grupo' => $request->input('id_grupo')
+        ];
+
+        // 2ª Passo -> Cadastrar funcionário
+        $query = User::create($dados);
+
+        // 3ª Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Usuário criado com sucesso!', 'status' => Response::HTTP_CREATED];
+        } else {
+            return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'status' => Response::HTTP_BAD_REQUEST];
+        }
+    }
+
+    public function listarGrupos()
+    {
+        // 1ª Passo -> Buscar grupos
+        $query = Grupo::all();
+
+        // 2ª Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Grupos listados com sucesso!', 'grupos' => $query, 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'grupos' => null, 'status' => Response::HTTP_BAD_REQUEST];
+        }
+    }
+
+    public function listarFuncoes()
+    {
+        // 1ª Passo -> Buscar Funções
+        $query = Funcao::all();
+
+        // 2ª Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Funções listadas com sucesso!', 'funcoes' => $query, 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'funcoes' => null, 'status' => Response::HTTP_BAD_REQUEST];
+        }
+    }
 }

@@ -17,7 +17,6 @@ Route::prefix("/autenticacao")->group(function () {
         Route::post('/login', 'login');
         Route::post('/logout', 'logout');
         Route::get('/token', 'verificaToken')->middleware('jwt.auth');
-        Route::get('/listar-usuarios', 'listarUsuarios')->middleware('jwt.auth');
     });
 });
 
@@ -25,8 +24,8 @@ Route::prefix("/autenticacao")->group(function () {
 Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
     Route::controller(PedidoController::class)->group(function () {
         Route::get('/listar-pedidos', 'listarPedidos');
-        Route::get('/listar-emival', 'listarEmival');
         Route::get('/filtro-emival', 'listarEmivalFiltro');
+        Route::get('/listar-emival', 'listarEmival');
         Route::get('/listar-monica', 'listarMonica');
         Route::get('/listar-aprovados', 'listarAprovados');
         Route::get('/listar-reprovados', 'listarReprovados');
@@ -38,6 +37,16 @@ Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
         Route::put('/reprovar/{id}', 'reprovarPedido');
         Route::delete('/deletar/{id}', 'deletaPedido');
         Route::post('/cadastrar', 'cadastraPedido');
+        Route::post('/cadastrar-sem-fluxo', 'cadastraPedidoSemFluxo');
+    });
+});
+
+// Rotas App Emival
+Route::prefix('/app')->group(function () {
+    Route::controller(PedidoController::class)->group(function () {
+        Route::get('/listar-emival', 'listarEmival');
+        Route::put('/aprovar/{id}', 'aprovarPedido');
+        Route::put('/aprovar-ressalva/{id}', 'aprovarRessalva');
     });
 });
 
@@ -62,6 +71,10 @@ Route::prefix('/funcionarios')->middleware('jwt.auth')->group(function () {
     Route::controller(FuncionarioController::class)->group(function () {
         Route::get('/listar-gerentes', 'listarGerentes');
         Route::get('/listar-diretores', 'listarDiretores');
+        Route::get('/listar-funcionarios', 'listarFuncionarios');
+        Route::get('/listar-grupos', 'listarGrupos');
+        Route::get('listar-funcoes', 'listarFuncoes');
+        Route::post('/cadastrar-funcionario', 'cadastrarFuncionario');
     });
 });
 

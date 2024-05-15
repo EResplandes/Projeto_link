@@ -23,7 +23,7 @@ class PedidosQuery
 
         // 3º Passo -> Verificar se ainda existe fluxo não aprovado referente a esse pedido
         if ($query > 0) {
-            return 'Pedido com fluxo pedente!';
+            return true;
         } else {
 
             // Mônica

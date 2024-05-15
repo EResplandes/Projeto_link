@@ -259,23 +259,14 @@ class PedidoService
 
     public function deletaPedido($id)
     {
-
         DB::beginTransaction();
 
         try {
-            // 1º Passo -> Deletar informações do pedido presentes na tabela historico_pedidos
-            $historicoPedidos = HistoricoPedidos::where('id_pedido', $id)->get();
-
-            // Itera sobre os registros e os exclui individualmente
-            foreach ($historicoPedidos as $historicoPedido) {
-                $historicoPedido->delete();
-            }
-
-            // 2º Passo -> Deletar pedido
+            // 1º Passo -> Deletar pedido
             $query = Pedido::where('id', $id)
-                ->delete();
+                ->update(['id_status' => 8]);
 
-            // 3º Passo -> Retornar resposta
+            // 2º Passo -> Retornar resposta
             if ($query) {
                 DB::commit();
                 return ['resposta' => 'Pedido excluído com sucesso!', 'status' => Response::HTTP_OK];
@@ -297,13 +288,15 @@ class PedidoService
         // 1º Passo -> Salvar arquivo e pegar hash gerado
         $directory = "/pedidos"; // Criando diretório
 
-        $pdf = $request->file('anexo')->store($directory, 'public'); // Salvando imagem do produto
+        $pdf = $request->file('anexo')->store($directory, 'public'); // Salvando pdf do pedido
 
         // 2º Passo -> Montar array a ser inserido
+        $urgente = $request->input('urgente') ? 1 : 0;
+
         $dadosPedido = [
             'descricao' => $request->input('descricao'),
             'valor' => $request->input('valor'),
-            'urgente' => $request->input('urgente'),
+            'urgente' => $urgente,
             'anexo' => $pdf,
             'id_link' => $request->input('id_link'),
             'id_empresa' => $request->input('id_empresa'),
@@ -367,6 +360,63 @@ class PedidoService
         }
     }
 
+    public function cadastraPedidoSemFluxo($request)
+    {
+        // 1º Passo -> Salvar arquivo e pegar hash gerado
+        $directory = "/pedidos"; // Criando diretório
+
+        $pdf = $request->file('anexo')->store($directory, 'public'); // Salvando pdf do pedido
+
+        // 2º Passo -> Montar array a ser inserido
+        $idLink = $request->input('id_link');
+        $idStatus = ($idLink == 2) ? 1 : 2;
+        $urgente = $request->input('urgente') ? 1 : 0;
+
+        $dadosPedido = [
+            'descricao' => $request->input('descricao'),
+            'valor' => $request->input('valor'),
+            'urgente' => $urgente,
+            'anexo' => $pdf,
+            'id_link' => $idLink,
+            'id_empresa' => $request->input('id_empresa'),
+            'id_status' => $idStatus
+        ];
+
+        DB::beginTransaction();
+
+        try {
+
+            // 3º Passo -> Cadastrar pedido
+            $queryPedido = Pedido::create($dadosPedido);
+
+            $idPedido = $queryPedido->id;
+
+            // 5º Passo -> Cadastrar no historico_pedido
+            $dadosHistorico = [
+                'id_pedido' => $idPedido,
+                'id_status' => $idStatus,
+                'observacao' => 'O pedido foi enviado para o status ' . $idStatus
+            ];
+
+            HistoricoPedidos::create($dadosHistorico); // Inserindo log
+
+            if ($queryPedido) {
+                DB::commit();
+                return ['resposta' => 'Pedido cadastrado com sucesso!', 'status' => Response::HTTP_CREATED];
+            } else {
+                return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador!', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+            }
+
+            // 5º Passo -> Retornar resposta
+        } catch (\Exception $e) {
+            DB::rollback(); // Se uma exceção ocorrer durante as operações do banco de dados, fazemos o rollback
+
+            return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador!', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+
+            throw $e;
+        }
+    }
+
     public function listarEmFluxo($id)
     {
         // 1º Passo -> Buscar pedidos
@@ -397,12 +447,12 @@ class PedidoService
 
             // 4º Passo -> Cadastra histórico
             $dados = [
-                'id_pedido' => $idPedido,
+                'id_pedido' => $idPedido[0],
                 'id_status' => 7,
                 'observacao' => 'O pedido foi aprovado por um gerente/diretor!'
             ];
 
-            $historico = HistoricoPedidos::insert($dados); // Salvando
+            $historico = HistoricoPedidos::create($dados); // Salvando
 
             // 5º Passo -> Retornar resposta
             if ($query) {
