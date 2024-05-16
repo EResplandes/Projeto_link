@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Services\PedidoService;
 use App\Http\Requests\PedidoRequest;
+use App\Http\Requests\PedidoSemFluxoRequest;
+use App\Http\Requests\PedidoComFluxoRequest;
+use Symfony\Component\HttpFoundation\Response;
 
 class PedidoController extends Controller
 {
@@ -19,6 +22,12 @@ class PedidoController extends Controller
     public function listarPedidos()
     {
         $query = $this->pedidoService->listar(); // Metódo responsável por listar pedidos
+        return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
+    }
+
+    public function listarEmival()
+    {
+        $query = $this->pedidoService->listarEmival(); // Metódo responsável por listar todos pedidos com Emival
         return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
     }
 

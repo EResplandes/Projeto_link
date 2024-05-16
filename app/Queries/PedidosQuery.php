@@ -36,7 +36,7 @@ class PedidosQuery
                     'observacao' => 'O pedido foi enviado para Dr. Mônica!'
                 ];
 
-                $historico = HistoricoPedidos::insert($dados);
+                $historico = HistoricoPedidos::create($dados);
 
                 return true;
             } else {
@@ -48,7 +48,7 @@ class PedidosQuery
                     'observacao' => 'O pedido foi enviado para Dr. Emival!'
                 ];
 
-                $historico = HistoricoPedidos::insert($dados);
+                $historico = HistoricoPedidos::create($dados);
 
                 return true;
             }

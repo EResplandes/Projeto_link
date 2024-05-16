@@ -36,6 +36,22 @@ class PedidoService
         }
     }
 
+    public function listarEmival()
+    {
+        // 1ª Passo -> Buscar todos os pedidos que estão com Dr. Emival
+        $query = PedidoResource::collection(
+            Pedido::where('id_status', 1)
+                ->where('id_link', 2)
+                ->orderBy('urgente', 'desc')
+                ->get()
+        );
+
+        // 2º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Pedidos listados com sucesso!', 'pedidos' => $query, 'status' => Response::HTTP_OK];
+        }
+    }
+
     public function listarEmivalMenorQuinhentos()
     {
         // 1ª Passo -> Buscar todos os pedidos com status 1
@@ -190,9 +206,8 @@ class PedidoService
         DB::beginTransaction();
 
         $pedidosArray = $request['pedidos'];
-        $pedidosArray = json_decode($pedidosArray, true); // Transformando JSON em Array
+        // $pedidosArray = json_decode($pedidosArray, true); // Transformando JSON em Array
 
-        // dd($pedidosArray);
         try {
             // 1º Passo -> Itera sobre o array de objetos
             foreach ($pedidosArray as $item) {
@@ -202,7 +217,7 @@ class PedidoService
                     $insertPedido = Pedido::where('id', $item['id'])->update(['id_status' => 4]);
 
                     // Registrando no histórico
-                    $insertHistorico = HistoricoPedidos::insert([
+                    $insertHistorico = HistoricoPedidos::create([
                         'id_pedido' => $item['id'],
                         'id_status' => 4,
                         'observacao' => 'O pedido foi aprovado pelo Dr. Emival!'
@@ -432,29 +447,33 @@ class PedidoService
 
     public function cadastraPedidoSemFluxo($request)
     {
-        // 1º Passo -> Salvar arquivo e pegar hash gerado
-        $directory = "/pedidos"; // Criando diretório
-
-        $pdf = $request->file('anexo')->store($directory, 'public'); // Salvando pdf do pedido
-
-        // 2º Passo -> Montar array a ser inserido
-        $idLink = $request->input('id_link');
-        $idStatus = ($idLink == 2) ? 1 : 2;
-        $urgente = $request->input('urgente') ? 1 : 0;
-
-        $dadosPedido = [
-            'descricao' => $request->input('descricao'),
-            'valor' => $request->input('valor'),
-            'urgente' => $urgente,
-            'anexo' => $pdf,
-            'id_link' => $idLink,
-            'id_empresa' => $request->input('id_empresa'),
-            'id_status' => $idStatus
-        ];
-
         DB::beginTransaction();
 
         try {
+            // Validando envio de anexo
+            if (!$request->file('anexo')) {
+                // return ['resposta' => 'O envio do ANEXO é obrigatório!', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+            }
+
+            // 1º Passo -> Salvar arquivo e pegar hash gerado
+            $directory = "/pedidos"; // Criando diretório
+
+            $pdf = $request->file('anexo')->store($directory, 'public'); // Salvando pdf do pedido
+
+            // 2º Passo -> Montar array a ser inserido
+            $idLink = $request->input('id_link');
+            $idStatus = ($idLink == 2) ? 1 : 2;
+            $urgente = $request->input('urgente') ? 1 : 0;
+
+            $dadosPedido = [
+                'descricao' => $request->input('descricao'),
+                'valor' => $request->input('valor'),
+                'urgente' => $urgente,
+                'anexo' => $pdf,
+                'id_link' => $idLink,
+                'id_empresa' => $request->input('id_empresa'),
+                'id_status' => $idStatus
+            ];
 
             // 3º Passo -> Cadastrar pedido
             $queryPedido = Pedido::create($dadosPedido);

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('descricao');
             $table->float('valor');
             $table->boolean('urgente')->nullable();
+            $table->date('dt_vencimento')->nullable();
             $table->string('anexo');
             $table->unsignedBigInteger('id_link');
             $table->unsignedBigInteger('id_status');
