@@ -13,8 +13,8 @@ class Fluxo extends Model
 
     protected $fillable = [
         'id_pedido',
-        'id_status',
-        'observacao',
+        'id_usuario',
+        'assinado',
         'created_at'
     ];
 

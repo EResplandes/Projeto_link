@@ -58,7 +58,9 @@ class FuncionarioService
             'email' => $request->input('email'),
             'password' => bcrypt('!Rialma2023'),
             'id_funcao' => $request->input('id_funcao'),
-            'id_grupo' => $request->input('id_grupo')
+            'id_grupo' => $request->input('id_grupo'),
+            'primeiro_acesso' => 1,
+            'status' => "Ativo"
         ];
 
         // 2ª Passo -> Cadastrar funcionário
@@ -95,6 +97,36 @@ class FuncionarioService
             return ['resposta' => 'Funções listadas com sucesso!', 'funcoes' => $query, 'status' => Response::HTTP_OK];
         } else {
             return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'funcoes' => null, 'status' => Response::HTTP_BAD_REQUEST];
+        }
+    }
+
+    public function listarResponsaveis()
+    {
+        // 1º Passo -> Buscar todos usuários com suas respectivas permissões e funções
+        $query = UsersResource::collection(
+            User::whereIn('id_funcao', [2, 3])
+                ->get()
+        );
+
+        // 2º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Funcionários listados com sucesso!', "funcionarios" => $query, 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'status' => Response::HTTP_BAD_REQUEST];
+        }
+    }
+
+    public function desativaFuncionario($id)
+    {
+
+        // 1ª Passo -> Desativar Funcionário
+        $query = User::where('id', $id)->update(['status' => 'Desativado']);
+
+        // 2º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Funcionário desativado com sucesso!', 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'status' => Response::HTTP_BAD_REQUEST];
         }
     }
 }

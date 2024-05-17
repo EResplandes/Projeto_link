@@ -8,6 +8,7 @@ use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\FluxoController;
 use App\Http\Controllers\FuncionarioController;
 use App\Http\Controllers\LinkController;
+use App\Http\Controllers\LocalController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\StatusController;
 
@@ -30,6 +31,7 @@ Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
         Route::get('/listar-aprovados', 'listarAprovados');
         Route::get('/listar-reprovados', 'listarReprovados');
         Route::get('listar-gerente/{id?}', 'listarEmFluxo');
+        Route::get('/listar-justificar', 'listarJustificar');
         Route::get('/listar-analise', 'listarAnalise');
         Route::put('/aprovar-ressalva/{id}', 'aprovarRessalva');
         Route::get('/aprovar-fluxo/{id?}', 'aprovarEmFluxo');
@@ -72,10 +74,12 @@ Route::prefix('/funcionarios')->middleware('jwt.auth')->group(function () {
     Route::controller(FuncionarioController::class)->group(function () {
         Route::get('/listar-gerentes', 'listarGerentes');
         Route::get('/listar-diretores', 'listarDiretores');
+        Route::get('/listar-responsaveis', 'listarResponsaveis');
         Route::get('/listar-funcionarios', 'listarFuncionarios');
         Route::get('/listar-grupos', 'listarGrupos');
         Route::get('listar-funcoes', 'listarFuncoes');
         Route::post('/cadastrar-funcionario', 'cadastrarFuncionario');
+        Route::put('/desativa-funcionario/{id?}', 'desativaFuncionario');
     });
 });
 
@@ -90,6 +94,7 @@ Route::prefix('/status')->middleware('jwt.auth')->group(function () {
 Route::prefix('/chat')->middleware('jwt.auth')->group(function () {
     Route::controller(ChatController::class)->group(function () {
         Route::get('/listar-conversa/{id?}', 'buscaConversa');
+        Route::post('/enviar-mensagem', 'enviarMensagem');
     });
 });
 
@@ -98,6 +103,7 @@ Route::prefix('/fluxo')->middleware('jwt.auth')->group(function () {
     Route::controller(FluxoController::class)->group(function () {
         Route::get('/listar-fluxo/{id?}', 'listarFluxo');
         Route::put('/aprovar-fluxo/{id?}', 'aprovarFluxo');
+        Route::post('/cadastrar-fluxo', 'cadastrarFluxo');
     });
 });
 
@@ -105,5 +111,12 @@ Route::prefix('/fluxo')->middleware('jwt.auth')->group(function () {
 Route::prefix('dashboard')->middleware('jwt.auth')->group(function () {
     Route::controller(DashboardController::class)->group(function () {
         Route::get('/', 'listarInformacoes');
+    });
+});
+
+// Módulo de Local
+Route::prefix('local')->middleware('jwt.auth')->group(function () {
+    Route::controller(LocalController::class)->group(function () {
+        Route::get('/listar-locais', 'listarLocais');
     });
 });

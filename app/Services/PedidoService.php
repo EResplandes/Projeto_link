@@ -26,7 +26,10 @@ class PedidoService
     public function listar()
     {
         // 1º Passo -> Buscar todos os pedidos cadastrados
-        $query = PedidoResource::collection(Pedido::orderBy('created_at', 'desc')->get());
+        $query = PedidoResource::collection(
+            Pedido::orderBy('created_at', 'desc')
+                ->get()
+        );
 
         // 2º Passo -> Retornar resposta
         if ($query) {
@@ -34,6 +37,38 @@ class PedidoService
         } else {
             return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
         }
+    }
+
+    public function listarJustificar($request)
+    {
+        /* Pegar todos pedidos com status de Em fluxo no caso 6 onde não estão assinados e que tem registro na tabela historico_pedidos com status 9 */
+
+        // 1º Passo -> Pegar pedidos com necessidade de justificativa
+        $fluxo = Fluxo::where('id_usuario', $request->query('id_usuario'))
+            ->where('assinado', 0)
+            ->get();
+
+        $idsPedidos = $fluxo->pluck('id_pedido')->all();
+
+        $pedidosValidos = HistoricoPedidos::whereIn('id_pedido', $idsPedidos)
+            ->where('id_status', 9)
+            ->pluck('id_pedido')
+            ->all();
+
+        // Filtra os pedidos originais com base na verificação
+        $pedidosFiltrados = $fluxo->filter(function ($pedido) use ($pedidosValidos) {
+            return in_array($pedido->id_pedido, $pedidosValidos);
+        });
+
+        // Coleta os dados completos dos pedidos válidos
+        $resultados = $pedidosFiltrados->map(function ($pedido) {
+            return new PedidoResource(Pedido::where('id', $pedido->id_pedido)->orderBy('created_at', 'desc')->first());
+        });
+
+        // Converte a coleção de pedidos em uma matriz
+        $pedidosArray = $resultados->values()->all();
+
+        return ['resposta' => 'Pedidos listados com sucesso!', 'pedidos' => $pedidosArray, 'status' => Response::HTTP_OK];
     }
 
     public function listarEmival()
@@ -382,11 +417,16 @@ class PedidoService
             'descricao' => $request->input('descricao'),
             'valor' => $request->input('valor'),
             'urgente' => $urgente,
+            'dt_vencimento' => $request->input('dt_vencimento'),
             'anexo' => $pdf,
             'id_link' => $request->input('id_link'),
             'id_empresa' => $request->input('id_empresa'),
-            'id_status' => 6
+            'id_status' => 6,
+            'id_criador' => $request->input('id_criador'),
+            'id_local' => $request->input('id_local'),
+            'tipo_pedido' => 'Com Fluxo'
         ];
+
 
         DB::beginTransaction();
 
@@ -469,10 +509,14 @@ class PedidoService
                 'descricao' => $request->input('descricao'),
                 'valor' => $request->input('valor'),
                 'urgente' => $urgente,
+                'dt_vencimento' => $request->input('dt_vencimento'),
                 'anexo' => $pdf,
                 'id_link' => $idLink,
                 'id_empresa' => $request->input('id_empresa'),
-                'id_status' => $idStatus
+                'id_status' => $idStatus,
+                'id_criador' => 7,
+                'id_local' => $request->input('id_local'),
+                'tipo_pedido' => 'Sem Fluxo'
             ];
 
             // 3º Passo -> Cadastrar pedido

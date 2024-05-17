@@ -26,4 +26,11 @@ class FluxoController extends Controller
         $query = $this->fluxoService->aprovarFluxo($id); // Método responsável por aprovar fluxo e enciar para aprovação
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
+
+    public function cadastrarFluxo(Request $request)
+    {
+        $query = $this->fluxoService->cadastrarFluxo($request); // Metódo responsável por cadastrar fluxo
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
 }

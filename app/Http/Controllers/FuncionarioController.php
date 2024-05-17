@@ -46,9 +46,21 @@ class FuncionarioController extends Controller
         return response()->json(['resposta' => $query['resposta'], 'funcoes' => $query['funcoes']], $query['status']);
     }
 
-    public function cadastrarFuncionario(FuncionarioRequest $request)
+    public function cadastrarFuncionario(Request $request)
     {
         $query = $this->funcionarioService->cadastrar($request); // Metódo responsável por cadastrar funcinpario/usuário
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
+    public function listarResponsaveis()
+    {
+        $query = $this->funcionarioService->listarResponsaveis(); // Metódo reponsável por listar responsáveis como gerente e diretores
+        return response()->json(['resposta' => $query['resposta'], 'funcionarios' => $query['funcionarios']], $query['status']);
+    }
+
+    public function desativaFuncionario($id)
+    {
+        $query = $this->funcionarioService->desativaFuncionario($id); // Metódo responsável por desativar funcionário
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
 }

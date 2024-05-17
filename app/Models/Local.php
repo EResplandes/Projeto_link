@@ -5,18 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class HistoricoPedidos extends Model
+class Local extends Model
 {
     use HasFactory;
 
-    protected $table = 'historico_pedidos';
+    protected $table = 'local';
 
     protected $fillable = [
-        'id_pedido',
-        'id_status',
-        'observacao',
-        'created_at',
-        'updated_at'
+        'local',
+        'created_at'
     ];
 
+    protected $hiddem = [
+        'updated_at'
+    ];
 }

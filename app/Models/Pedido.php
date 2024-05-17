@@ -18,7 +18,11 @@ class Pedido extends Model
         'anexo',
         'id_link',
         'id_status',
-        'id_empresa'
+        'id_empresa',
+        'id_criador',
+        'id_local',
+        'tipo_pedido',
+        'dt_vencimento'
     ];
 
     protected $hidden = ['updated_at'];
@@ -38,4 +42,13 @@ class Pedido extends Model
         return $this->belongsTo(Link::class, 'id_link');
     }
 
+    public function local()
+    {
+        return $this->belongsTo(Local::class, 'id_local');
+    }
+
+    public function historicos()
+    {
+        return $this->hasMany(HistoricoPedidos::class, 'id_pedido');
+    }
 }
