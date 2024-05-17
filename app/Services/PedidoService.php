@@ -514,7 +514,7 @@ class PedidoService
                 'id_link' => $idLink,
                 'id_empresa' => $request->input('id_empresa'),
                 'id_status' => $idStatus,
-                'id_criador' => 7,
+                'id_criador' => $request->input('id_criador'),
                 'id_local' => $request->input('id_local'),
                 'tipo_pedido' => 'Sem Fluxo'
             ];
