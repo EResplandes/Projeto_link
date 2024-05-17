@@ -138,4 +138,11 @@ class PedidoController extends Controller
         $query = $this->pedidoService->aprovarPedidoAcima($id); // Metódo responsável por aprovar pedido separado
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
+
+    public function listarQuantidades()
+    {
+        $query = $this->pedidoService->listarQuantidades(); // Metódo responsável por listar quantidades de cada tipo de pedido
+        return response()->json(['resposta' => $query['resposta'], 'quantidades' => $query['quantidades']], $query['status']);
+    }
+
 }
