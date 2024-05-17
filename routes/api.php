@@ -50,6 +50,7 @@ Route::prefix('/app')->group(function () {
         Route::get('/listarEmivalMaiorMil', 'listarEmivalMaiorMil');
         Route::put('/aprovar-ressalva/{id}', 'aprovarRessalva');
         Route::put('/aprovar', 'aprovarPedido');
+        Route::put('/aprovar-acima/{id}', 'aprovarPedidoAcima');
     });
 });
 

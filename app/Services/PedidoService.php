@@ -603,9 +603,33 @@ class PedidoService
         }
     }
 
-    public function reprovarEmFluxo($id)
+    public function aprovarPedidoAcima($id)
     {
-        // 1º Passo -> Tirar Assinatura da Primeira assinatura mais baixa
 
+        DB::beginTransaction();
+
+        try {
+            // 1º Passo -> Aprovar pedido de acordo com id
+            $query = Pedido::find($id);
+            $query->id_status = 4;
+            $query->save();
+
+            // 2º Passo -> Gerar histórioco retornando id do histórico_gerado para possível delete
+            $id_historico = HistoricoPedidos::create([
+                'id_pedido' => $id,
+                'id_status' => 4,
+                'observacao' => 'Pedido aprovado'
+            ]);
+
+            // 3º Passo -> Retornar resposta
+            DB::commit();
+            return ['resposta' => 'Pedido aprovado com sucesso', 'status' => Response::HTTP_OK];
+        } catch (\Exception $e) {
+            DB::rollback(); // Se uma exceção ocorrer durante as operações do banco de dados, fazemos o rollback
+
+            return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador!', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+
+            throw $e;
+        }
     }
 }

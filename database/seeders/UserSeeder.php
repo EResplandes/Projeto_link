@@ -11,15 +11,21 @@ class UserSeeder extends Seeder
 {
     public function run()
     {
-        // Exemplo de criação de um usuário
+
         User::create([
-            'name' => 'Danilo',
-            'email' => 'danilo@gmail.com',
-            'password' => bcrypt('123456'),
+            'name' => 'Emival Caiado',
+            'email' => 'emival@gruporialma.com.br',
+            'password' => bcrypt('Super@2018'),
+            'id_funcao' => 5, // ID da função do usuário
+            'id_grupo' => 5, // ID do grupo do usuário
+        ]);
+
+        User::create([
+            'name' => 'Eduardo C. Resplandes',
+            'email' => 'eduardo.resplandes@gruporialma.com.br',
+            'password' => bcrypt('Super@2018'),
             'id_funcao' => 1, // ID da função do usuário
             'id_grupo' => 1, // ID do grupo do usuário
         ]);
-
-        // Adicione mais chamadas para o método create() para inserir mais usuários se necessário
     }
 }
