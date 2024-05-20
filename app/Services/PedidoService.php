@@ -9,6 +9,7 @@ use App\Models\Chat;
 use App\Http\Resources\PedidoResource;
 use App\Http\Resources\PedidoFluxoResource;
 use App\Http\Resources\FluxoPedidoResource;
+use App\Http\Resources\FluxoAprovadoResource;
 use Illuminate\Support\Facades\DB;
 use App\Queries\PedidosQuery;
 use App\Models\Fluxo;
@@ -503,12 +504,11 @@ class PedidoService
             // 2º Passo -> Montar array a ser inserido
             $idLink = $request->input('id_link');
             $idStatus = ($idLink == 2) ? 1 : 2;
-            $urgente = $request->input('urgente') ? 1 : 0;
 
             $dadosPedido = [
                 'descricao' => $request->input('descricao'),
                 'valor' => $request->input('valor'),
-                'urgente' => $urgente,
+                'urgente' => $request->input('urgente'),
                 'dt_vencimento' => $request->input('dt_vencimento'),
                 'anexo' => $pdf,
                 'id_link' => $idLink,
@@ -531,7 +531,8 @@ class PedidoService
                 'observacao' => 'O pedido foi enviado para o status ' . $idStatus
             ];
 
-            HistoricoPedidos::create($dadosHistorico); // Inserindo log
+
+            $teste = HistoricoPedidos::create($dadosHistorico); // Inserindo log
 
             if ($queryPedido) {
                 DB::commit();
@@ -544,7 +545,7 @@ class PedidoService
         } catch (\Exception $e) {
             DB::rollback(); // Se uma exceção ocorrer durante as operações do banco de dados, fazemos o rollback
 
-            return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador!', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+            return ['resposta' => $e, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
 
             throw $e;
         }
@@ -667,6 +668,51 @@ class PedidoService
             DB::rollback(); // Se uma exceção ocorrer durante as operações do banco de dados, fazemos o rollback
 
             return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador!', 'quantidade' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+
+            throw $e;
+        }
+    }
+
+    public function listarPedidosAprovados($id)
+    {
+        try {
+            // 1º Passo -> Buscar todos pedido aprovador de acordo com id do usuário logado com status 4
+            $pedidos = PedidoResource::collection(
+                Pedido::where('id_criador', $id)
+                    ->where('id_status', 4)
+                    ->get()
+            );
+
+            // 2º Passo -> Retornar resposta
+            return ['resposta' => 'Pedidos listado com sucesso!', 'pedidos' => $pedidos, 'status' => Response::HTTP_OK];
+        } catch (\Exception $e) {
+
+            return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador!', 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+
+            throw $e;
+        }
+    }
+
+    public function buscaInformacoesPedido($id)
+    {
+        try {
+            // 1º Passo -> Buscar informações do pedido
+            $pedido = PedidoResource::collection(
+                Pedido::where('id', $id)
+                    ->get()
+            );
+
+            // 2º Passo -> Buscar informações na tabela fluxo para ver quando foi aprovado
+            $query = FluxoAprovadoResource::collection(
+                Fluxo::where('id_pedido', $id)
+                    ->get()
+            );
+
+            // 3º Passo -> Retornar resposta
+            return ['resposta' => 'Informações listadas com sucesso!', 'pedido' => $pedido, 'informacoes' => $query, 'status' => Response::HTTP_OK];
+        } catch (\Exception $e) {
+
+            return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador!', 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
 
             throw $e;
         }

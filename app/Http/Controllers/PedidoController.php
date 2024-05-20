@@ -9,6 +9,8 @@ use App\Http\Requests\PedidoSemFluxoRequest;
 use App\Http\Requests\PedidoComFluxoRequest;
 use Symfony\Component\HttpFoundation\Response;
 
+use function PHPUnit\Framework\returnSelf;
+
 class PedidoController extends Controller
 {
 
@@ -145,4 +147,15 @@ class PedidoController extends Controller
         return response()->json(['resposta' => $query['resposta'], 'quantidades' => $query['quantidades']], $query['status']);
     }
 
+    public function listarPedidosAprovados($id)
+    {
+        $query = $this->pedidoService->listarPedidosAprovados($id); // Metódo responsável por listar pedidos aprovados de acordo com id do usupario que criou
+        return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
+    }
+
+    public function buscaInformacoesPedido($id)
+    {
+        $query = $this->pedidoService->buscaInformacoesPedido($id); // Metódo responsável por buscar informações de um pedido de acordo com id do pedido
+        return response()->json(['resposta' => $query['resposta'], 'pedido' => $query['pedido'], 'informacoes' => $query['informacoes']], $query['status']);
+    }
 }
