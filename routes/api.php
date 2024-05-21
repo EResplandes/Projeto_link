@@ -29,7 +29,7 @@ Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
         Route::get('/listar-emival', 'listarEmival');
         Route::get('/listar-monica', 'listarMonica');
         Route::get('/listar-aprovados', 'listarAprovados');
-        Route::get('/listar-reprovados', 'listarReprovados');
+        Route::get('/listar-reprovado/{id?}', 'listarReprovados');
         Route::get('listar-gerente/{id?}', 'listarEmFluxo');
         Route::get('/listar-justificar', 'listarJustificar');
         Route::get('/listar-analise', 'listarAnalise');
@@ -41,6 +41,7 @@ Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
         Route::post('/cadastrar-sem-fluxo', 'cadastraPedidoSemFluxo');
         Route::get('/pedidos-aprovados/{id}', 'listarPedidosAprovados');
         Route::get('/informacoes-pedido/{id}', 'buscaInformacoesPedido');
+        Route::post('/responde-reprovado/{id}', 'respondeReprovacaoComAnexo');
     });
 });
 

@@ -69,9 +69,9 @@ class PedidoController extends Controller
         return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
     }
 
-    public function listarReprovados()
+    public function listarReprovados($id)
     {
-        $query = $this->pedidoService->listarReprovados(); // Metódo responsável por listar pedidos com status 3
+        $query = $this->pedidoService->listarReprovados($id); // Metódo responsável por listar pedidos com status 3
         return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
     }
 
@@ -157,5 +157,11 @@ class PedidoController extends Controller
     {
         $query = $this->pedidoService->buscaInformacoesPedido($id); // Metódo responsável por buscar informações de um pedido de acordo com id do pedido
         return response()->json(['resposta' => $query['resposta'], 'pedido' => $query['pedido'], 'informacoes' => $query['informacoes']], $query['status']);
+    }
+
+    public function respondeReprovacaoComAnexo(Request $request, $id)
+    {
+        $query = $this->pedidoService->respondeReprovacaoComAnexo($request, $id); // Metódo responsável por responder pedidos reprovados pelo Dr. Emival ou Dr. Monica
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
 }
