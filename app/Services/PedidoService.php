@@ -252,38 +252,36 @@ class PedidoService
         try {
             // 1º Passo -> Itera sobre o array de objetos
             foreach ($pedidosArray as $item) {
-                // Verifica se o status do pedido é 4
-                if ($item['status'] == 4) {
-                    // Atualiza o pedido na tabela Pedidos
-                    $insertPedido = Pedido::where('id', $item['id'])->update(['id_status' => 4]);
 
-                    // Registrando no histórico
-                    $insertHistorico = HistoricoPedidos::create([
-                        'id_pedido' => $item['id'],
-                        'id_status' => 4,
-                        'observacao' => 'O pedido foi aprovado pelo Dr. Emival!'
-                    ]);
+                $observacao = '';
 
-                    DB::commit();
-                } else {
-
-                    // 1º Passo -> Alterar dados do pedido para reprovado
-                    Pedido::where('id', $item['id'])->update(['id_status' => 3]);
-
-                    // 2º Passo -> Registrando no histórico
-                    HistoricoPedidos::create([
-                        'id_pedido' => $item['id'],
-                        'id_status' => 3,
-                        'observacao' => 'O pedido foi reprovado pelo Dr. Emival!'
-                    ]);
-
-                    // 3º Passo -> Inserir chat
-                    Chat::create([
-                        'id_pedido' => $item['id'],
-                        'id_usuario' => 1,
-                        'mensagem' => $item['mensagem']
-                    ]);
+                switch ($item['status']) {
+                    case 3:
+                        $observacao = 'O pedido foi reprovado pelo Dr. Emival!';
+                        break;
+                    case 4:
+                        $observacao = 'O pedido foi aprovado pelo Dr. Emival!';
+                        break;
+                    case 5:
+                        $observacao = 'O pedido foi aprovado com ressalva pelo Dr. Emival!';
+                        break;
                 }
+
+                $insertPedido = Pedido::where('id', $item['id'])->update(['id_status' => $item['status']]);
+
+                // Registrando no histórico
+                $insertHistorico = HistoricoPedidos::create([
+                    'id_pedido' => $item['id'],
+                    'id_status' => $item['status'],
+                    'observacao' => $observacao
+                ]);
+
+                Chat::create([
+                    'id_pedido' => $item['id'],
+                    'id_usuario' => 1,
+                    'mensagem' => $item['mensagem']
+                ]);
+
             }
 
             DB::commit();
