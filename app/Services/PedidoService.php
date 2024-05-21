@@ -10,6 +10,7 @@ use App\Http\Resources\PedidoResource;
 use App\Http\Resources\PedidoFluxoResource;
 use App\Http\Resources\FluxoPedidoResource;
 use App\Http\Resources\FluxoAprovadoResource;
+use App\Http\Resources\PedidoAprovadoResource;
 use Illuminate\Support\Facades\DB;
 use App\Queries\PedidosQuery;
 use App\Models\Fluxo;
@@ -211,10 +212,14 @@ class PedidoService
         }
     }
 
-    public function listarReprovados()
+    public function listarReprovados($id)
     {
         // 1º Passo -> Buscar pedidos com status 3
-        $query = PedidoResource::collection(Pedido::where('id_status', 3)->get());
+        $query = PedidoResource::collection(
+            Pedido::where('id_status', 3)
+                ->where('id_criador', $id)
+                ->get()
+        );
 
         // 2º Passo -> Retornar resposta
         if ($query) {
@@ -247,38 +252,36 @@ class PedidoService
         try {
             // 1º Passo -> Itera sobre o array de objetos
             foreach ($pedidosArray as $item) {
-                // Verifica se o status do pedido é 4
-                if ($item['status'] == 4) {
-                    // Atualiza o pedido na tabela Pedidos
-                    $insertPedido = Pedido::where('id', $item['id'])->update(['id_status' => 4]);
 
-                    // Registrando no histórico
-                    $insertHistorico = HistoricoPedidos::create([
-                        'id_pedido' => $item['id'],
-                        'id_status' => 4,
-                        'observacao' => 'O pedido foi aprovado pelo Dr. Emival!'
-                    ]);
+                $observacao = '';
 
-                    DB::commit();
-                } else {
-
-                    // 1º Passo -> Alterar dados do pedido para reprovado
-                    Pedido::where('id', $item['id'])->update(['id_status' => 3]);
-
-                    // 2º Passo -> Registrando no histórico
-                    HistoricoPedidos::create([
-                        'id_pedido' => $item['id'],
-                        'id_status' => 3,
-                        'observacao' => 'O pedido foi reprovado pelo Dr. Emival!'
-                    ]);
-
-                    // 3º Passo -> Inserir chat
-                    Chat::create([
-                        'id_pedido' => $item['id'],
-                        'id_usuario' => 1,
-                        'mensagem' => $item['mensagem']
-                    ]);
+                switch ($item['status']) {
+                    case 3:
+                        $observacao = 'O pedido foi reprovado pelo Dr. Emival!';
+                        break;
+                    case 4:
+                        $observacao = 'O pedido foi aprovado pelo Dr. Emival!';
+                        break;
+                    case 5:
+                        $observacao = 'O pedido foi aprovado com ressalva pelo Dr. Emival!';
+                        break;
                 }
+
+                $insertPedido = Pedido::where('id', $item['id'])->update(['id_status' => $item['status']]);
+
+                // Registrando no histórico
+                $insertHistorico = HistoricoPedidos::create([
+                    'id_pedido' => $item['id'],
+                    'id_status' => $item['status'],
+                    'observacao' => $observacao
+                ]);
+
+                Chat::create([
+                    'id_pedido' => $item['id'],
+                    'id_usuario' => 1,
+                    'mensagem' => $item['mensagem']
+                ]);
+
             }
 
             DB::commit();
@@ -361,8 +364,6 @@ class PedidoService
             ];
 
             $queryChat = Chat::create($dadosChat);
-
-            // 4º Passo -> Tirar assinatura do fluxo
 
             // 5º Passo -> Retornar resposta
             if ($query && $queryHistorico && $queryChat) {
@@ -697,19 +698,85 @@ class PedidoService
     {
         try {
             // 1º Passo -> Buscar informações do pedido
-            $pedido = PedidoResource::collection(
-                Pedido::where('id', $id)
-                    ->get()
-            );
+            $pedido = Pedido::where('id', $id)->get();
 
-            // 2º Passo -> Buscar informações na tabela fluxo para ver quando foi aprovado
+            // 2º Passo -> Data de Aprovação do pedido por Emival
+            $dtAprovacao = HistoricoPedidos::where('id_pedido', $id)
+                ->where('observacao', 'O pedido foi aprovado pelo Dr. Emival!')
+                ->pluck('created_at')
+                ->first();
+
+            // Adicionar a data de aprovação ao recurso
+            $pedido = $pedido->map(function ($item) use ($dtAprovacao) {
+                $item->dt_aprovacao = $dtAprovacao;
+                return new PedidoAprovadoResource($item);
+            });
+
+            // 3º Passo -> Buscar informações na tabela fluxo para ver quando foi aprovado
             $query = FluxoAprovadoResource::collection(
-                Fluxo::where('id_pedido', $id)
-                    ->get()
+                Fluxo::where('id_pedido', $id)->get()
             );
 
-            // 3º Passo -> Retornar resposta
-            return ['resposta' => 'Informações listadas com sucesso!', 'pedido' => $pedido, 'informacoes' => $query, 'status' => Response::HTTP_OK];
+            // 4º Passo -> Retornar resposta
+            return [
+                'resposta' => 'Informações listadas com sucesso!',
+                'pedido' => $pedido,
+                'informacoes' => $query,
+                'status' => Response::HTTP_OK
+            ];
+        } catch (\Exception $e) {
+            return [
+                'resposta' => 'Ocorreu algum erro, entre em contato com o Administrador!',
+                'pedido' => null,
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR
+            ];
+
+            throw $e;
+        }
+    }
+
+    public function respondeReprovacaoComAnexo($request, $id)
+    {
+        DB::beginTransaction();
+
+        try {
+            // 1º Passo -> Verifica se tem anexo e insere o mesmo
+            if ($request->file('anexo')) {
+                $directory = "/pedidos"; // Criando diretório
+
+                $pdf = $request->file('anexo')->store($directory, 'public'); // Salvando pdf do pedido
+
+                Pedido::where('id', $id)
+                    ->update(['anexo' => $pdf]);
+            }
+
+            // 2º Passo -> Pegar para quem deve ser enviar de acordo com o campo id_link
+            $link = Pedido::where('id', $id)
+                ->pluck('id_link')
+                ->first();
+
+            if ($link == 2) {
+                $id_status = 1;
+            } else {
+                $id_status = 2;
+            }
+
+            // 3º Passo -> Inserir mensagem na tabela chat
+            $dadosChat = [
+                'id_pedido' => $id,
+                'id_usuario' => $request->input('id_criador'),
+                'mensagem' => $request->input('mensagem')
+            ];
+
+            Chat::create($dadosChat);
+
+            // 4º Passo -> Atualizar o status do pedido
+            Pedido::where('id', $id)
+                ->update(['id_status' => $id_status]);
+
+            // 5º Passo -> Retornar resposta
+            DB::commit();
+            return ['resposta' => 'Mensagem enviada com sucesso!', 'status' => Response::HTTP_CREATED];
         } catch (\Exception $e) {
 
             return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador!', 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
