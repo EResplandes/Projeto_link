@@ -500,7 +500,7 @@ class PedidoService
             $directory = "/pedidos"; // Criando diretório
 
             $pdf = $request->file('anexo')->store($directory, 'public'); // Salvando pdf do pedido
-
+		
             // 2º Passo -> Montar array a ser inserido
             $idLink = $request->input('id_link');
             $idStatus = ($idLink == 2) ? 1 : 2;
