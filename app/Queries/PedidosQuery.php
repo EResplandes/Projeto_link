@@ -31,7 +31,7 @@ class PedidosQuery
                 $atualizaPedido = Pedido::where('id', $idPedido[0])->update(['id_status' => 2]);
 
                 $dados = [
-                    'id_pedido' => $idPedido,
+                    'id_pedido' => $idPedido[0],
                     'id_status' => 2,
                     'observacao' => 'O pedido foi enviado para Dr. Mônica!'
                 ];
@@ -43,7 +43,7 @@ class PedidosQuery
                 $atualizaPedido = Pedido::where('id', $idPedido[0])->update(['id_status' => 1]);
 
                 $dados = [
-                    'id_pedido' => $idPedido,
+                    'id_pedido' => $idPedido[0],
                     'id_status' => 1,
                     'observacao' => 'O pedido foi enviado para Dr. Emival!'
                 ];

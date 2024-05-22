@@ -26,7 +26,7 @@ class FluxoService
 
     public function aprovarFluxo($id)
     {
-        // 1º Passo -> Aprovar fluxo mudando status para 7 - Em Fluxo
+        // 1º Passo -> Aprovar fluxo mudando status para 7 - Em Fluxo | Tela Soleni
         $query = Pedido::where('id', $id)->update(['id_status' => 7]);
 
         // 2º Passo -> Retornar resposta
@@ -72,6 +72,28 @@ class FluxoService
             DB::rollback(); // Se uma exceção ocorrer durante as operações do banco de dados, fazemos o rollback
 
             return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador!', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+    }
+
+    public function verificaFluxo($id_pedido, $id_usuario)
+    {
+        // 1º Passo -> Verificar se existe na tabela fluxo esse fluxo com a assinatura pendente
+        $query = Fluxo::where('id_pedido', $id_pedido)
+            ->where('id_usuario', $id_usuario)
+            ->where('assinado', 0)
+            ->count();
+
+        // 2º Passo -> Pegar id do fluxo para dar baixa quando assinado
+        $idFluxo = Fluxo::where('id_pedido', $id_pedido)
+            ->where('id_usuario', $id_usuario)
+            ->where('assinado', 0)
+            ->pluck('id');
+
+        // 3º Passo -> Retornar resposta
+        if ($query == 0) {
+            return ['resposta' => 'Fluxo inválido!', 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Fluxo válido!', 'status' => Response::HTTP_OK];
         }
     }
 }

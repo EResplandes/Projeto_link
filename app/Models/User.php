@@ -76,4 +76,9 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->belongsTo(Funcao::class, 'id_funcao');
     }
+
+    public function local()
+    {
+        return $this->belongsTo(Local::class, 'id_local');
+    }
 }

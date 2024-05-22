@@ -33,4 +33,9 @@ class FluxoController extends Controller
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
 
+    public function verificaFluxo($id_pedido, $id_usuario)
+    {
+        $query = $this->fluxoService->verificaFluxo($id_pedido, $id_usuario); // Metódo responsável por verificar se fluxo ainda existe
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
 }

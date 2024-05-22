@@ -23,6 +23,7 @@ class UserResource extends JsonResource
             "email"      => $this->email,
             "status"     => $this->status,
             "p_acesso"   => $this->primeiro_acesso,
+            "local"      => new LocalResource($this->local),
             "funcao"     => new FuncaoResource($this->funcao),
             "grupo"      => new GrupoResource($this->grupo),
         ];

@@ -164,4 +164,16 @@ class PedidoController extends Controller
         $query = $this->pedidoService->respondeReprovacaoComAnexo($request, $id); // Metódo responsável por responder pedidos reprovados pelo Dr. Emival ou Dr. Monica
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
+
+    public function listarRessalva($id)
+    {
+        $query = $this->pedidoService->listarRessalva($id); // Metódo responsável por listar pedidos aprovados com ressalva de acordo com id do criador
+        return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
+    }
+
+    public function respondeRessalvaPedido(Request $request, $id)
+    {
+        $query = $this->pedidoService->respondeRessalvaPedido($request, $id); // Metódo responsável por responder e enviar novamente pedido
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
 }
