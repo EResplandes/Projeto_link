@@ -265,23 +265,24 @@ class PedidoService
                     case 5:
                         $observacao = 'O pedido foi aprovado com ressalva pelo Dr. Emival!';
                         break;
-                }
-
+                }	
+		
                 $insertPedido = Pedido::where('id', $item['id'])->update(['id_status' => $item['status']]);
-
+	
                 // Registrando no histórico
                 $insertHistorico = HistoricoPedidos::create([
                     'id_pedido' => $item['id'],
                     'id_status' => $item['status'],
                     'observacao' => $observacao
                 ]);
-
+		
+		if($item['status'] != 4 ){
                 Chat::create([
                     'id_pedido' => $item['id'],
                     'id_usuario' => 1,
                     'mensagem' => $item['mensagem']
-                ]);
-
+                ]);	
+	}
             }
 
             DB::commit();
