@@ -25,11 +25,12 @@ class PedidoService
         $this->pedidosQuery = $pedidosQuery;
     }
 
-    public function listar()
+    public function listar($id)
     {
         // 1º Passo -> Buscar todos os pedidos cadastrados
         $query = PedidoResource::collection(
             Pedido::orderBy('created_at', 'desc')
+                ->where('id_local', $id)
                 ->get()
         );
 
