@@ -33,4 +33,10 @@ class AutenticacaoController extends Controller
         $query = $this->autenticacaoService->verificaToken(); // Valida Token
         return response()->json(['resposta' => $query['resposta']], $query['status']); // Retornando resposta
     }
+
+    public function alterarSenha(Request $request, $id)
+    {
+        $query = $this->autenticacaoService->alterarSenha($request, $id); // Altera a senha do usuário
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
 }

@@ -18,6 +18,7 @@ Route::prefix("/autenticacao")->group(function () {
         Route::post('/login', 'login');
         Route::post('/logout', 'logout');
         Route::get('/token', 'verificaToken')->middleware('jwt.auth');
+        Route::put('/alterar-senha/{id}', 'alterarSenha')->middleware('jwt.auth');
     });
 });
 

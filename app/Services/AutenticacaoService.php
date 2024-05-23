@@ -55,4 +55,22 @@ class AutenticacaoService
         return ['resposta' => 'O Token está válido!', 'status' => Response::HTTP_OK];
     }
 
+    public function alterarSenha($request, $id)
+    {
+        // 1º Passo -> Altera senha do usuário e status de primeiro acesso 0
+        $nova_senha = $request->input('nova_senha');
+
+        dd($nova_senha);
+
+        $dados = [
+            'password' => bcrypt($nova_senha),
+            'primeiro_acesso' => 0
+        ];
+
+        User::where('id', $id)
+            ->update($dados);
+
+        // 2º Passo -> Retorna resposta
+        return ['resposta' => 'Senha alterada com sucesso!', 'status' => Response::HTTP_OK];
+    }
 }
