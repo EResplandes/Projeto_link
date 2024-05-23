@@ -135,6 +135,12 @@ class PedidoController extends Controller
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
 
+    public function reprovarEmFluxo(Request $request, $id)
+    {
+        $query = $this->pedidoService->reprovarEmFluxo($request, $id); // Metódo responsável por reprovar pedido
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
     public function aprovarPedidoAcima($id)
     {
         $query = $this->pedidoService->aprovarPedidoAcima($id); // Metódo responsável por aprovar pedido separado
@@ -174,6 +180,18 @@ class PedidoController extends Controller
     public function respondeRessalvaPedido(Request $request, $id)
     {
         $query = $this->pedidoService->respondeRessalvaPedido($request, $id); // Metódo responsável por responder e enviar novamente pedido
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
+    public function listarReprovadosFluxo($id)
+    {
+        $query = $this->pedidoService->listarReprovadosFluxo($id); // Metódo reponsável por listar todos pedidos com status 10 de acordo com id do usuário logado
+        return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
+    }
+
+    public function respondeReprovacaoEmFluxo(Request $request, $id)
+    {
+        $query = $this->pedidoService->respondeReprovacaoEmFluxo($request, $id); // Metódo responsável por responder pedidos reprovados pelo Dr. Emival ou Dr. Monica
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
 }

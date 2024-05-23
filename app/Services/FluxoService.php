@@ -7,6 +7,7 @@ use App\Models\Fluxo;
 use App\Http\Resources\FluxoResource;
 use App\Models\HistoricoPedidos;
 use App\Models\Pedido;
+use App\Models\Chat;
 use Illuminate\Support\Facades\DB;
 
 class FluxoService
@@ -34,6 +35,35 @@ class FluxoService
             return ['resposta' => 'Fluxo aprovado com sucesso!', 'status' => Response::HTTP_OK];
         } else {
             return ['resposta' => 'Occoreu algum problema, tente mais tarde!', 'status' => Response::HTTP_BAD_REQUEST];
+        }
+    }
+
+    public function reprovarFluxo($id, $idUsuario, $mensagem)
+    {
+
+        DB::beginTransaction();
+
+        try {
+            // 1º Passo -> Reprovar o pedido e colocar o status 11
+            Pedido::where('id', $id)->update(['id_status' => 11]);
+
+            // 2º Passo -> Inserir mensagem o pq o pedido foi reprovado
+            $dadosChat = [
+                'id_pedido' => $id,
+                'id_usuario' => $idUsuario,
+                'mensagem' => $mensagem
+            ];
+
+            Chat::create($dadosChat);
+
+            // 3º Passo -> Retornar resposta
+
+            DB::commit();
+            return ['resposta' => 'Pedido reprovado com sucesso!', 'status' => Response::HTTP_OK];
+        } catch (\Exception $e) {
+            DB::rollback(); // Se uma exceção ocorrer durante as operações do banco de dados, fazemos o rollback
+
+            return ['resposta' => $e, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
         }
     }
 

@@ -31,12 +31,14 @@ Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
         Route::get('/listar-monica', 'listarMonica');
         Route::get('/listar-aprovados', 'listarAprovados');
         Route::get('/listar-reprovado/{id?}', 'listarReprovados');
+        Route::get('/listar-reprovados-fluxo/{id}', 'listarReprovadosFluxo');
         Route::get('/listar-ressalva/{id?}', 'listarRessalva');
         Route::get('listar-gerente/{id?}', 'listarEmFluxo');
         Route::get('/listar-justificar', 'listarJustificar');
         Route::get('/listar-analise', 'listarAnalise');
         Route::put('/aprovar-ressalva/{id}', 'aprovarRessalva');
         Route::get('/aprovar-fluxo/{id?}', 'aprovarEmFluxo');
+        Route::put('/reprovar-fluxo/{id?}', 'reprovarEmFluxo');
         Route::put('/reprovar/{id}', 'reprovarPedido');
         Route::delete('/deletar/{id}', 'deletaPedido');
         Route::post('/cadastrar', 'cadastraPedido');
@@ -44,6 +46,7 @@ Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
         Route::get('/pedidos-aprovados/{id}', 'listarPedidosAprovados');
         Route::get('/informacoes-pedido/{id}', 'buscaInformacoesPedido');
         Route::post('/responde-reprovado/{id}', 'respondeReprovacaoComAnexo');
+        Route::post('/responde-reprovado-fluxo/{id}', 'respondeReprovacaoEmFluxo');
         Route::post('/responde-ressalva/{id}', 'respondeRessalvaPedido');
     });
 });
@@ -111,6 +114,7 @@ Route::prefix('/fluxo')->middleware('jwt.auth')->group(function () {
     Route::controller(FluxoController::class)->group(function () {
         Route::get('/listar-fluxo/{id?}', 'listarFluxo');
         Route::put('/aprovar-fluxo/{id?}', 'aprovarFluxo');
+        Route::put('/reprovar-fluxo/{id}/{idUsuario}/{mensagem}', 'reprovarFluxo');
         Route::post('/cadastrar-fluxo', 'cadastrarFluxo');
         Route::get('/verifica-fluxo/{id_pedido}/{id_usuario}', 'verificaFluxo');
     });
