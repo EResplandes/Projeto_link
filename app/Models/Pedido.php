@@ -51,4 +51,9 @@ class Pedido extends Model
     {
         return $this->hasMany(HistoricoPedidos::class, 'id_pedido');
     }
+
+    public function fluxo()
+    {
+        return $this->hasMany(Fluxo::class, 'id_pedido');
+    }
 }
