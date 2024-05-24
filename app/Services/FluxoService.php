@@ -27,14 +27,64 @@ class FluxoService
 
     public function aprovarFluxo($id)
     {
-        // 1º Passo -> Aprovar fluxo mudando status para 7 - Em Fluxo | Tela Soleni
-        $query = Pedido::where('id', $id)->update(['id_status' => 7]);
 
-        // 2º Passo -> Retornar resposta
-        if ($query) {
-            return ['resposta' => 'Fluxo aprovado com sucesso!', 'status' => Response::HTTP_OK];
-        } else {
-            return ['resposta' => 'Occoreu algum problema, tente mais tarde!', 'status' => Response::HTTP_BAD_REQUEST];
+        DB::beginTransaction();
+
+        try {
+
+            // 1ª Passo -> Descobrindo qual tipo a função é se é sem fluxo ou com fluxo
+            $verificaTipoPedido = trim(Pedido::where('id', $id)->pluck('tipo_pedido')->first());
+
+            // Usa comparação case-insensitive
+            if (strcasecmp($verificaTipoPedido, "Com fluxo") === 0) {
+                // Atualiza o status do pedido
+                Pedido::where('id', $id)->update(['id_status' => 7]);
+                // Confirma a operação
+                DB::commit();
+
+                // Retorna resposta
+                return ['resposta' => 'Fluxo aprovado com sucesso!', 'status' => Response::HTTP_OK];
+            } else {
+                // Obtém o ID do link
+                $idLink = Pedido::where('id', $id)->pluck('id_link')->first();
+
+                if ($idLink == 1) {
+                    // Atualiza o status do pedido
+                    Pedido::where('id', $id)->update(['id_status' => 2]);
+
+                    // Dados para o histórico
+                    $dados = [
+                        'id_pedido' => $id,
+                        'id_status' => 2,
+                        'observacao' => 'O pedido foi enviado para Dr. Mônica!'
+                    ];
+                } else {
+                    // Atualiza o status do pedido
+                    Pedido::where('id', $id)->update(['id_status' => 1]);
+
+                    // Dados para o histórico
+                    $dados = [
+                        'id_pedido' => $id,
+                        'id_status' => 1,
+                        'observacao' => 'O pedido foi enviado para Dr. Emival!'
+                    ];
+                }
+
+                // Cria o histórico do pedido
+                HistoricoPedidos::create($dados);
+
+                // Confirma a operação
+                DB::commit();
+
+                // Retorna resposta
+                return ['resposta' => 'Fluxo aprovado com sucesso!', 'status' => Response::HTTP_OK];
+            }
+        } catch (\Exception $e) {
+            // Desfaz a transação em caso de erro
+            DB::rollback();
+
+            // Retorna a resposta de erro
+            return ['resposta' => $e, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
         }
     }
 

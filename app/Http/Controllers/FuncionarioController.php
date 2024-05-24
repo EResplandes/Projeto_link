@@ -63,4 +63,11 @@ class FuncionarioController extends Controller
         $query = $this->funcionarioService->desativaFuncionario($id); // Metódo responsável por desativar funcionário
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
+
+    public function ativaFuncionario($id)
+    {
+        $query = $this->funcionarioService->ativaFuncionario($id); // Metódo responsável por desativar funcionário
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
 }
