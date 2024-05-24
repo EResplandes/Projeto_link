@@ -461,9 +461,9 @@ class PedidoService
             'id_status' => 6,
             'id_criador' => $request->input('id_criador'),
             'id_local' => $request->input('id_local'),
+            'protheus' => intval($request->input('protheus')),
             'tipo_pedido' => 'Com Fluxo'
         ];
-
 
         DB::beginTransaction();
 
@@ -541,19 +541,38 @@ class PedidoService
             $idLink = $request->input('id_link');
             $idStatus = ($idLink == 2) ? 1 : 2;
 
-            $dadosPedido = [
-                'descricao' => $request->input('descricao'),
-                'valor' => $request->input('valor'),
-                'urgente' => $request->input('urgente'),
-                'dt_vencimento' => $request->input('dt_vencimento'),
-                'anexo' => $pdf,
-                'id_link' => $idLink,
-                'id_empresa' => $request->input('id_empresa'),
-                'id_status' => 6,
-                'id_criador' => $request->input('id_criador'),
-                'id_local' => $request->input('id_local'),
-                'tipo_pedido' => 'Sem Fluxo'
-            ];
+            if ($request->input('id_criador') == 4) {
+                $dadosPedido = [
+                    'descricao' => $request->input('descricao'),
+                    'valor' => $request->input('valor'),
+                    'urgente' => $request->input('urgente'),
+                    'dt_vencimento' => $request->input('dt_vencimento'),
+                    'anexo' => $pdf,
+                    'id_link' => $idLink,
+                    'id_empresa' => $request->input('id_empresa'),
+                    'id_status' => $idStatus,
+                    'id_criador' => $request->input('id_criador'),
+                    'id_local' => $request->input('id_local'),
+                    'protheus' => intval($request->input('protheus')),
+                    'tipo_pedido' => 'Sem Fluxo'
+                ];
+            } else {
+                $dadosPedido = [
+                    'descricao' => $request->input('descricao'),
+                    'valor' => $request->input('valor'),
+                    'urgente' => $request->input('urgente'),
+                    'dt_vencimento' => $request->input('dt_vencimento'),
+                    'anexo' => $pdf,
+                    'id_link' => $idLink,
+                    'id_empresa' => $request->input('id_empresa'),
+                    'id_status' => 6,
+                    'id_criador' => $request->input('id_criador'),
+                    'id_local' => $request->input('id_local'),
+                    'protheus' => intval($request->input('protheus')),
+                    'tipo_pedido' => 'Sem Fluxo'
+                ];
+            }
+
 
             // 3º Passo -> Cadastrar pedido
             $queryPedido = Pedido::create($dadosPedido);
