@@ -42,6 +42,39 @@ class PedidoService
         }
     }
 
+    public function listarTodosExternos()
+    {
+        // 1º Passo -> Buscar todos os pedidos cadastrados
+        $query = PedidoResource::collection(
+            Pedido::orderBy('created_at', 'desc')
+                ->whereIn('id_local', [2, 3]) // Busca pedidos com IDs 2 e 3
+                ->get()
+        );
+
+        // 2º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Pedidos listados com sucesso!', 'pedidos' => $query, 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+    }
+
+    public function listarTodosLocais()
+    {
+        // 1º Passo -> Buscar todos os pedidos cadastrados
+        $query = PedidoResource::collection(
+            Pedido::orderBy('created_at', 'desc')
+                ->get()
+        );
+
+        // 2º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Pedidos listados com sucesso!', 'pedidos' => $query, 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+    }
+
     public function listarJustificar($request)
     {
         /* Pegar todos pedidos com status de Em fluxo no caso 6 onde não estão assinados e que tem registro na tabela historico_pedidos com status 9 */
@@ -516,7 +549,7 @@ class PedidoService
                 'anexo' => $pdf,
                 'id_link' => $idLink,
                 'id_empresa' => $request->input('id_empresa'),
-                'id_status' => $idStatus,
+                'id_status' => 6,
                 'id_criador' => $request->input('id_criador'),
                 'id_local' => $request->input('id_local'),
                 'tipo_pedido' => 'Sem Fluxo'
@@ -607,7 +640,49 @@ class PedidoService
         }
     }
 
-    public function reprovarEmFluxo($request, $id)
+    public function aprovaEmFluxoExterno($id, $idUsuario)
+    {
+        DB::beginTransaction();
+
+        try {
+            // 1ª Passo -> Pegar fluxo do pedido referente a usuario que disparou a requisição
+            $idFluxo = Fluxo::where('id_pedido', $id)
+                ->where('id_usuario', $idUsuario)
+                ->pluck('id')
+                ->first();
+
+            // 2ª Passo -> Aprovar pedido de acordo com id_fluxo enviado
+            $query = Fluxo::where('id', $idFluxo)->update(['assinado' => 1]);
+
+            // 3º Passo -> Verificar se todo o fluxo referente a esse pedido foi aprovado
+            $this->pedidosQuery->verificaFluxoAprovadoExterno($id);
+
+            // 4º Passo -> Cadastra histórico
+            $dados = [
+                'id_pedido' => $id,
+                'id_status' => 7,
+                'observacao' => 'O pedido foi aprovado por um gerente/diretor!'
+            ];
+
+            $historico = HistoricoPedidos::create($dados); // Salvando
+
+            // 5º Passo -> Retornar resposta
+            if ($query) {
+                DB::commit();
+                return ['resposta' => 'Pedido aprovado com sucesso!', 'status' => Response::HTTP_OK];
+            } else {
+                return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+            }
+        } catch (\Exception $e) {
+            DB::rollback(); // Se uma exceção ocorrer durante as operações do banco de dados, fazemos o rollback
+
+            return ['resposta' => $e, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+
+            throw $e;
+        }
+    }
+
+    public function reprovarEmFluxo($id, $idUsuario, $mensagem)
     {
         DB::beginTransaction();
 
@@ -616,7 +691,7 @@ class PedidoService
             $idPedido = Fluxo::where('id', $id)->pluck('id_pedido');
 
             // 2º Passo -> Alterar status do pedido para 10 (Fluxo Reprovado)
-            Pedido::where('id', $idPedido[0])->update(['id_status' => 10]);
+            $teste = Pedido::where('id', $idPedido[0])->update(['id_status' => 10]);
 
             // 3º Passo -> Cadastra histórico
             $dados = [
@@ -630,8 +705,8 @@ class PedidoService
             // 4º Passo -> Gerar chat com mensagem do pq o pedido foi reprovado
             $dadosChat = [
                 'id_pedido' => $idPedido[0],
-                'id_usuario' => $request->input('id_usuario'),
-                'mensagem' => $request->input('mensagem')
+                'id_usuario' => $idUsuario,
+                'mensagem' => $mensagem
             ];
 
             Chat::create($dadosChat);
@@ -902,6 +977,24 @@ class PedidoService
         }
     }
 
+    public function listarReprovadosSoleni($id)
+    {
+        // 1º Passo -> Buscar todos pedidos com status 10
+        $query = PedidoFluxoResource::collection(
+            Pedido::orderBy('created_at', 'desc')
+                ->where('id_criador', $id)
+                ->where('id_status', 11)
+                ->get()
+        );
+
+        // 2º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Pedidos listados com sucesso!', 'pedidos' => $query, 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+    }
+
     public function respondeReprovacaoEmFluxo($request, $id)
     {
         DB::beginTransaction();
@@ -919,6 +1012,45 @@ class PedidoService
             // 2º Passo -> Alterar status do pedido
             $teste = Pedido::where('id', $id)
                 ->update(['id_status' => 7]);
+
+            // 3º Passo -> Inserir mensagem na tabela chat
+            $dadosChat = [
+                'id_pedido' => $id,
+                'id_usuario' => $request->input('id_usuario'),
+                'mensagem' => $request->input('mensagem')
+            ];
+
+            Chat::create($dadosChat);
+
+            // 5º Passo -> Retornar resposta
+            DB::commit();
+            return ['resposta' => 'Mensagem enviada com sucesso!', 'status' => Response::HTTP_CREATED];
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador!', 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+
+            throw $e;
+        }
+    }
+
+    public function respondeReprovacaoSoleni($request, $id)
+    {
+        DB::beginTransaction();
+        try {
+            // 1º Passo -> Verifica se tem anexo e insere o mesmo
+            if ($request->file('anexo')) {
+                $directory = "/pedidos"; // Criando diretório
+
+                $pdf = $request->file('anexo')->store($directory, 'public'); // Salvando pdf do pedido
+
+                Pedido::where('id', $id)
+                    ->update(['anexo' => $pdf]);
+            }
+
+            // 2º Passo -> Alterar status do pedido
+            $teste = Pedido::where('id', $id)
+                ->update(['id_status' => 6]);
 
             // 3º Passo -> Inserir mensagem na tabela chat
             $dadosChat = [

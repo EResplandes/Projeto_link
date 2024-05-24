@@ -129,4 +129,17 @@ class FuncionarioService
             return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'status' => Response::HTTP_BAD_REQUEST];
         }
     }
+
+    public function ativaFuncionario($id)
+    {
+        // 1ª Passo -> Desativar Funcionário
+        $query = User::where('id', $id)->update(['status' => 'Ativo']);
+
+        // 2º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Funcionário ativado com sucesso!', 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'status' => Response::HTTP_BAD_REQUEST];
+        }
+    }
 }
