@@ -610,11 +610,11 @@ class PedidoService
     {
         // 1º Passo -> Buscar pedidos
         $query = FluxoPedidoResource::collection(Fluxo::where('assinado', 0)
-                    ->where('id_usuario', $id)
-                    ->whereHas('pedido', function ($query) {
-                        $query->where('id_status', 7);
-                    })
-                    ->get());
+            ->where('id_usuario', $id)
+            ->whereHas('pedido', function ($query) {
+                $query->where('id_status', 7);
+            })
+            ->get());
 
         // 2º Passo -> Retornar resposta
         if ($query) {
@@ -664,7 +664,7 @@ class PedidoService
         }
     }
 
-    public function aprovaEmFluxoExterno($id, $idUsuario)
+    public function aprovaEmFluxoExterno($id, $idLink, $idUsuario)
     {
         DB::beginTransaction();
 
@@ -678,10 +678,13 @@ class PedidoService
             // 2ª Passo -> Aprovar pedido de acordo com id_fluxo enviado
             $query = Fluxo::where('id', $idFluxo)->update(['assinado' => 1]);
 
-            // 3º Passo -> Verificar se todo o fluxo referente a esse pedido foi aprovado
+            // 3º Passo -> Alterar link de acordo com que
+            Pedido::where('id', $id)->update(['id_link' => $idLink]);
+
+            // 4º Passo -> Verificar se todo o fluxo referente a esse pedido foi aprovado
             $this->pedidosQuery->verificaFluxoAprovadoExterno($id);
 
-            // 4º Passo -> Cadastra histórico
+            // 5º Passo -> Cadastra histórico
             $dados = [
                 'id_pedido' => $id,
                 'id_status' => 7,
@@ -690,13 +693,50 @@ class PedidoService
 
             $historico = HistoricoPedidos::create($dados); // Salvando
 
-            // 5º Passo -> Retornar resposta
+            // 6º Passo -> Retornar resposta
             if ($query) {
                 DB::commit();
                 return ['resposta' => 'Pedido aprovado com sucesso!', 'status' => Response::HTTP_OK];
             } else {
                 return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
             }
+        } catch (\Exception $e) {
+            DB::rollback(); // Se uma exceção ocorrer durante as operações do banco de dados, fazemos o rollback
+
+            return ['resposta' => $e, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+
+            throw $e;
+        }
+    }
+
+    public function reprovaEmFluxoExterno($id, $idUsuario, $mensagem)
+    {
+        try {
+
+            // 1º Passo -> Alterar status do pedido para reprovado 10
+            Pedido::where('id', $id)->update(['id_status' => 10]);
+
+            // 2º Passo -> Iniciar chat da mensagem com o pq o pedido foi reprovado
+            $dadosChat = [
+                'id_pedido' => $id,
+                'id_usuario' => $idUsuario,
+                'mensagem' => $mensagem
+            ];
+
+            Chat::create($dadosChat);
+
+            // 3º Passo -> Cadastrar na tabela historico
+            $dadoHistorico = [
+                'id_pedido' => $id,
+                'id_status' => 10,
+                'observacao' => 'O pedido foi reprovado por algum Gerente | Diretor'
+            ];
+
+            HistoricoPedidos::create($dadoHistorico);
+
+            // 4º Passo -> Retornar resposta
+            DB::commit();
+            return ['resposta' => 'Pedido reprovado com sucesso!', 'status' => Response::HTTP_OK];
         } catch (\Exception $e) {
             DB::rollback(); // Se uma exceção ocorrer durante as operações do banco de dados, fazemos o rollback
 
@@ -715,7 +755,7 @@ class PedidoService
             $idPedido = Fluxo::where('id', $id)->pluck('id_pedido');
 
             // 2º Passo -> Alterar status do pedido para 10 (Fluxo Reprovado)
-            $teste = Pedido::where('id', $idPedido[0])->update(['id_status' => 10]);
+            Pedido::where('id', $idPedido[0])->update(['id_status' => 10]);
 
             // 3º Passo -> Cadastra histórico
             $dados = [
