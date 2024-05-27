@@ -609,7 +609,12 @@ class PedidoService
     public function listarEmFluxo($id)
     {
         // 1º Passo -> Buscar pedidos
-        $query = FluxoPedidoResource::collection(Fluxo::where('assinado', 0)->where('id_usuario', $id)->get());
+        $query = FluxoPedidoResource::collection(Fluxo::where('assinado', 0)
+                    ->where('id_usuario', $id)
+                    ->whereHas('pedido', function ($query) {
+                        $query->where('id_status', 7);
+                    })
+                    ->get());
 
         // 2º Passo -> Retornar resposta
         if ($query) {
