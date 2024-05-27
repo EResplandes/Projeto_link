@@ -14,6 +14,7 @@ class Pedido extends Model
     protected $fillable = [
         'descricao',
         'valor',
+        'protheus',
         'urgente',
         'anexo',
         'id_link',
@@ -22,7 +23,7 @@ class Pedido extends Model
         'id_criador',
         'id_local',
         'tipo_pedido',
-        'dt_vencimento'
+        'dt_vencimento',
     ];
 
     protected $hidden = ['updated_at'];

@@ -18,6 +18,7 @@ class PedidoAprovadoResource extends JsonResource
             "id"            => $this->id,
             "descricao"     => $this->descricao,
             "valor"         => $this->valor,
+            "protheus"      => $this->protheus,
             "urgente"       => $this->urgente,
             "anexo"         => $this->anexo,
             "dt_inclusao"   => $this->created_at,

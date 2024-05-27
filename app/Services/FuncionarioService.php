@@ -59,6 +59,7 @@ class FuncionarioService
             'password' => bcrypt('!Rialma2023'),
             'id_funcao' => $request->input('id_funcao'),
             'id_grupo' => $request->input('id_grupo'),
+            'id_local' => $request->input('id_local'),
             'primeiro_acesso' => 1,
             'status' => "Ativo"
         ];
