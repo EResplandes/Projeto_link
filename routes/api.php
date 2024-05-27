@@ -44,7 +44,6 @@ Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
         Route::put('/aprovar-ressalva/{id}', 'aprovarRessalva');
         Route::get('/aprovar-fluxo/{id?}', 'aprovarEmFluxo'); // ID do fluxo
         Route::get('/aprovar-fluxo-diretor/{id?}/{idLink?}', 'aprovaEmFluxoDiretor'); // ID do fluxo
-        Route::get('/aprovar-fluxo-externo/{id}/{idUsuario}', 'aprovaEmFluxoExterno'); // ID do pedido e ID do usuário
         Route::get('/reprovar-fluxo/{id?}/{idUsuario}/{mensagem}', 'reprovarEmFluxo');
         Route::put('/reprovar/{id}', 'reprovarPedido');
         Route::delete('/deletar/{id}', 'deletaPedido');
@@ -56,6 +55,8 @@ Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
         Route::post('/responde-reprovado-fluxo/{id}', 'respondeReprovacaoEmFluxo'); // ID do pedido
         Route::post('/responde-reprovado-soleni/{id}', 'respondeReprovacaoSoleni'); // ID do pedido
         Route::post('/responde-ressalva/{id}', 'respondeRessalvaPedido');
+        Route::get('/aprovar-fluxo-externo/{id}/{idLink}/{idUsuario}', 'aprovaEmFluxoExterno'); // ID do pedido e ID do pedido, link e usuario
+        Route::get('/reprovar-fluxo-externo/{id}/{idUsuario}/{mensagem}', 'reprovaEmFluxoExterno'); // ID do pedido e ID do pedido, usuario, mensagem
     });
 });
 
