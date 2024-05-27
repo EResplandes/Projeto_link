@@ -59,7 +59,7 @@ class PedidoResource extends JsonResource
         return $this->fluxo->where('assinado', 1)->map(function ($item) {
             return [
                 'id' => $item->id,
-                'data_assinatura' => $item->created_at,
+                'data_assinatura' => $item->updated_at,
                 'nome_usuario' => $item->usuario->name,
                 'funcao' => $item->usuario->funcao->funcao
             ];
