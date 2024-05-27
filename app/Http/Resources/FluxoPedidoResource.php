@@ -16,7 +16,7 @@ class FluxoPedidoResource extends JsonResource
     {
         return [
             "id_fluxo"          => $this->id,
-            "pedido"            => new PedidoFluxoResource($this->pedido),
+            "pedido"            => new PedidoResource($this->pedido),
             "usuario"           => $this->usuario,
             "assinado"          => $this->assinado,
             "data_criacao"      => $this->created_at
