@@ -24,7 +24,7 @@ class Fluxo extends Model
 
     public function pedido()
     {
-        return $this->belongsTo(Pedido::class, 'id_pedido');
+        return $this->belongsTo(Pedido::class, 'id_pedido')->where('id_status', 7);
     }
 
     public function usuario()

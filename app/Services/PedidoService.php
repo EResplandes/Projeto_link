@@ -609,7 +609,7 @@ class PedidoService
     public function listarEmFluxo($id)
     {
         // 1º Passo -> Buscar pedidos
-        $query = FluxoPedidoResource::collection(Fluxo::where('id_usuario', $id)->where('assinado', 0)->get());
+        $query = FluxoPedidoResource::collection(Fluxo::where('assinado', 0)->where('id_usuario', $id)->get());
 
         // 2º Passo -> Retornar resposta
         if ($query) {
@@ -1087,6 +1087,49 @@ class PedidoService
             DB::rollBack();
 
             return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador!', 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+
+            throw $e;
+        }
+    }
+
+    public function aprovaEmFluxoDiretor($id, $idLink)
+    {
+        DB::beginTransaction();
+
+        try {
+
+            // 1ª Passo -> Aprovar pedido de acordo com id_fluxo enviado
+            $query = Fluxo::where('id', $id)->update(['assinado' => 1]);
+
+            // 2º Passo -> Pegar id do pedido referente a esse fluxo
+            $idPedido = Fluxo::where('id', $id)->pluck('id_pedido');
+
+            // 3º Passo -> Altererar para quem vai ser enviado o pedido EMIVAL OU MONICA
+            Pedido::where('id', $idPedido[0])->update(['id_link' => $idLink]);
+
+            // 4º Passo -> Verificar se todo o fluxo referente a esse pedido foi aprovado
+            $this->pedidosQuery->verificaFluxoAprovado($idPedido);
+
+            // 5º Passo -> Cadastra histórico
+            $dados = [
+                'id_pedido' => $idPedido[0],
+                'id_status' => 7,
+                'observacao' => 'O pedido foi aprovado por um gerente/diretor!'
+            ];
+
+            $historico = HistoricoPedidos::create($dados); // Salvando
+
+            // 6º Passo -> Retornar resposta
+            if ($query) {
+                DB::commit();
+                return ['resposta' => 'Pedido aprovado com sucesso!', 'status' => Response::HTTP_OK];
+            } else {
+                return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+            }
+        } catch (\Exception $e) {
+            DB::rollback(); // Se uma exceção ocorrer durante as operações do banco de dados, fazemos o rollback
+
+            return ['resposta' => $e, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
 
             throw $e;
         }

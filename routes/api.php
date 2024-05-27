@@ -43,6 +43,7 @@ Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
         Route::get('/listar-analise', 'listarAnalise');
         Route::put('/aprovar-ressalva/{id}', 'aprovarRessalva');
         Route::get('/aprovar-fluxo/{id?}', 'aprovarEmFluxo'); // ID do fluxo
+        Route::get('/aprovar-fluxo-diretor/{id?}/{idLink?}', 'aprovaEmFluxoDiretor'); // ID do fluxo
         Route::get('/aprovar-fluxo-externo/{id}/{idUsuario}', 'aprovaEmFluxoExterno'); // ID do pedido e ID do usuário
         Route::get('/reprovar-fluxo/{id?}/{idUsuario}/{mensagem}', 'reprovarEmFluxo');
         Route::put('/reprovar/{id}', 'reprovarPedido');
