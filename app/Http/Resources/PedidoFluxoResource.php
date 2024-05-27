@@ -15,15 +15,17 @@ class PedidoFluxoResource extends JsonResource
     public function toArray($request)
     {
         return [
-            "id"           => $this->id,
-            "descricao"    => $this->descricao,
-            "valor"        => $this->valor,
-            "urgente"      => $this->urgente,
-            "anexo"        => $this->anexo,
-            "dt_inclusao"  => $this->created_at,
-            "empresa"      => new EmpresaResource($this->empresa),
-            "status"       => new StatusResource($this->status),
-            "link"         => new LinkResource($this->link),
+            "id"            => $this->id,
+            "descricao"     => $this->descricao,
+            "valor"         => $this->valor,
+            "urgente"       => $this->urgente,
+            "anexo"         => $this->anexo,
+            "tipo_pedido"   => $this->tipo_pedido,
+            "dt_inclusao"   => $this->created_at,
+            "dt_assinatura" => $this->updated_at,
+            "empresa"       => new EmpresaResource($this->empresa),
+            "status"        => new StatusResource($this->status),
+            "link"          => new LinkResource($this->link),
         ];
     }
 }

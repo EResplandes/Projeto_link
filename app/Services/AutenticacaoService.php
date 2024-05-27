@@ -60,8 +60,6 @@ class AutenticacaoService
         // 1º Passo -> Altera senha do usuário e status de primeiro acesso 0
         $nova_senha = $request->input('nova_senha');
 
-        dd($nova_senha);
-
         $dados = [
             'password' => bcrypt($nova_senha),
             'primeiro_acesso' => 0

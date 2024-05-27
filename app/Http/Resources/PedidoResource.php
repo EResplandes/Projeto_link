@@ -16,17 +16,20 @@ class PedidoResource extends JsonResource
     public function toArray($request)
     {
         return [
-            "id"           => $this->id,
-            "descricao"    => $this->descricao,
-            "valor"        => $this->valor,
-            "urgente"      => $this->urgente,
-            "anexo"        => $this->anexo,
-            "dt_inclusao"  => $this->created_at,
-            "empresa"      => new EmpresaResource($this->empresa),
-            "status"       => new StatusResource($this->status),
-            "link"         => new LinkResource($this->link),
-            "pendentes"    => $this->getPendentesComNomeUsuario(),
-            "assinados"    => $this->getAssinadosComNomeUsuario(),
+            "id"            => $this->id,
+            "descricao"     => $this->descricao,
+            "valor"         => $this->valor,
+            "protheus"      => $this->protheus,
+            "urgente"       => $this->urgente,
+            "anexo"         => $this->anexo,
+            "dt_inclusao"   => $this->created_at,
+            "dt_assinatura" => $this->updated_at,
+            "local"         => $this->local,
+            "empresa"       => new EmpresaResource($this->empresa),
+            "status"        => new StatusResource($this->status),
+            "link"          => new LinkResource($this->link),
+            "pendentes"     => $this->getPendentesComNomeUsuario(),
+            "assinados"     => $this->getAssinadosComNomeUsuario(),
         ];
     }
 

@@ -59,6 +59,7 @@ class FuncionarioService
             'password' => bcrypt('!Rialma2023'),
             'id_funcao' => $request->input('id_funcao'),
             'id_grupo' => $request->input('id_grupo'),
+            'id_local' => $request->input('id_local'),
             'primeiro_acesso' => 1,
             'status' => "Ativo"
         ];
@@ -125,6 +126,19 @@ class FuncionarioService
         // 2º Passo -> Retornar resposta
         if ($query) {
             return ['resposta' => 'Funcionário desativado com sucesso!', 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'status' => Response::HTTP_BAD_REQUEST];
+        }
+    }
+
+    public function ativaFuncionario($id)
+    {
+        // 1ª Passo -> Desativar Funcionário
+        $query = User::where('id', $id)->update(['status' => 'Ativo']);
+
+        // 2º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Funcionário ativado com sucesso!', 'status' => Response::HTTP_OK];
         } else {
             return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'status' => Response::HTTP_BAD_REQUEST];
         }

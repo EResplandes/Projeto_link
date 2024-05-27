@@ -4,10 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\PedidoService;
-use App\Http\Requests\PedidoRequest;
-use App\Http\Requests\PedidoSemFluxoRequest;
-use App\Http\Requests\PedidoComFluxoRequest;
-use Symfony\Component\HttpFoundation\Response;
 
 use function PHPUnit\Framework\returnSelf;
 
@@ -24,6 +20,18 @@ class PedidoController extends Controller
     public function listarPedidos($id)
     {
         $query = $this->pedidoService->listar($id); // Metódo responsável por listar pedidos
+        return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
+    }
+
+    public function listarPedidosExternos()
+    {
+        $query = $this->pedidoService->listarTodosExternos(); // Metódo responsável por listar pedidos
+        return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
+    }
+
+    public function listarTodosPedidosLocais()
+    {
+        $query = $this->pedidoService->listarTodosLocais(); // Metódo responsável por listar pedidos
         return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
     }
 
@@ -135,6 +143,24 @@ class PedidoController extends Controller
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
 
+    public function aprovaEmFluxoDiretor($id, $idLink)
+    {
+        $query = $this->pedidoService->aprovaEmFluxoDiretor($id, $idLink); // Metódo responsável por aprovar pedido que está em fluxo
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
+    public function aprovaEmFluxoExterno($id, $idPedido)
+    {
+        $query = $this->pedidoService->aprovaEmFluxoExterno($id, $idPedido); // Metódo responsável por aprovar pedido que está em fluxo
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
+    public function reprovarEmFluxo($id, $idUsuario, $mensagem)
+    {
+        $query = $this->pedidoService->reprovarEmFluxo($id, $idUsuario, $mensagem); // Metódo responsável por reprovar pedido
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
     public function aprovarPedidoAcima($id)
     {
         $query = $this->pedidoService->aprovarPedidoAcima($id); // Metódo responsável por aprovar pedido separado
@@ -174,6 +200,30 @@ class PedidoController extends Controller
     public function respondeRessalvaPedido(Request $request, $id)
     {
         $query = $this->pedidoService->respondeRessalvaPedido($request, $id); // Metódo responsável por responder e enviar novamente pedido
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
+    public function listarReprovadosFluxo($id)
+    {
+        $query = $this->pedidoService->listarReprovadosFluxo($id); // Metódo reponsável por listar todos pedidos com status 10 de acordo com id do usuário logado
+        return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
+    }
+
+    public function listarReprovadosSoleni($id)
+    {
+        $query = $this->pedidoService->listarReprovadosSoleni($id); // Metódo reponsável por listar todos pedidos com status 10 de acordo com id do usuário logado
+        return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
+    }
+
+    public function respondeReprovacaoEmFluxo(Request $request, $id)
+    {
+        $query = $this->pedidoService->respondeReprovacaoEmFluxo($request, $id); // Metódo responsável por responder pedidos reprovados pelo Dr. Emival ou Dr. Monica
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
+    public function respondeReprovacaoSoleni(Request $request, $id)
+    {
+        $query = $this->pedidoService->respondeReprovacaoSoleni($request, $id); // Metódo responsável por responder pedidos reprovados pelo Dr. Emival ou Dr. Monica
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
 }

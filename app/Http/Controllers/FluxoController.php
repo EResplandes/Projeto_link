@@ -27,6 +27,12 @@ class FluxoController extends Controller
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
 
+    public function reprovarFluxo($id, $idUsuario, $mensagem)
+    {
+        $query = $this->fluxoService->reprovarFluxo($id, $idUsuario, $mensagem); // Metódo responsável por reprovar fluxo e enviar devolta para criador do pedido
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
     public function cadastrarFluxo(Request $request)
     {
         $query = $this->fluxoService->cadastrarFluxo($request); // Metódo responsável por cadastrar fluxo

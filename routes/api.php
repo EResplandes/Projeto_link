@@ -9,7 +9,9 @@ use App\Http\Controllers\FluxoController;
 use App\Http\Controllers\FuncionarioController;
 use App\Http\Controllers\LinkController;
 use App\Http\Controllers\LocalController;
+use App\Http\Controllers\MonicaController;
 use App\Http\Controllers\PedidoController;
+use App\Http\Controllers\RelatorioController;
 use App\Http\Controllers\StatusController;
 
 // Módulo de Autenticação
@@ -18,7 +20,7 @@ Route::prefix("/autenticacao")->group(function () {
         Route::post('/login', 'login');
         Route::post('/logout', 'logout');
         Route::get('/token', 'verificaToken')->middleware('jwt.auth');
-        Route::put('/alterar-senha/{id}', 'alterarSenha')->middleware('jwt.auth');
+        Route::post('/alterar-senha/{id}', 'alterarSenha')->middleware('jwt.auth');
     });
 });
 
@@ -26,17 +28,24 @@ Route::prefix("/autenticacao")->group(function () {
 Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
     Route::controller(PedidoController::class)->group(function () {
         Route::get('/listar-pedidos/{id}', 'listarPedidos');
+        Route::get('/listar-pedidos-externos', 'listarPedidosExternos');
+        Route::get('/listar-pedidos', 'listarTodosPedidosLocais');
         Route::get('/filtro-emival', 'listarEmivalFiltro');
         Route::get('/listar-emival', 'listarEmival');
         Route::get('/listar-monica', 'listarMonica');
         Route::get('/listar-aprovados', 'listarAprovados');
         Route::get('/listar-reprovado/{id?}', 'listarReprovados');
+        Route::get('/listar-reprovados-fluxo/{id}', 'listarReprovadosFluxo'); // ID do criador
+        Route::get('/listar-reprovados-soleni/{id}', 'listarReprovadosSoleni'); // ID do criador
         Route::get('/listar-ressalva/{id?}', 'listarRessalva');
         Route::get('listar-gerente/{id?}', 'listarEmFluxo');
         Route::get('/listar-justificar', 'listarJustificar');
         Route::get('/listar-analise', 'listarAnalise');
         Route::put('/aprovar-ressalva/{id}', 'aprovarRessalva');
-        Route::get('/aprovar-fluxo/{id?}', 'aprovarEmFluxo');
+        Route::get('/aprovar-fluxo/{id?}', 'aprovarEmFluxo'); // ID do fluxo
+        Route::get('/aprovar-fluxo-diretor/{id?}/{idLink?}', 'aprovaEmFluxoDiretor'); // ID do fluxo
+        Route::get('/aprovar-fluxo-externo/{id}/{idUsuario}', 'aprovaEmFluxoExterno'); // ID do pedido e ID do usuário
+        Route::get('/reprovar-fluxo/{id?}/{idUsuario}/{mensagem}', 'reprovarEmFluxo');
         Route::put('/reprovar/{id}', 'reprovarPedido');
         Route::delete('/deletar/{id}', 'deletaPedido');
         Route::post('/cadastrar', 'cadastraPedido');
@@ -44,6 +53,8 @@ Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
         Route::get('/pedidos-aprovados/{id}', 'listarPedidosAprovados');
         Route::get('/informacoes-pedido/{id}', 'buscaInformacoesPedido');
         Route::post('/responde-reprovado/{id}', 'respondeReprovacaoComAnexo');
+        Route::post('/responde-reprovado-fluxo/{id}', 'respondeReprovacaoEmFluxo'); // ID do pedido
+        Route::post('/responde-reprovado-soleni/{id}', 'respondeReprovacaoSoleni'); // ID do pedido
         Route::post('/responde-ressalva/{id}', 'respondeRessalvaPedido');
     });
 });
@@ -58,6 +69,19 @@ Route::prefix('/app')->group(function () {
         Route::put('/aprovar-ressalva/{id}', 'aprovarRessalva');
         Route::put('/aprovar', 'aprovarPedido');
         Route::put('/aprovar-acima/{id}', 'aprovarPedidoAcima');
+    });
+});
+
+// Rotas App Monica
+Route::prefix('/monica')->group(function () {
+    Route::controller(MonicaController::class)->group(function () {
+        Route::get('/listarMonicaMenorQuinhentos', 'listarMonicaMenorQuinhentos');
+        Route::get('/listarMonicaMenorMil', 'listarMonicaMenorMil');
+        Route::get('/listarMonicaMaiorMil', 'listarMonicaMaiorMil');
+        Route::get('/listarQuantidades', 'listarQuantidades');
+        Route::put('/aprovar-ressalva/{id}', 'aprovarRessalva');
+        Route::put('/aprovar', 'aprovarPedido');
+        Route::put('/aprovar-acima/{id}', 'aprovarPedidoAcima'); // Id do pedido
     });
 });
 
@@ -87,7 +111,8 @@ Route::prefix('/funcionarios')->middleware('jwt.auth')->group(function () {
         Route::get('/listar-grupos', 'listarGrupos');
         Route::get('listar-funcoes', 'listarFuncoes');
         Route::post('/cadastrar-funcionario', 'cadastrarFuncionario');
-        Route::put('/desativa-funcionario/{id?}', 'desativaFuncionario');
+        Route::get('/desativa-funcionario/{id?}', 'desativaFuncionario');
+        Route::get('/ativa-funcionario/{id?}', 'ativaFuncionario');
     });
 });
 
@@ -101,7 +126,7 @@ Route::prefix('/status')->middleware('jwt.auth')->group(function () {
 // Módulo de Chat
 Route::prefix('/chat')->middleware('jwt.auth')->group(function () {
     Route::controller(ChatController::class)->group(function () {
-        Route::get('/listar-conversa/{id?}', 'buscaConversa');
+        Route::get('/listar-conversa/{id?}', 'buscaConversa'); // ID do Pedido
         Route::post('/enviar-mensagem', 'enviarMensagem');
     });
 });
@@ -110,7 +135,8 @@ Route::prefix('/chat')->middleware('jwt.auth')->group(function () {
 Route::prefix('/fluxo')->middleware('jwt.auth')->group(function () {
     Route::controller(FluxoController::class)->group(function () {
         Route::get('/listar-fluxo/{id?}', 'listarFluxo');
-        Route::put('/aprovar-fluxo/{id?}', 'aprovarFluxo');
+        Route::get('/aprovar-fluxo/{id?}', 'aprovarFluxo');
+        Route::put('/reprovar-fluxo/{id}/{idUsuario}/{mensagem}', 'reprovarFluxo');
         Route::post('/cadastrar-fluxo', 'cadastrarFluxo');
         Route::get('/verifica-fluxo/{id_pedido}/{id_usuario}', 'verificaFluxo');
     });
@@ -127,5 +153,12 @@ Route::prefix('dashboard')->middleware('jwt.auth')->group(function () {
 Route::prefix('local')->middleware('jwt.auth')->group(function () {
     Route::controller(LocalController::class)->group(function () {
         Route::get('/listar-locais', 'listarLocais');
+    });
+});
+
+// Módulo de Relatórios
+Route::prefix('relatorios')->middleware('jwt.auth')->group(function () {
+    Route::controller(RelatorioController::class)->group(function () {
+        Route::get('/listar-locais/{data}', 'aprovadosDia');
     });
 });
