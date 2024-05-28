@@ -127,7 +127,7 @@ class PedidoService
     {
         // 1ª Passo -> Buscar todos os pedidos com status 1
         $query = PedidoResource::collection(
-            Pedido::where('id_status', 1)
+            Pedido::whereIn('id_status', [1, 12]) // Substitua [1, 2, 3] pelos valores desejados
                 ->where('id_link', 2)
                 ->where('valor', '<', 500.01) // Filtro para valores abaixo de 500
                 ->orderBy('urgente', 'desc')
@@ -146,7 +146,7 @@ class PedidoService
     {
         // 1ª Passo -> Buscar todos os pedidos com status 1
         $query = PedidoResource::collection(
-            Pedido::where('id_status', 1)
+            Pedido::whereIn('id_status', [1, 12]) // Substitua [1, 2, 3] pelos valores desejados
                 ->where('id_link', 2)
                 ->where('valor', '>', 500.01)
                 ->where('valor', '<', 1000.01) // Filtro para valores abaixo de 500
@@ -166,7 +166,7 @@ class PedidoService
     {
         // 1ª Passo -> Buscar todos os pedidos com status 1
         $query = PedidoResource::collection(
-            Pedido::where('id_status', 1)
+            Pedido::whereIn('id_status', [1, 12]) // Substitua [1, 2, 3] pelos valores desejados
                 ->where('id_link', 2)
                 ->where('valor', '>', 1000) // Filtro para valores abaixo de 500
                 ->orderBy('urgente', 'desc')
@@ -288,6 +288,8 @@ class PedidoService
 
                 $observacao = '';
 
+                $statusAtual = Pedido::where('id', $item['id'])->pluck('id_status')->first();
+
                 switch ($item['status']) {
                     case 3:
                         $observacao = 'O pedido foi reprovado pelo Dr. Emival!';
@@ -300,14 +302,27 @@ class PedidoService
                         break;
                 }
 
-                $insertPedido = Pedido::where('id', $item['id'])->update(['id_status' => $item['status']]);
+                $dadosHistorico = [''];
 
-                // Registrando no histórico
-                $insertHistorico = HistoricoPedidos::create([
-                    'id_pedido' => $item['id'],
-                    'id_status' => $item['status'],
-                    'observacao' => $observacao
-                ]);
+                if ($statusAtual == 12 && $item['status'] == 3) {
+                    Pedido::where('id', $item['id'])->update(['id_status' => 13]);
+
+                    $dadosHistorico = [
+                        'id_pedido' => $item['id'],
+                        'id_status' => 13,
+                        'observacao' => $observacao
+                    ];
+                } else {
+                    Pedido::where('id', $item['id'])->update(['id_status' => $item['status']]);
+
+                    $dadosHistorico = [
+                        'id_pedido' => $item['id'],
+                        'id_status' => $item['status'],
+                        'observacao' => $observacao
+                    ];
+                }
+
+                HistoricoPedidos::create($dadosHistorico);
 
                 if ($item['status'] != 4) {
                     Chat::create([
@@ -324,7 +339,7 @@ class PedidoService
         } catch (\Exception $e) {
             DB::rollback(); // Se uma exceção ocorrer durante as operações do banco de dados, fazemos o rollback
 
-            return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador!', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+            return ['resposta' => $e, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
 
             throw $e;
         }
@@ -826,19 +841,19 @@ class PedidoService
 
             $quantidades = [];
 
-            $quantidades['qtd_abaixoQuinhentos'] = Pedido::where('id_status', 1)
+            $quantidades['qtd_abaixoQuinhentos'] = Pedido::whereIn('id_status', [1, 12])
                 ->where('id_link', 2)
                 ->where('valor', '<', 500.01) // Filtro para valores abaixo de 500
                 ->count();
 
-            $quantidades['qtd_abaixoMil'] = Pedido::where('id_status', 1)
+            $quantidades['qtd_abaixoMil'] = Pedido::whereIn('id_status', [1, 12])
                 ->where('id_link', 2)
                 ->where('valor', '>', 500.01)
                 ->where('valor', '<', 1000.01) // Filtro para valores abaixo de 500
                 ->count();
 
 
-            $quantidades['qtd_acimaMil'] = Pedido::where('id_status', 1)
+            $quantidades['qtd_acimaMil'] = Pedido::whereIn('id_status', [1, 12])
                 ->where('id_link', 2)
                 ->where('valor', '>', 1000) // Filtro para valores abaixo de 500
                 ->count();
@@ -861,7 +876,7 @@ class PedidoService
             // 1º Passo -> Buscar todos pedido aprovador de acordo com id do usuário logado com status 4
             $pedidos = PedidoResource::collection(
                 Pedido::where('id_criador', $id)
-                    ->where('id_status', 4)
+                    ->whereIn('id_status', [4, 12, 13])
                     ->get()
             );
 
@@ -971,7 +986,7 @@ class PedidoService
     {
         // 1º Passo -> Buscar pedidos com status 5
         $query = PedidoResource::collection(
-            Pedido::where('id_status', 5)
+            Pedido::whereIn('id_status', [5, 13]) // Substitua [1, 2, 3] pelos valores desejados
                 ->where('id_local', $id)
                 ->get()
         );
@@ -998,19 +1013,8 @@ class PedidoService
 
             Chat::create($dadosMEnsagem);
 
-            // 2º Passo -> Pegar para quem deve ser enviar de acordo com o campo id_link
-            $link = Pedido::where('id', $id)
-                ->pluck('id_link')
-                ->first();
-
-            if ($link == 2) {
-                $id_status = 1;
-            } else {
-                $id_status = 2;
-            }
-
             // 3º Passo -> Alterar status do pedido
-            Pedido::where('id', $id)->update(['id_status' => $id_status]);
+            Pedido::where('id', $id)->update(['id_status' => 12]);
 
             // 4º Passo -> Retornar resposta
             DB::commit();
