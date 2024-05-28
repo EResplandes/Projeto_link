@@ -1091,7 +1091,9 @@ class PedidoService
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return ['resposta' => $e->getMessage(), 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+            return ['resposta' => $e, 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+
+            throw $e;
         }
     }
 
