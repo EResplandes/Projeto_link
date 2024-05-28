@@ -237,7 +237,6 @@ class PedidoService
         // 1º Passo -> Buscar pedidos com status 4
         $query = PedidoResource::collection(Pedido::where('id_status', 4)->get());
 
-
         // 2º Passo -> Retornar resposta
         if ($query) {
             return ['resposta' => 'Pedidos aprovados!', 'pedidos' => $query, 'status' => Response::HTTP_OK];
@@ -458,7 +457,7 @@ class PedidoService
             'anexo' => $pdf,
             'id_link' => $request->input('id_link'),
             'id_empresa' => $request->input('id_empresa'),
-            'id_status' => 6,
+            'id_status' => 7,
             'id_criador' => $request->input('id_criador'),
             'id_local' => $request->input('id_local'),
             'protheus' => intval($request->input('protheus')),
@@ -682,7 +681,7 @@ class PedidoService
             Pedido::where('id', $id)->update(['id_link' => $idLink]);
 
             // 4º Passo -> Verificar se todo o fluxo referente a esse pedido foi aprovado
-            $this->pedidosQuery->verificaFluxoAprovadoExterno($id);
+            $this->pedidosQuery->verificaFluxoAprovado($id);
 
             // 5º Passo -> Cadastra histórico
             $dados = [
@@ -1059,44 +1058,43 @@ class PedidoService
         }
     }
 
-    public function respondeReprovacaoEmFluxo($request, $id)
+    public function respondeReprovacaoEmFluxo($request, $id, $idUsuario, $mensagem)
     {
         DB::beginTransaction();
         try {
             // 1º Passo -> Verifica se tem anexo e insere o mesmo
-            if ($request->file('anexo')) {
-                $directory = "/pedidos"; // Criando diretório
+            if ($request->hasFile('anexo')) {
+                $directory = "pedidos"; // Diretório onde o arquivo será armazenado
 
-                $pdf = $request->file('anexo')->store($directory, 'public'); // Salvando pdf do pedido
+                // Salvando o pdf do pedido no diretório público
+                $pdf = $request->file('anexo')->store($directory, 'public');
 
-                Pedido::where('id', $id)
-                    ->update(['anexo' => $pdf]);
+                // Atualizando a coluna 'anexo' do pedido com o caminho do arquivo armazenado
+                Pedido::where('id', $id)->update(['anexo' => $pdf]);
             }
 
             // 2º Passo -> Alterar status do pedido
-            $teste = Pedido::where('id', $id)
-                ->update(['id_status' => 7]);
+            Pedido::where('id', $id)->update(['id_status' => 7]);
 
             // 3º Passo -> Inserir mensagem na tabela chat
             $dadosChat = [
                 'id_pedido' => $id,
-                'id_usuario' => $request->input('id_usuario'),
-                'mensagem' => $request->input('mensagem')
+                'id_usuario' => $idUsuario,
+                'mensagem' => $mensagem
             ];
 
             Chat::create($dadosChat);
 
-            // 5º Passo -> Retornar resposta
+            // 4º Passo -> Retornar resposta
             DB::commit();
             return ['resposta' => 'Mensagem enviada com sucesso!', 'status' => Response::HTTP_CREATED];
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador!', 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
-
-            throw $e;
+            return ['resposta' => $e->getMessage(), 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
         }
     }
+
 
     public function respondeReprovacaoSoleni($request, $id)
     {

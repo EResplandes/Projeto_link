@@ -26,4 +26,10 @@ class Chat extends Model
     {
         return $this->belongsTo(User::class, 'id_usuario');
     }
+
+    public function pedido()
+    {
+        return $this->hasMany(Pedido::class, 'id_pedido');
+    }
+
 }

@@ -221,9 +221,9 @@ class PedidoController extends Controller
         return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
     }
 
-    public function respondeReprovacaoEmFluxo(Request $request, $id)
+    public function respondeReprovacaoEmFluxo(Request $request, $id, $idUsuario, $mensagem)
     {
-        $query = $this->pedidoService->respondeReprovacaoEmFluxo($request, $id); // Metódo responsável por responder pedidos reprovados pelo Dr. Emival ou Dr. Monica
+        $query = $this->pedidoService->respondeReprovacaoEmFluxo($request, $id, $idUsuario, $mensagem); // Metódo responsável por responder pedidos reprovados pelo Dr. Emival ou Dr. Monica
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
 

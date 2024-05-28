@@ -52,7 +52,7 @@ Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
         Route::get('/pedidos-aprovados/{id}', 'listarPedidosAprovados');
         Route::get('/informacoes-pedido/{id}', 'buscaInformacoesPedido');
         Route::post('/responde-reprovado/{id}', 'respondeReprovacaoComAnexo');
-        Route::post('/responde-reprovado-fluxo/{id}', 'respondeReprovacaoEmFluxo'); // ID do pedido
+        Route::post('/responde-reprovado-fluxo/{id}/{idUsuario}/{mensagem}', 'respondeReprovacaoEmFluxo'); // ID do pedido, usuario, mensagem
         Route::post('/responde-reprovado-soleni/{id}', 'respondeReprovacaoSoleni'); // ID do pedido
         Route::post('/responde-ressalva/{id}', 'respondeRessalvaPedido');
         Route::get('/aprovar-fluxo-externo/{id}/{idLink}/{idUsuario}', 'aprovaEmFluxoExterno'); // ID do pedido e ID do pedido, link e usuario
@@ -161,5 +161,6 @@ Route::prefix('local')->middleware('jwt.auth')->group(function () {
 Route::prefix('relatorios')->middleware('jwt.auth')->group(function () {
     Route::controller(RelatorioController::class)->group(function () {
         Route::get('/listar-locais/{data}', 'aprovadosDia');
+        Route::get('listar-reprovados/{data}', 'reprovadosDia');
     });
 });

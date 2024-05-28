@@ -57,4 +57,17 @@ class Pedido extends Model
     {
         return $this->hasMany(Fluxo::class, 'id_pedido');
     }
+
+    public function criador()
+    {
+        return $this->belongsTo(User::class, 'id_criador');
+    }
+
+    public function chat()
+    {
+        return $this->hasMany(Chat::class, 'id_pedido');
+    }
+
+
+
 }

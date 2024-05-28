@@ -37,11 +37,36 @@ class FluxoService
 
             // Usa comparação case-insensitive
             if (strcasecmp($verificaTipoPedido, "Com fluxo") === 0) {
-                // Atualiza o status do pedido
-                Pedido::where('id', $id)->update(['id_status' => 7]);
-                // Confirma a operação
-                DB::commit();
 
+                // Obtém o ID do link
+                $idLink = Pedido::where('id', $id)->pluck('id_link')->first();
+
+                if ($idLink == 1) {
+                    // Atualiza o status do pedido
+                    Pedido::where('id', $id)->update(['id_status' => 2]);
+
+                    // Dados para o histórico
+                    $dados = [
+                        'id_pedido' => $id,
+                        'id_status' => 2,
+                        'observacao' => 'O pedido foi enviado para Dr. Mônica!'
+                    ];
+                } else {
+                    // Atualiza o status do pedido
+                    Pedido::where('id', $id)->update(['id_status' => 1]);
+
+                    // Dados para o histórico
+                    $dados = [
+                        'id_pedido' => $id,
+                        'id_status' => 1,
+                        'observacao' => 'O pedido foi enviado para Dr. Emival!'
+                    ];
+                }
+
+                HistoricoPedidos::create($dados);
+
+
+                DB::commit();
                 // Retorna resposta
                 return ['resposta' => 'Fluxo aprovado com sucesso!', 'status' => Response::HTTP_OK];
             } else {
@@ -70,10 +95,9 @@ class FluxoService
                     ];
                 }
 
-                // Cria o histórico do pedido
                 HistoricoPedidos::create($dados);
 
-                // Confirma a operação
+
                 DB::commit();
 
                 // Retorna resposta
