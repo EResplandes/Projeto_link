@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Services\PedidoService;
+use Illuminate\Http\Client\ResponseSequence;
 
 use function PHPUnit\Framework\returnSelf;
 
@@ -203,6 +204,12 @@ class PedidoController extends Controller
         return response()->json(['resposta' => $query['resposta'], 'pedido' => $query['pedido'], 'informacoes' => $query['informacoes']], $query['status']);
     }
 
+    public function buscaInformacoesPedidoAlterar($id)
+    {
+        $query = $this->pedidoService->buscaInformacoesPedidoAlterar($id); // Metódo responsável por buscar informações de um pedido de acordo com id do pedido
+        return response()->json(['resposta' => $query['resposta'], 'pedido' => $query['pedido']], $query['status']);
+    }
+
     public function respondeReprovacaoComAnexo(Request $request, $id)
     {
         $query = $this->pedidoService->respondeReprovacaoComAnexo($request, $id); // Metódo responsável por responder pedidos reprovados pelo Dr. Emival ou Dr. Monica
@@ -244,4 +251,11 @@ class PedidoController extends Controller
         $query = $this->pedidoService->respondeReprovacaoSoleni($request, $id); // Metódo responsável por responder pedidos reprovados pelo Dr. Emival ou Dr. Monica
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
+
+    public function atualizaDadosPedido(Request $request, $id)
+    {
+        $query = $this->pedidoService->atualizaDadosPedido($request, $id); // Metódo responsável por alterar dados do pedido de acordo com ID passado via url
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
 }

@@ -51,13 +51,15 @@ Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
         Route::post('/cadastrar', 'cadastraPedido');
         Route::post('/cadastrar-sem-fluxo', 'cadastraPedidoSemFluxo');
         Route::get('/pedidos-aprovados/{id}', 'listarPedidosAprovados');
-        Route::get('/informacoes-pedido/{id}', 'buscaInformacoesPedido');
+        Route::get('/informacoes-pedido/{id}', 'buscaInformacoesPedido'); // ID do Pedido
+        Route::get('/informacoes-pedido-alterar/{id}', 'buscaInformacoesPedidoAlterar'); // Id do Pedido
         Route::post('/responde-reprovado/{id}', 'respondeReprovacaoComAnexo');
         Route::post('/responde-reprovado-fluxo/{id}/{idUsuario}/{mensagem}', 'respondeReprovacaoEmFluxo'); // ID do pedido, usuario, mensagem
         Route::post('/responde-reprovado-soleni/{id}', 'respondeReprovacaoSoleni'); // ID do pedido
         Route::post('/responde-ressalva/{id}', 'respondeRessalvaPedido');
         Route::get('/aprovar-fluxo-externo/{id}/{idLink}/{idUsuario}', 'aprovaEmFluxoExterno'); // ID do pedido e ID do pedido, link e usuario
         Route::get('/reprovar-fluxo-externo/{id}/{idUsuario}/{mensagem}', 'reprovaEmFluxoExterno'); // ID do pedido e ID do pedido, usuario, mensagem
+        Route::post('/atualizada-dados-pedido/{id}', 'atualizaDadosPedido'); // ID do Pedido
     });
 });
 

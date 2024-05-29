@@ -11,9 +11,12 @@ use App\Http\Resources\PedidoFluxoResource;
 use App\Http\Resources\FluxoPedidoResource;
 use App\Http\Resources\FluxoAprovadoResource;
 use App\Http\Resources\PedidoAprovadoResource;
+use App\Http\Resources\PedidoInformacoesResource;
 use Illuminate\Support\Facades\DB;
 use App\Queries\PedidosQuery;
 use App\Models\Fluxo;
+use \Datetime;
+
 
 class PedidoService
 {
@@ -1018,6 +1021,26 @@ class PedidoService
         }
     }
 
+    public function buscaInformacoesPedidoAlterar($id)
+    {
+
+        try {
+            // 1º Passo -> Buscar informações do pedido
+            $pedido = PedidoInformacoesResource::collection(Pedido::where('id', $id)->get());
+
+            return ['resposta' => 'Pedidos listados com sucesso!', 'pedido' => $pedido, 'status' => Response::HTTP_OK];
+        } catch (\Exception $e) {
+            return [
+                'resposta' => 'Ocorreu algum erro, entre em contato com o Administrador!',
+                'pedido' => null,
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR
+            ];
+
+            throw $e;
+        }
+    }
+
+
     public function respondeReprovacaoComAnexo($request, $id)
     {
         DB::beginTransaction();
@@ -1268,6 +1291,51 @@ class PedidoService
             return ['resposta' => $e, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
 
             throw $e;
+        }
+    }
+
+    public function atualizaDadosPedido($request, $id)
+    {
+        // 1º Passo -> montar array de acordo com dados enviados para ser atualizado
+        $dados = [];
+
+        if ($request->has('descricao')) {
+            $dados['descricao'] = $request->input('descricao');
+        }
+
+        if ($request->has('valor')) {
+            $dados['valor'] = $request->input('valor');
+        }
+
+        if ($request->has('urgente')) {
+            $dados['urgente'] = intval($request->input('urgente'));
+        }
+
+        if ($request->has('dt_vencimento')) {
+            $dados['dt_vencimento'] = $request->input('dt_vencimento');
+        }
+
+        if ($request->has('id_empresa')) {
+            $dados['id_empresa'] = intval($request->input('id_empresa'));
+        }
+
+        if ($request->has('protheus')) {
+            $dados['protheus'] = intval($request->input('protheus'));
+        }
+
+        // 2º Passo -> Se existir pdf novo cadastrar pdf e adicionar o caminho no array para atualizar
+        if ($request->file('anexo')) {
+            // 1º Passo -> Salvar arquivo e pegar hash gerado
+            $directory = "/pedidos"; // Criando diretório
+            $pdf = $request->file('anexo')->store($directory, 'public'); //
+            $dados['anexo'] = $pdf;
+        }
+
+        if (!empty($dados)) {
+            $query = Pedido::where('id', $id)->update($dados);
+            return ['resposta' => 'Pedido atualizado com sucesso!', 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'É obrigatório a alteração de pelo menos 1 campo', 'status' => Response::HTTP_ACCEPTED];
         }
     }
 }
