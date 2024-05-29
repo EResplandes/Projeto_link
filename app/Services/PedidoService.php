@@ -12,6 +12,7 @@ use App\Http\Resources\FluxoPedidoResource;
 use App\Http\Resources\FluxoAprovadoResource;
 use App\Http\Resources\PedidoAprovadoResource;
 use App\Http\Resources\PedidoInformacoesResource;
+use App\Http\Resources\PedidoAprovacaoFluxoResource;
 use Illuminate\Support\Facades\DB;
 use App\Queries\PedidosQuery;
 use App\Models\Fluxo;
@@ -285,7 +286,7 @@ class PedidoService
     public function listarAnalise()
     {
         // 1º Passo -> Buscar pedidos com status 3
-        $query = PedidoFluxoResource::collection(Pedido::where('id_status', 6)->get());
+        $query = PedidoAprovacaoFluxoResource::collection(Pedido::where('id_status', 6)->get());
 
         // 3º Passo -> Retornar resposta
         if ($query) {
