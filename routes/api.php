@@ -27,7 +27,8 @@ Route::prefix("/autenticacao")->group(function () {
 // Módulo de Pedidos
 Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
     Route::controller(PedidoController::class)->group(function () {
-        Route::get('/listar-pedidos/{id}', 'listarPedidos');
+        Route::get('/listar-pedidos/{id}', 'listarPedidos'); // ID do local
+        Route::get('/listar-pedidos-por-comprador/{id}', 'listarPedidosPorComprador'); // ID do comprador
         Route::get('/listar-pedidos-externos', 'listarPedidosExternos');
         Route::get('/listar-pedidos', 'listarTodosPedidosLocais');
         Route::get('/filtro-emival', 'listarEmivalFiltro');
@@ -69,6 +70,7 @@ Route::prefix('/app')->group(function () {
         Route::get('/listarQuantidades', 'listarQuantidades');
         Route::put('/aprovar-ressalva/{id}', 'aprovarRessalva');
         Route::put('/aprovar', 'aprovarPedido');
+        Route::put('/aprovar-monica', 'aprovarMonica');
         Route::put('/aprovar-acima/{id}', 'aprovarPedidoAcima');
     });
 });

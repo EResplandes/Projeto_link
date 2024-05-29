@@ -23,6 +23,12 @@ class PedidoController extends Controller
         return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
     }
 
+    public function listarPedidosPorComprador($id)
+    {
+        $query = $this->pedidoService->listarPedidosPorComprador($id); // Metódo responsável por listar pedidos
+        return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
+    }
+
     public function listarPedidosExternos()
     {
         $query = $this->pedidoService->listarTodosExternos(); // Metódo responsável por listar pedidos
@@ -98,6 +104,12 @@ class PedidoController extends Controller
     public function aprovarPedido(Request $request)
     {
         $query = $this->pedidoService->aprovar($request); // Metódo responsável por aprovar pedidos
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
+    public function aprovarMonica(Request $request)
+    {
+        $query = $this->pedidoService->aprovarMonica($request); // Metódo responsável por aprovar pedidos
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
 

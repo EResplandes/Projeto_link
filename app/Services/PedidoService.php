@@ -42,6 +42,23 @@ class PedidoService
         }
     }
 
+    public function listarPedidosPorComprador($id)
+    {
+        // 1º Passo -> Buscar todos os pedidos cadastrados
+        $query = PedidoResource::collection(
+            Pedido::orderBy('created_at', 'desc')
+                ->where('id_criador', $id)
+                ->get()
+        );
+
+        // 2º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Pedidos listados com sucesso!', 'pedidos' => $query, 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+    }
+
     public function listarTodosExternos()
     {
         // 1º Passo -> Buscar todos os pedidos cadastrados
@@ -328,6 +345,76 @@ class PedidoService
                     Chat::create([
                         'id_pedido' => $item['id'],
                         'id_usuario' => 1,
+                        'mensagem' => $item['mensagem']
+                    ]);
+                }
+            }
+
+            DB::commit();
+
+            return ['resposta' => 'Pedidos aprovados com sucesso!', 'status' => Response::HTTP_OK];
+        } catch (\Exception $e) {
+            DB::rollback(); // Se uma exceção ocorrer durante as operações do banco de dados, fazemos o rollback
+
+            return ['resposta' => $e, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+
+            throw $e;
+        }
+    }
+
+    public function aprovarMonica($request)
+    {
+        DB::beginTransaction();
+
+        $pedidosArray = $request['pedidos'];
+        // $pedidosArray = json_decode($pedidosArray, true); // Transformando JSON em Array
+
+        try {
+            // 1º Passo -> Itera sobre o array de objetos
+            foreach ($pedidosArray as $item) {
+
+                $observacao = '';
+
+                $statusAtual = Pedido::where('id', $item['id'])->pluck('id_status')->first();
+
+                switch ($item['status']) {
+                    case 3:
+                        $observacao = 'O pedido foi reprovado pelo Dr. Emival!';
+                        break;
+                    case 4:
+                        $observacao = 'O pedido foi aprovado pelo Dr. Emival!';
+                        break;
+                    case 5:
+                        $observacao = 'O pedido foi aprovado com ressalva pelo Dr. Emival!';
+                        break;
+                }
+
+                $dadosHistorico = [''];
+
+                if ($statusAtual == 12 && $item['status'] == 3) {
+                    Pedido::where('id', $item['id'])->update(['id_status' => 13]);
+
+                    $dadosHistorico = [
+                        'id_pedido' => $item['id'],
+                        'id_status' => 13,
+                        'observacao' => $observacao
+                    ];
+                } else {
+                    Pedido::where('id', $item['id'])->update(['id_status' => $item['status']]);
+
+                    $dadosHistorico = [
+                        'id_pedido' => $item['id'],
+                        'id_status' => $item['status'],
+                        'observacao' => $observacao
+                    ];
+                }
+
+                HistoricoPedidos::create($dadosHistorico);
+
+                if ($item['status'] != 4) {
+                    Chat::create([
+                        'id_pedido' => $item['id'],
+                        'id_usuario' => 3,
                         'mensagem' => $item['mensagem']
                     ]);
                 }
