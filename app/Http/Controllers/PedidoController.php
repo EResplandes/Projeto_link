@@ -252,10 +252,27 @@ class PedidoController extends Controller
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
 
+    public function respondeReprovacaoFiscal(Request $request, $id)
+    {
+        $query = $this->pedidoService->respondeReprovacaoFiscal($request, $id); // Metódo responsável por responder pedidos reprovados pelo Dr. Emival ou Dr. Monica
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
     public function atualizaDadosPedido(Request $request, $id)
     {
         $query = $this->pedidoService->atualizaDadosPedido($request, $id); // Metódo responsável por alterar dados do pedido de acordo com ID passado via url
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
 
+    public function listarPedidosEscriturar()
+    {
+        $query = $this->pedidoService->listarPedidosEscriturar(); // Metódo responsável por listar pedidos com status 14
+        return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
+    }
+
+    public function listarPedidosReprovadosFiscal($id)
+    {
+        $query = $this->pedidoService->listarPedidosReprovadosFiscal($id); // Metódo responsável por listar pedidos reprovados pelo fiscal
+        return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
+    }
 }

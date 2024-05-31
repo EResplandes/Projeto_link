@@ -10,9 +10,11 @@ use App\Http\Controllers\FuncionarioController;
 use App\Http\Controllers\LinkController;
 use App\Http\Controllers\LocalController;
 use App\Http\Controllers\MonicaController;
+use App\Http\Controllers\NotasController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\RelatorioController;
 use App\Http\Controllers\StatusController;
+use App\Models\NotasFiscais;
 
 // Módulo de Autenticação
 Route::prefix("/autenticacao")->group(function () {
@@ -56,10 +58,13 @@ Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
         Route::post('/responde-reprovado/{id}', 'respondeReprovacaoComAnexo');
         Route::post('/responde-reprovado-fluxo/{id}/{idUsuario}/{mensagem}', 'respondeReprovacaoEmFluxo'); // ID do pedido, usuario, mensagem
         Route::post('/responde-reprovado-soleni/{id}', 'respondeReprovacaoSoleni'); // ID do pedido
+        Route::post('/responde-reprovado-fiscal/{id}', 'respondeReprovacaoFiscal'); // ID do pedido
         Route::post('/responde-ressalva/{id}', 'respondeRessalvaPedido');
         Route::get('/aprovar-fluxo-externo/{id}/{idLink}/{idUsuario}', 'aprovaEmFluxoExterno'); // ID do pedido e ID do pedido, link e usuario
         Route::get('/reprovar-fluxo-externo/{id}/{idUsuario}/{mensagem}', 'reprovaEmFluxoExterno'); // ID do pedido e ID do pedido, usuario, mensagem
         Route::post('/atualizada-dados-pedido/{id}', 'atualizaDadosPedido'); // ID do Pedido
+        Route::get('/listar-pedidos-escriturar', 'listarPedidosEscriturar');
+        Route::get('/listar-pedidos-reprovados-fiscal/{id}', 'listarPedidosReprovadosFiscal'); // ID do usuário
     });
 });
 
@@ -166,5 +171,13 @@ Route::prefix('relatorios')->middleware('jwt.auth')->group(function () {
     Route::controller(RelatorioController::class)->group(function () {
         Route::get('/listar-locais/{data}', 'aprovadosDia');
         Route::get('listar-reprovados/{data}', 'reprovadosDia');
+    });
+});
+
+Route::prefix('notas')->middleware('jwt.auth')->group(function () {
+    Route::controller(NotasController::class)->group(function () {
+        Route::post('/cadastrar/{id}', 'cadastrarNota'); // ID do pedido
+        Route::get('/dar-baixa/{id}', 'darBaixaNota'); // ID do pedido
+        Route::get('/reprovar/{id}/{mensagem}/{idUsuario}', 'reprovarNota'); // ID do pedido, mensagem e id do usuário
     });
 });

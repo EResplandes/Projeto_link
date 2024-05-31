@@ -12,12 +12,13 @@ use App\Http\Resources\FluxoPedidoResource;
 use App\Http\Resources\FluxoAprovadoResource;
 use App\Http\Resources\PedidoAprovadoResource;
 use App\Http\Resources\PedidoInformacoesResource;
+use App\Http\Resources\NotasResource;
 use App\Http\Resources\PedidoAprovacaoFluxoResource;
 use Illuminate\Support\Facades\DB;
 use App\Queries\PedidosQuery;
 use App\Models\Fluxo;
+use App\Models\NotasFiscais;
 use \Datetime;
-
 
 class PedidoService
 {
@@ -1337,6 +1338,90 @@ class PedidoService
             return ['resposta' => 'Pedido atualizado com sucesso!', 'status' => Response::HTTP_OK];
         } else {
             return ['resposta' => 'É obrigatório a alteração de pelo menos 1 campo', 'status' => Response::HTTP_ACCEPTED];
+        }
+    }
+
+    public function listarPedidosEscriturar()
+    {
+        // 1º Passo -> Buscar todos pedidos com status 14
+        $query = NotasResource::collection(
+            NotasFiscais::whereHas('pedidos', function ($query) {
+                $query->where('id_status', 14);
+            })
+                ->where('status', 'Pendente')
+                ->orderBy('created_at', 'desc')
+                ->get()
+        );
+
+        // 2º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Pedidos listado com sucesso!', 'pedidos' => $query, 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador', 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+    }
+
+    public function listarPedidosReprovadosFiscal($id)
+    {
+        // 1º Passo -> Buscar todos pedidos com status 14
+        $query = NotasResource::collection(
+            NotasFiscais::whereHas('pedidos', function ($query) use ($id) {
+                $query->where('id_status', 16)
+                    ->where('id_criador', $id);
+            })
+                ->where('status', 'Pendente')
+                ->orderBy('created_at', 'desc')
+                ->get()
+        );
+
+        // 2º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Pedidos listado com sucesso!', 'pedidos' => $query, 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador', 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+    }
+
+    public function respondeReprovacaoFiscal($request, $id)
+    {
+        DB::beginTransaction();
+        try {
+            // 1º Passo -> Verifica se tem anexo e insere o mesmo
+            if ($request->file('nota')) {
+                $directory = "/notas"; // Criando diretório
+
+                $pdf = $request->file('nota')->store($directory, 'public'); // Salvando pdf do pedido
+
+                NotasFiscais::where('id', $id)
+                    ->update(['nota' => $pdf]);
+            }
+
+            // 2º Passo -> Alterar status do pedido para 14
+            $idPedido = NotasFiscais::where('id', $id)
+                ->pluck('id_pedido')
+                ->first();
+
+            // 3º Passo -> Inserir mensagem na tabela chat
+            $dadosChat = [
+                'id_pedido' => $idPedido,
+                'id_usuario' => $request->input('id_usuario'),
+                'mensagem' => $request->input('mensagem')
+            ];
+
+            Chat::create($dadosChat);
+
+            // 4º Passo -> Alterar Status do Pedido
+            Pedido::where('id', $idPedido)->update(['id_status' => 14]);
+
+            // 5º Passo -> Retornar resposta
+            DB::commit();
+            return ['resposta' => 'Mensagem enviada com sucesso!', 'status' => Response::HTTP_CREATED];
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return ['resposta' => $e, 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+
+            throw $e;
         }
     }
 }

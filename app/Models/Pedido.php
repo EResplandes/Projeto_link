@@ -63,9 +63,14 @@ class Pedido extends Model
         return $this->belongsTo(User::class, 'id_criador');
     }
 
+    public function notas()
+    {
+        return $this->belongsTo(NotasFiscais::class, 'id');
+    }
+
     public function chat()
     {
-        return $this->hasMany(Chat::class, 'id_pedido');
+        return $this->hasOne(Chat::class, 'id_pedido');
     }
 
 
