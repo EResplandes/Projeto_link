@@ -4,9 +4,8 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Carbon\Carbon;
 
-class PedidoNotasResource extends JsonResource
+class PedidosEnviadosFinanceiroResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -18,16 +17,15 @@ class PedidoNotasResource extends JsonResource
         return [
             "id"            => $this->id,
             "descricao"     => $this->descricao,
-            "valor"         => $this->valor,
-            "protheus"      => $this->protheus,
-            "urgente"       => $this->urgente,
-            "anexo"         => $this->anexo,
-            "dt_inclusao"   => $this->created_at,
             "dt_vencimento" => $this->dt_vencimento,
-            "local"         => $this->local->local,
+            "valor"         => $this->valor,
+            "anexo"         => $this->anexo,
             "empresa"       => $this->empresa->nome_empresa,
+            "local"         => $this->local->local,
             "status"        => $this->status->status,
-            "comprador"     => $this->criador->name
+            "comprador"     => $this->criador->name,
+            "boleto"        => $this->boletos,
+            "nota"          => $this->notas
         ];
     }
 }

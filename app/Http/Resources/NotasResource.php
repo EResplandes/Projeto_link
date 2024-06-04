@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Boleto;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -18,7 +19,8 @@ class NotasResource extends JsonResource
             "id_nota"            => $this->id,
             "nota"               => $this->nota,
             "dt_inclusao_nota"   => $this->created_at,
-            "pedido"             => new PedidoNotasResource($this->pedidos)
+            "pedido"             => new PedidoNotasResource($this->pedidos),
+            "boleto"             => $this->pedidos->boletos,
         ];
     }
 }

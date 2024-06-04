@@ -252,6 +252,12 @@ class PedidoController extends Controller
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
 
+    public function respondeReprovacaoFinanceiro(Request $request, $id)
+    {
+        $query = $this->pedidoService->respondeReprovacaoFinanceiro($request, $id); // Metódo responsável por responder pedidos reprovados por Financeiro
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
     public function respondeReprovacaoFiscal(Request $request, $id)
     {
         $query = $this->pedidoService->respondeReprovacaoFiscal($request, $id); // Metódo responsável por responder pedidos reprovados pelo Dr. Emival ou Dr. Monica
@@ -273,6 +279,36 @@ class PedidoController extends Controller
     public function listarPedidosReprovadosFiscal($id)
     {
         $query = $this->pedidoService->listarPedidosReprovadosFiscal($id); // Metódo responsável por listar pedidos reprovados pelo fiscal
+        return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
+    }
+
+    public function listarPedidosFinanceiro()
+    {
+        $query = $this->pedidoService->listarPedidosFinanceiro(); // Metódo responsável por listar todos pedidos com status 15
+        return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
+    }
+
+    public function pagarPedido(Request $request, $id)
+    {
+        $query = $this->pedidoService->pagarPedido($request, $id); // Metódo responsável por pagar pedido enviado para comprador inserir nota ou para finalizar processo
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
+    public function reprovarPedidoEnviadoFinanceiroComprador(Request $request, $id)
+    {
+        $query = $this->pedidoService->reprovarPedidoEnviadoFinanceiroComprador($request, $id); // Metódo responsável por reprovar pedido e voltar para comprador justificar ou alterar
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
+    public function reprovarPedidoEnviadoFinanceiroFiscal(Request $request, $id)
+    {
+        $query = $this->pedidoService->reprovarPedidoEnviadoFinanceiroFiscal($request, $id); // Metódo responsável por reprovar pedido e voltar para fiscal tomar devidas providencias
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
+    public function listarReprovadosFinanceiro()
+    {
+        $query = $this->pedidoService->listarReprovadosFinanceiro(); // Metódo responsável por listar todos pedidos reprovados pelo financeiro
         return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
     }
 }

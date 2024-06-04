@@ -12,8 +12,11 @@ use App\Http\Resources\FluxoPedidoResource;
 use App\Http\Resources\FluxoAprovadoResource;
 use App\Http\Resources\PedidoAprovadoResource;
 use App\Http\Resources\PedidoInformacoesResource;
+use App\Http\Resources\BoletosResource;
 use App\Http\Resources\NotasResource;
 use App\Http\Resources\PedidoAprovacaoFluxoResource;
+use App\Http\Resources\PedidosEnviadosFinanceiroResource;
+use App\Models\Boleto;
 use Illuminate\Support\Facades\DB;
 use App\Queries\PedidosQuery;
 use App\Models\Fluxo;
@@ -968,7 +971,7 @@ class PedidoService
             // 1º Passo -> Buscar todos pedido aprovador de acordo com id do usuário logado com status 4
             $pedidos = PedidoResource::collection(
                 Pedido::where('id_criador', $id)
-                    ->whereIn('id_status', [4, 12, 13])
+                    ->whereIn('id_status', [4, 5, 12, 13, 17, 18])
                     ->get()
             );
 
@@ -1253,6 +1256,48 @@ class PedidoService
         }
     }
 
+    public function respondeReprovacaoFinanceiro($request, $id)
+    {
+        DB::beginTransaction();
+        try {
+            // 1º Passo -> Verifica se tem anexo e insere o mesmo
+            if ($request->file('anexo')) {
+                $directory = "/notas"; // Criando diretório
+
+                $pdf = $request->file('anexo')->store($directory, 'public'); // Salvando pdf do pedido
+
+                Pedido::where('id', $id)
+                    ->update(['anexo' => $pdf]);
+
+                NotasFiscais::where('id_pedido', $id)
+                    ->update(['nota' => $pdf]);
+            }
+
+            // 2º Passo -> Alterar status do pedido
+            Pedido::where('id', $id)
+                ->update(['id_status' => 15]);
+
+            // 3º Passo -> Inserir mensagem na tabela chat
+            $dadosChat = [
+                'id_pedido' => $id,
+                'id_usuario' => $request->input('id_usuario'),
+                'mensagem' => $request->input('mensagem')
+            ];
+
+            Chat::create($dadosChat);
+
+            // 5º Passo -> Retornar resposta
+            DB::commit();
+            return ['resposta' => 'Mensagem enviada com sucesso!', 'status' => Response::HTTP_CREATED];
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador!', 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+
+            throw $e;
+        }
+    }
+
     public function aprovaEmFluxoDiretor($id, $idLink)
     {
         DB::beginTransaction();
@@ -1422,6 +1467,136 @@ class PedidoService
             return ['resposta' => $e, 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
 
             throw $e;
+        }
+    }
+
+    public function listarPedidosFinanceiro()
+    {
+        // 1º Passo -> Pegar todos pedidos com status 15
+        $pedidos = PedidosEnviadosFinanceiroResource::collection(
+            Pedido::where('id_status', 15)
+                ->orderBy('dt_vencimento', 'desc')
+                ->get()
+        );
+
+        // 2º Passo -> Retornar pedidos
+        return ['resposta' => 'Pedidos listados com sucesso!', 'pedidos' => $pedidos, 'status' => Response::HTTP_OK];
+    }
+
+    public function pagarPedido($request, $id)
+    {
+        try {
+            // 1º Passo -> Inserir diretório onde foi salvo o comprovante na tabela pedidos
+            Pedido::where('id', $id)->update(['comprovante' => $request->input('comprovante')]);
+
+            // 2º Passo -> Verificar se existe nota associada a esse pedido na tabela notas fiscais se existir enviar para Patricia e Vinicius
+            $verificaNota = NotasFiscais::where('id_pedido', $id)->count();
+
+            if ($verificaNota) {
+                Pedido::where('id', $id)->update(['id_status' => 17]); // Enviando para consolida
+            } else {
+                Pedido::where('id', $id)->update(['id_status' => 18]); // Enviando para comprador anexa nota
+            }
+
+            // 3º Passo -> Alterar na tabela Boletos que foi pago
+            Boleto::where('id_pedido', $id)->update(['status' => 'Pago']);
+
+            // 4º Passo -> Retornar resposta
+            DB::commit();
+
+            return ['resposta' => 'Pedido despachado com sucesso!', 'status' => Response::HTTP_OK];
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return ['resposta' => $e, 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+
+            throw $e;
+        }
+    }
+
+    public function reprovarPedidoEnviadoFinanceiroComprador($request, $id)
+    {
+        DB::beginTransaction();
+
+        try {
+            // 1º Passo -> Alterar Status do Pedido para 19
+            Pedido::where('id', $id)->update(['id_status' => 19]);
+
+            // 2º Passo -> Gerar chat com motivo da reprovacao
+            Chat::create([
+                'id_usuario' => $request->input('id_usuario'),
+                'id_pedido'  => intval($id),
+                'mensagem'   => $request->input('mensagem')
+            ]);
+
+            // 3º Passo -> Gerar Histórico da reprovação
+            HistoricoPedidos::create([
+                'id_pedido' => $id,
+                'id_status'  => 19,
+                'observacao' => 'Pedido reprovado pelo financeiro!'
+            ]);
+
+            // 4º Passo -> Retornar resposta
+            DB::commit();
+
+            return ['resposta' => 'Pedido reprovado e enviado para comprador com sucesso!', 'status' => Response::HTTP_OK];
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return ['resposta' => $e, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+
+            throw $e;
+        }
+    }
+
+    public function reprovarPedidoEnviadoFinanceiroFiscal($request, $id)
+    {
+        DB::beginTransaction();
+
+        try {
+            // 1º Passo -> Alterar Status do Pedido para 20
+            Pedido::where('id', $id)->update(['id_status' => 20]);
+
+            // 2º Passo -> Gerar chat com motivo da reprovacao
+            Chat::create([
+                'id_usuario' => $request->input('id_usuario'),
+                'id_pedido'  => $id,
+                'mensagem'   => $request->input('mensagem')
+            ]);
+
+            // 3º Passo -> Gerar Histórico da reprovação
+            HistoricoPedidos::create([
+                'id_pedido' => $id,
+                'id_status'  => 20,
+                'observacao' => 'Pedido reprovado pelo financeiro!'
+            ]);
+
+            // 4º Passo -> Retornar resposta
+            DB::commit();
+
+            return ['resposta' => 'Pedido reprovado e enviado para fiscal com sucesso!', 'status' => Response::HTTP_OK];
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return ['resposta' => $e, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+
+            throw $e;
+        }
+    }
+
+    public function listarReprovadosFinanceiro()
+    {
+        // 1º Passo -> Buscar todos pedidos com status 20
+        $query = PedidoFluxoResource::collection(
+            Pedido::orderBy('created_at', 'desc')
+                ->where('id_status', 20)
+                ->get()
+        );
+        // 2º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Pedidos listados com sucesso!', 'pedidos' => $query, 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador',  'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
         }
     }
 }

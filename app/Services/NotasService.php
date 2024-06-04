@@ -8,6 +8,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use App\Models\NotasFiscais;
 use App\Models\Pedido;
+use App\Models\Boleto;
 
 class NotasService
 {
@@ -26,18 +27,75 @@ class NotasService
                 return ['resposta' => 'O envio da nota é obrigatório!', 'status' => Response::HTTP_BAD_REQUEST];
             }
 
-            // 2º Passo -> Cadastrar na tabela notas o registro
-            $dados = [
+            // 2º Passo -> Cadastra Boleto fiscal
+            $directory = "/boletos"; // Criando diretório
+
+            if ($request->file('boleto')) {
+                $pdf = $request->file('boleto')
+                    ->store($directory, 'public'); // Salvando pdf da boleto
+            } else {
+                return ['resposta' => 'O envio do  boleto é obrigatório!', 'status' => Response::HTTP_BAD_REQUEST];
+            }
+
+            // 3º Passo -> Cadastrar na tabela notas o registro
+            $dadosNota = [
                 'nota' => $pdf,
                 'id_pedido' => $id
             ];
 
-            NotasFiscais::create($dados);
+            NotasFiscais::create($dadosNota);
 
-            // 3ª Passo -> Alterar status do pedido para enviado para fiscal
+            // 4º Passo -> Cadastrar na tabela notas o registro
+            $dadosBoleto = [
+                'boleto' => $pdf,
+                'id_pedido' => $id
+            ];
+
+            Boleto::create($dadosBoleto);
+
+            // 5ª Passo -> Alterar status do pedido para enviado para fiscal
             Pedido::where('id', $id)->update(['id_status' => 14]);
 
-            // 4º Passo -> Retornar resposta
+            // 6º Passo -> Retornar resposta
+            DB::commit();
+
+            return ['resposta' => 'Nota cadastrada com suceso!', 'status' => Response::HTTP_OK];
+        } catch (\Exception $e) {
+            DB::rollback(); // Se uma exceção ocorrer durante as operações do banco de dados, fazemos o rollback
+
+            return ['resposta' => $e, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+
+            throw $e;
+        }
+    }
+
+    public function cadastrarSomenteNota($request, $id)
+    {
+        DB::beginTransaction();
+
+        try {
+            // 1º Passo -> Cadastra nota fiscal
+            $directory = "/notas"; // Criando diretório
+
+            if ($request->file('nota')) {
+                $pdf = $request->file('nota')
+                    ->store($directory, 'public'); // Salvando pdf da nota
+            } else {
+                return ['resposta' => 'O envio da nota é obrigatório!', 'status' => Response::HTTP_BAD_REQUEST];
+            }
+
+            // 3º Passo -> Cadastrar na tabela notas o registro
+            $dadosNota = [
+                'nota' => $pdf,
+                'id_pedido' => $id
+            ];
+
+            NotasFiscais::create($dadosNota);
+
+            // 5ª Passo -> Alterar status do pedido para enviado para fiscal
+            Pedido::where('id', $id)->update(['id_status' => 14]);
+
+            // 6º Passo -> Retornar resposta
             DB::commit();
 
             return ['resposta' => 'Nota cadastrada com suceso!', 'status' => Response::HTTP_OK];
@@ -61,8 +119,15 @@ class NotasService
         // 2º Passo -> Alterar status da nota
         NotasFiscais::where('id', $idNota)->update(['status' => 'Nota Escriturada']);
 
+
         // 3º Passo -> Alterar Status do Pedido
-        Pedido::where('id', $id)->update(['id_status' => 15]);
+        $verificaBoleto = Boleto::where('id_pedido', $id)->pluck('status')->first();
+
+        if ($verificaBoleto == 'Pendente') {
+            Pedido::where('id', $id)->update(['id_status' => 15]);
+        } else {
+            Pedido::where('id', $id)->update(['id_status' => 17]);
+        }
 
         // 4º Passo -> Retornar resposta
         DB::commit();

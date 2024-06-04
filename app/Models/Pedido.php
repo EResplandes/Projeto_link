@@ -65,14 +65,16 @@ class Pedido extends Model
 
     public function notas()
     {
-        return $this->belongsTo(NotasFiscais::class, 'id');
+        return $this->hasMany(NotasFiscais::class, 'id_pedido');
+    }
+
+    public function boletos()
+    {
+        return $this->hasMany(Boleto::class, 'id_pedido');
     }
 
     public function chat()
     {
         return $this->hasOne(Chat::class, 'id_pedido');
     }
-
-
-
 }

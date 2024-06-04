@@ -18,7 +18,13 @@ class NotasController extends Controller
 
     public function cadastrarNota(Request $request, $id)
     {
-        $query = $this->notasService->cadastrar($request, $id); // Metódo responsável por cadastrar nota
+        $query = $this->notasService->cadastrar($request, $id); // Metódo responsável por cadastrar nota e boleto
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
+    public function cadastrarSomenteNota(Request $request, $id)
+    {
+        $query = $this->notasService->cadastrarSomenteNota($request, $id); // Metódo responsável por cadastrar somente nota
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
 

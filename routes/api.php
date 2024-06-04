@@ -2,7 +2,9 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AutenticacaoController;
+use App\Http\Controllers\BoletosController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\ComprovanteController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\FluxoController;
@@ -59,12 +61,18 @@ Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
         Route::post('/responde-reprovado-fluxo/{id}/{idUsuario}/{mensagem}', 'respondeReprovacaoEmFluxo'); // ID do pedido, usuario, mensagem
         Route::post('/responde-reprovado-soleni/{id}', 'respondeReprovacaoSoleni'); // ID do pedido
         Route::post('/responde-reprovado-fiscal/{id}', 'respondeReprovacaoFiscal'); // ID do pedido
+        Route::post('/responde-reprovado-financeiro/{id}', 'respondeReprovacaoFinanceiro'); // ID do pedido
         Route::post('/responde-ressalva/{id}', 'respondeRessalvaPedido');
         Route::get('/aprovar-fluxo-externo/{id}/{idLink}/{idUsuario}', 'aprovaEmFluxoExterno'); // ID do pedido e ID do pedido, link e usuario
         Route::get('/reprovar-fluxo-externo/{id}/{idUsuario}/{mensagem}', 'reprovaEmFluxoExterno'); // ID do pedido e ID do pedido, usuario, mensagem
         Route::post('/atualizada-dados-pedido/{id}', 'atualizaDadosPedido'); // ID do Pedido
         Route::get('/listar-pedidos-escriturar', 'listarPedidosEscriturar');
         Route::get('/listar-pedidos-reprovados-fiscal/{id}', 'listarPedidosReprovadosFiscal'); // ID do usuário
+        Route::get('/listar-pedidos-financeiro', 'listarPedidosFinanceiro');
+        Route::post('/pagar-pedido/{id}', 'pagarPedido'); // ID do Pedido
+        Route::post('/reprovar-pedido-financeiro-comprador/{id}', 'reprovarPedidoEnviadoFinanceiroComprador'); // ID do Pedido
+        Route::post('/reprovar-pedido-financeiro-fiscal/{id}', 'reprovarPedidoEnviadoFinanceiroFiscal'); // ID do Pedido
+        Route::get('/listar-pedidos-reprovados-finaceiro', 'listarReprovadosFinanceiro');
     });
 });
 
@@ -177,7 +185,21 @@ Route::prefix('relatorios')->middleware('jwt.auth')->group(function () {
 Route::prefix('notas')->middleware('jwt.auth')->group(function () {
     Route::controller(NotasController::class)->group(function () {
         Route::post('/cadastrar/{id}', 'cadastrarNota'); // ID do pedido
+        Route::post('/cadastrar-somente-nota/{id}', 'cadastrarSomenteNota'); // ID do pedido
         Route::get('/dar-baixa/{id}', 'darBaixaNota'); // ID do pedido
         Route::get('/reprovar/{id}/{mensagem}/{idUsuario}', 'reprovarNota'); // ID do pedido, mensagem e id do usuário
     });
 });
+
+Route::prefix('boletos')->middleware('jwt.auth')->group(function () {
+    Route::controller(BoletosController::class)->group(function () {
+        Route::post('/cadastrar/{id}', 'cadastrarBoleto'); // ID do pedido
+    });
+});
+
+Route::prefix('comprovante')->middleware('jwt.auth')->group(function () {
+    Route::controller(ComprovanteController::class)->group(function () {
+        Route::post('/abrir-explore', 'abreExplore');
+    });
+});
+
