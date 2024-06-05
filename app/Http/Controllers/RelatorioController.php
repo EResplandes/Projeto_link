@@ -26,4 +26,9 @@ class RelatorioController extends Controller
         return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
     }
 
+    public function quantidadePedidosPorStatus()
+    {
+        $query = $this->relatorioService->quantidadePedidosPorStatus();
+        return response()->json(['resposta' => $query['resposta'], 'informacoes' => $query['informacoes']], $query['status']);
+    }
 }

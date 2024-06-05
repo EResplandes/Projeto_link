@@ -179,6 +179,7 @@ Route::prefix('relatorios')->middleware('jwt.auth')->group(function () {
     Route::controller(RelatorioController::class)->group(function () {
         Route::get('/listar-locais/{data}', 'aprovadosDia');
         Route::get('listar-reprovados/{data}', 'reprovadosDia');
+        Route::get('/quantidade-pedidos-por-status', 'quantidadePedidosPorStatus');
     });
 });
 
@@ -202,4 +203,3 @@ Route::prefix('comprovante')->middleware('jwt.auth')->group(function () {
         Route::post('/abrir-explore', 'abreExplore');
     });
 });
-

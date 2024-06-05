@@ -51,4 +51,28 @@ class RelatorioService
             return ['resposta' => 'Ocorreu um erro, entre em contato com o Administrador!', 'pedidos' => null, 'status' => Response::HTTP_BAD_REQUEST];
         }
     }
+
+    public function quantidadePedidosPorStatus()
+    {
+
+        // 1º Passo -> Executar query
+        $quantidadePorStatus = Pedido::join('status', 'pedidos.id_status', '=', 'status.id')
+            ->select('status.status', DB::raw('count(*) as total'))
+            ->groupBy('status.status')
+            ->get();
+
+        $resultado = [];
+
+        // 2º Passo - Inserir os dados no array
+        foreach ($quantidadePorStatus as $status) {
+            $resultado[] = [
+                'status' => $status->status,
+                'total' => $status->total,
+            ];
+        }
+
+        // 3º Passo - Retornar resposta
+        return ['resposta' => 'Informações listadas com sucesso!', 'informacoes' => $resultado, 'status' => Response::HTTP_OK];
+
+    }
 }
