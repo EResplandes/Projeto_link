@@ -25,6 +25,7 @@ class PedidoResource extends JsonResource
             "dt_inclusao"   => $this->created_at,
             "dt_assinatura" => $this->updated_at,
             "local"         => $this->local,
+            "criador"       => $this->criador->name,
             "empresa"       => new EmpresaResource($this->empresa),
             "status"        => new StatusResource($this->status),
             "link"          => new LinkResource($this->link),
