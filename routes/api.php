@@ -7,16 +7,18 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ComprovanteController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EmpresaController;
+use App\Http\Controllers\ExternoController;
 use App\Http\Controllers\FluxoController;
 use App\Http\Controllers\FuncionarioController;
 use App\Http\Controllers\LinkController;
 use App\Http\Controllers\LocalController;
 use App\Http\Controllers\MonicaController;
 use App\Http\Controllers\NotasController;
+use App\Http\Controllers\ParcelaController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\RelatorioController;
 use App\Http\Controllers\StatusController;
-use App\Models\NotasFiscais;
+use App\Services\ExternoService;
 
 // Módulo de Autenticação
 Route::prefix("/autenticacao")->group(function () {
@@ -179,10 +181,13 @@ Route::prefix('relatorios')->middleware('jwt.auth')->group(function () {
     Route::controller(RelatorioController::class)->group(function () {
         Route::get('/listar-locais/{data}', 'aprovadosDia');
         Route::get('listar-reprovados/{data}', 'reprovadosDia');
+        Route::get('listar-historico-pedido', 'listarHistoricoPedido');
         Route::get('/quantidade-pedidos-por-status', 'quantidadePedidosPorStatus');
+        Route::get('/quantidade-pedidos-por-status-pessoal/{id}', 'quantidadePedidosPorStatusPessoa');
     });
 });
 
+// Módulo de Notas
 Route::prefix('notas')->middleware('jwt.auth')->group(function () {
     Route::controller(NotasController::class)->group(function () {
         Route::post('/cadastrar/{id}', 'cadastrarNota'); // ID do pedido
@@ -192,14 +197,35 @@ Route::prefix('notas')->middleware('jwt.auth')->group(function () {
     });
 });
 
+// Módulo de Boletos
 Route::prefix('boletos')->middleware('jwt.auth')->group(function () {
     Route::controller(BoletosController::class)->group(function () {
         Route::post('/cadastrar/{id}', 'cadastrarBoleto'); // ID do pedido
     });
 });
 
+// Módulo de Comprovante
 Route::prefix('comprovante')->middleware('jwt.auth')->group(function () {
     Route::controller(ComprovanteController::class)->group(function () {
         Route::post('/abrir-explore', 'abreExplore');
+    });
+});
+
+// Módulo de parcelas
+Route::prefix('parcelas')->middleware('jwt.auth')->group(function () {
+    Route::controller(ParcelaController::class)->group(function () {
+        Route::post('/cadastrar-parcela/{id}', 'cadastrarParcela'); // ID do pedido
+        Route::get('/listar-parcelas-hoje', 'buscaParcelasHoje');
+        Route::post('/listar-parcelas', 'buscaParcelas');
+    });
+});
+
+// Rotas do Sistema de Controle de Pagamentos - SCP
+Route::prefix('externo')->middleware('jwt.auth')->group(function () {
+    Route::controller(ExternoController::class)->group(function () {
+        Route::get('/listar-gerentes', 'listarGerentes');
+        Route::get('/listar-diretores', 'listarDiretores');
+        Route::get('/listar-presidentes', 'listarPresidentes');
+        Route::post('/cadastrar-pedido', 'cadastrarPedido');
     });
 });

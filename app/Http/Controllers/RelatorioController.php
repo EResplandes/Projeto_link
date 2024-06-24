@@ -28,7 +28,19 @@ class RelatorioController extends Controller
 
     public function quantidadePedidosPorStatus()
     {
-        $query = $this->relatorioService->quantidadePedidosPorStatus();
+        $query = $this->relatorioService->quantidadePedidosPorStatus(); // Metódo responsável por buscar quantidades de pedidos por status
         return response()->json(['resposta' => $query['resposta'], 'informacoes' => $query['informacoes']], $query['status']);
+    }
+
+    public function quantidadePedidosPorStatusPessoa($id)
+    {
+        $query = $this->relatorioService->quantidadePedidosPorStatusPessoa($id); // Metódo responsável por buscar quantidades de pedidos por status
+        return response()->json(['resposta' => $query['resposta'], 'informacoes' => $query['informacoes']], $query['status']);
+    }
+
+    public function listarHistoricoPedido()
+    {
+        $query = $this->relatorioService->listarHistoricoPedido(); // Metódo responsável por gerar excel
+        // return response()->json(['resposta' => 'Relatório gerado com sucesso!', 'pedidos' => $query['pedidos']], $query['status']);
     }
 }

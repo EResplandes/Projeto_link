@@ -8,6 +8,8 @@ use App\Models\Local;
 use App\Models\Pedido;
 use App\Http\Resources\PedidoResource;
 use App\Http\Resources\PedidosReprovadosResource;
+use App\Http\Resources\RelatorioHistoricoPedidosResources;
+use App\Models\HistoricoPedidos;
 
 class RelatorioService
 {
@@ -54,7 +56,6 @@ class RelatorioService
 
     public function quantidadePedidosPorStatus()
     {
-
         // 1º Passo -> Executar query
         $quantidadePorStatus = Pedido::join('status', 'pedidos.id_status', '=', 'status.id')
             ->select('status.status', DB::raw('count(*) as total'))
@@ -73,6 +74,37 @@ class RelatorioService
 
         // 3º Passo - Retornar resposta
         return ['resposta' => 'Informações listadas com sucesso!', 'informacoes' => $resultado, 'status' => Response::HTTP_OK];
+    }
 
+    public function quantidadePedidosPorStatusPessoa($id)
+    {
+        // 1º Passo -> Executar query com filtro de id_criador
+        $quantidadePorStatus = Pedido::join('status', 'pedidos.id_status', '=', 'status.id')
+            ->select('status.status', DB::raw('count(*) as total'))
+            ->where('pedidos.id_criador', '=', $id)
+            ->groupBy('status.status')
+            ->get();
+
+        $resultado = [];
+
+        // 2º Passo - Inserir os dados no array
+        foreach ($quantidadePorStatus as $status) {
+            $resultado[] = [
+                'status' => $status->status,
+                'total' => $status->total,
+            ];
+        }
+
+        // 3º Passo - Retornar resposta
+        return ['resposta' => 'Informações listadas com sucesso!', 'informacoes' => $resultado, 'status' => Response::HTTP_OK];
+    }
+
+    public function listarHistoricoPedido()
+    {
+        // 1º Passo -> Buscar pedidos e seu respectivo histórico
+        $query = RelatorioHistoricoPedidosResources::collection(HistoricoPedidos::all());
+
+        // 2º Passo -> Retornar resposta
+        return ['resposta' => 'Histórico gerado com sucesso!', 'pedidos' => $query, 'status' => Response::HTTP_OK];
     }
 }
