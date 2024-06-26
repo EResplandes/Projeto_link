@@ -226,6 +226,8 @@ Route::prefix('externo')->middleware('jwt.auth')->group(function () {
         Route::get('/listar-gerentes', 'listarGerentes');
         Route::get('/listar-diretores', 'listarDiretores');
         Route::get('/listar-presidentes', 'listarPresidentes');
+        Route::get('/listar-empresas', 'listarLocais');
+        Route::get('/listar-locais', 'listarLocais');
         Route::post('/cadastrar-pedido', 'cadastrarPedido');
     });
 });

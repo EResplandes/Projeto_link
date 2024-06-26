@@ -6,7 +6,9 @@ use Illuminate\Http\Response;
 use App\Models\User;
 use App\Http\Resources\UserResource;
 use App\Models\Pedido;
-
+use Illuminate\Support\Facades\DB;
+use App\Models\Empresa;
+use App\Models\Local;
 use function PHPUnit\Framework\isEmpty;
 
 class ExternoService
@@ -51,42 +53,110 @@ class ExternoService
         }
     }
 
+    public function listarEmpresas()
+    {
+        // 1º Passo -> Buscar todas empresas
+        $empresas = Empresa::all();
+
+        // 2º Passo -> Retornar resposta
+        if ($empresas) {
+            return ['resposta' => 'Empresas listados com sucesso!', 'empresas' => $empresas, 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Occoreu algum problema, tente mais tarde!', 'status' => Response::HTTP_BAD_REQUEST];
+        }
+    }
+
+    public function listarLocais()
+    {
+        // 1ª Passo -> Listar todos locais
+        $query = Local::all();
+
+        // 2º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Locais listados com sucesso!', 'locais' => $query, 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Occoreu algum problema, tente mais tarde!', 'status' => Response::HTTP_BAD_REQUEST];
+        }
+    }
+
     public function cadastrarPedido($request)
     {
-        // 1º Passo -> Buscar id do funcionario logado atráves do e-mail passado
-        $idCriador = User::where('email', $request->input('email'))->pluck('id')->first();
 
-        // 2º Passo -> Cadastrar pedido
-        $dados = [
-            'descricao' => $request->input('descricao'),
-            'valor' => $request->input('valor'),
-            'protheus' => 999,
-            'urgente' => $request->input('urgente'),
-            'dt_vencimento' => $request->input('dt_vencimento'),
-            'anexo' => $request->input('anexo'),
-            'id_link' => $request->input('id_link'),
-            'id_empresa' => $request->input('id_empresa'),
-            'id_criador' => $idCriador,
-            'id_local' => $request->input('id_local')
-        ];
+        DB::beginTransaction();
 
-        // Verifica se pedido é com fluxo e sem fluxo para status e campo com fluxo
-        if (isEmpty($request->input('fluxo'))) {
-            $dados['tipo_pedido'] = 'Sem Fluxo';
+        try {
+            // 1º Passo -> Buscar id do funcionario logado atráves do e-mail passado
+            $idCriador = User::where('email', $request->input('email'))->pluck('id')->first();
+
+            // 2º Passo -> Cadastrar pedido
+            $dados = [
+                'descricao' => $request->input('descricao'),
+                'valor' => $request->input('valor'),
+                'protheus' => 999,
+                'urgente' => $request->input('urgente'),
+                'dt_vencimento' => $request->input('dt_vencimento'),
+                'anexo' => $request->input('anexo'),
+                'id_link' => $request->input('id_link'),
+                'id_empresa' => $request->input('id_empresa'),
+                'id_criador' => $idCriador,
+                'id_local' => $request->input('id_local')
+            ];
+
+            // Verifica se pedido é com fluxo e sem fluxo para status e campo com fluxo
+            if (isEmpty($request->input('fluxo'))) {
+                $dados['tipo_pedido'] = 'Sem Fluxo';
+                $dados['id_status'] = 6;
+            } else {
+                $dados['tipo_pedido'] = 'Com Fluxo';
+                $dados['id_status'] = 7;
+            }
+
+            $queryPedido = Pedido::create($dados); // Cadastrando pedido
+
+            $idPedido = $queryPedido->id; // Acessando id do pedido
+
+            // 3º Passo -> Verificar se tem fluxo paara cadastro de fluxo
+            if ($request->input('fluxo')) {
+                $queryFluxo = $this->cadastroFluxo($request->input('fluxo'), $idPedido);
+            }
+
+            // 4º Passo -> Retornar resposta com o id do pedido
+            DB::commit();
+            return ['resposta' => 'Pedido cadastrado com sucesso!', 'idPedido' => $idPedido, 'status' => Response::HTTP_CREATED];
+        } catch (\Exception $e) {
+            DB::rollback(); // Se uma exceção ocorrer durante as operações do banco de dados, fazemos o rollback
+
+            return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador!', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+
+            throw $e;
+        }
+    }
+
+    public function cadastroFluxo($fluxo, $idPedido)
+    {
+
+        $fluxoArray = $fluxo; // Definiindo o array do fluxo
+
+        $fluxoArray = json_decode($fluxoArray, true); // Transformando JSON em Array
+
+        // Verificando se array foi preenchido
+        if (empty($fluxoArray)) {
+            return false;
         }
 
-        if (isEmpty($request->input('fluxo'))) {
-            $dados['id_status'] = 6;
+        // Insere os itens na tabela fluxos
+        if ($fluxoArray != null || $fluxoArray != '') {
+            foreach ($fluxoArray as $item) {
+                DB::table('fluxos')->insert([
+                    'id_usuario' => $item['id_usuario'],
+                    'id_pedido' => $idPedido,
+                    'assinado' => 0,
+                ]);
+            }
         } else {
-            $dados['id_status'] = 7;
+            return false;
         }
 
-        Pedido::create($dados);
-
-        // 3º Passo -> Verificar se tem fluxo paara cadastro de fluxo
-
-
-        // 4º Passo -> Cadastro no histórico informando que pedido é externo
-        // 5º Passo -> Retornar resposta com o id do pedido
+        return true;
     }
 }
