@@ -88,15 +88,25 @@ class ExternoService
             // 1º Passo -> Buscar id do funcionario logado atráves do e-mail passado
             $idCriador = User::where('email', $request->input('email'))->pluck('id')->first();
 
-            // 2º Passo -> Cadastrar pedido
+            // 2º Passo -> Salvar anexo do pedido
+            $directory = "/pedidos"; // Criando diretório
+
+            $pdf = $request->file('anexo')->store($directory, 'public'); // Salvando pdf do pedido
+
+            // 2º Passo -> Montar array a ser inserido
+            $idLink = $request->input('id_link');
+
+            $idStatus = ($idLink == 2) ? 1 : 2;
+
+            // 3º Passo -> Cadastrar pedido
             $dados = [
                 'descricao' => $request->input('descricao'),
                 'valor' => $request->input('valor'),
                 'protheus' => 999,
                 'urgente' => $request->input('urgente'),
                 'dt_vencimento' => $request->input('dt_vencimento'),
-                'anexo' => $request->input('anexo'),
-                'id_link' => $request->input('id_link'),
+                'anexo' => $pdf,
+                'id_link' => $idStatus,
                 'id_empresa' => $request->input('id_empresa'),
                 'id_criador' => $idCriador,
                 'id_local' => $request->input('id_local')
@@ -115,18 +125,18 @@ class ExternoService
 
             $idPedido = $queryPedido->id; // Acessando id do pedido
 
-            // 3º Passo -> Verificar se tem fluxo paara cadastro de fluxo
+            // 4º Passo -> Verificar se tem fluxo paara cadastro de fluxo
             if ($request->input('fluxo')) {
                 $queryFluxo = $this->cadastroFluxo($request->input('fluxo'), $idPedido);
             }
 
-            // 4º Passo -> Retornar resposta com o id do pedido
+            // 5º Passo -> Retornar resposta com o id do pedido
             DB::commit();
-            return ['resposta' => 'Pedido cadastrado com sucesso!', 'idPedido' => $idPedido, 'status' => Response::HTTP_CREATED];
+            return ['resposta' => 'Pedido cadastrado com sucesso!', 'pedido' => $idPedido, 'status' => Response::HTTP_CREATED];
         } catch (\Exception $e) {
             DB::rollback(); // Se uma exceção ocorrer durante as operações do banco de dados, fazemos o rollback
 
-            return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador!', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+            return ['resposta' => $e, 'pedido' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
 
             throw $e;
         }
