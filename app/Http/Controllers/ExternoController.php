@@ -51,4 +51,10 @@ class ExternoController extends Controller
         $query = $this->externoService->cadastrarPedido($request); // Metódo responsável por cadastrar pedido
         return response()->json(['resposta' => $query['resposta'], 'pedido' => $query['pedido']], $query['status']);
     }
+
+    public function consultaStatusPedido($id)
+    {
+        $query = $this->externoService->consultaStatusPedido($id); // Metódo responsável por consultar status atual do pedido
+        return response()->json([['statusPedido' => $query['statusPedido']]], $query['status']);
+    }
 }

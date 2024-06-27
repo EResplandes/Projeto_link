@@ -229,5 +229,6 @@ Route::prefix('externo')->middleware('jwt.auth')->group(function () {
         Route::get('/listar-empresas', 'listarEmpresas');
         Route::get('/listar-locais', 'listarLocais');
         Route::post('/cadastrar-pedido', 'cadastrarPedido');
+        Route::get('/consultar-status/{id}', 'consultaStatusPedido');
     });
 });

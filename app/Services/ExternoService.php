@@ -9,6 +9,8 @@ use App\Models\Pedido;
 use Illuminate\Support\Facades\DB;
 use App\Models\Empresa;
 use App\Models\Local;
+use App\Models\Status;
+
 use function PHPUnit\Framework\isEmpty;
 
 class ExternoService
@@ -168,5 +170,28 @@ class ExternoService
         }
 
         return true;
+    }
+
+    public function consultaStatusPedido($id)
+    {
+        DB::beginTransaction();
+
+        try {
+
+            // 1º Passo -> Consultar na tabela pedidos qual o status do pedido de acordo com id passado
+            $query = Pedido::where('id', $id)->pluck('id_status')->first();
+
+            // 2º Passo -> Pegar o status em si
+            $status = Status::where('id', $query)->pluck('status')->first();
+
+            // 3º Passo -> Retornar resposta
+            return ['statusPedido' => $status, 'status' => Response::HTTP_OK];
+        } catch (\Exception $e) {
+            DB::rollback(); // Se uma exceção ocorrer durante as operações do banco de dados, fazemos o rollback
+
+            return ['statusPedido' => $e, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+
+            throw $e;
+        }
     }
 }
