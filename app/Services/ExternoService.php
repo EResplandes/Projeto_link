@@ -116,12 +116,12 @@ class ExternoService
             ];
 
             // Verifica se pedido é com fluxo e sem fluxo para status e campo com fluxo
-            if (isEmpty($request->input('fluxo'))) {
-                $dados['tipo_pedido'] = 'Sem Fluxo';
-                $dados['id_status'] = 6;
-            } else {
+            if ($request->input('fluxo')) {
                 $dados['tipo_pedido'] = 'Com Fluxo';
                 $dados['id_status'] = 7;
+            } else {
+                $dados['tipo_pedido'] = 'Sem Fluxo';
+                $dados['id_status'] = 6;
             }
 
             $queryPedido = Pedido::create($dados); // Cadastrando pedido
