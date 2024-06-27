@@ -24,6 +24,7 @@ class Pedido extends Model
         'id_local',
         'tipo_pedido',
         'dt_vencimento',
+        'contrato_externo'
     ];
 
     protected $hidden = ['updated_at'];
