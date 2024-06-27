@@ -111,7 +111,8 @@ class ExternoService
                 'id_link' => $idStatus,
                 'id_empresa' => $request->input('id_empresa'),
                 'id_criador' => $idCriador,
-                'id_local' => $request->input('id_local')
+                'id_local' => $request->input('id_local'),
+                'contrato_externo' => 'Sim'
             ];
 
             // Verifica se pedido é com fluxo e sem fluxo para status e campo com fluxo
