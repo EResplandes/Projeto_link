@@ -2,11 +2,11 @@
 
 namespace App\Queries;
 
-use App\Models\User;
-use Illuminate\Http\Response;
 use App\Models\Pedido;
 use App\Models\Fluxo;
 use App\Models\HistoricoPedidos;
+use Illuminate\Support\Facades\Http;
+
 
 class PedidosQuery
 {
@@ -21,7 +21,7 @@ class PedidosQuery
         if ($query > 0) {
             return true;
         } else {
-            Pedido::where('id' , $idPedido[0])->update(['id_status' => 6]);
+            Pedido::where('id', $idPedido[0])->update(['id_status' => 6]);
             return true;
         }
     }
@@ -68,6 +68,46 @@ class PedidosQuery
 
                 return true;
             }
+        }
+    }
+
+    public function aprovaParcela($id)
+    {
+        // 1º Passo -> Disparar endpoint
+        $req = Http::withHeaders([
+            'Authorization' => 'Bearer ' . 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL3YxL2F1dGVudGljYWNhby9sb2dpbiIsImlhdCI6MTcxOTUxMDUxNiwiZXhwIjoxNzE5NjkwNTE2LCJuYmYiOjE3MTk1MTA1MTYsImp0aSI6IkZRNlYzY2dBVzJTZVQwekYiLCJzdWIiOiIxIiwicHJ2IjoiMjNiZDVjODk0OWY2MDBhZGIzOWU3MDFjNDAwODcyZGI3YTU5NzZmNyJ9.tPkCM8B1lA7aG3niSF6MknMS-06jFwg-ee0dzoJ50ck',
+        ])->get('https://contratos/api/v1/parcelas/aprova-parcela/' . $id);
+
+        // 2º Passo -> Verificar resposta
+        if ($req->successful()) {
+            // Processar a resposta da API
+            $data = $req->json();
+
+            dd($data);
+
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public function reprovaParcela($id)
+    {
+        // 1º Passo -> Disparar endpoint
+        $req = Http::withHeaders([
+            'Authorization' => 'Bearer ' . 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL3YxL2F1dGVudGljYWNhby9sb2dpbiIsImlhdCI6MTcxOTUxMDUxNiwiZXhwIjoxNzE5NjkwNTE2LCJuYmYiOjE3MTk1MTA1MTYsImp0aSI6IkZRNlYzY2dBVzJTZVQwekYiLCJzdWIiOiIxIiwicHJ2IjoiMjNiZDVjODk0OWY2MDBhZGIzOWU3MDFjNDAwODcyZGI3YTU5NzZmNyJ9.tPkCM8B1lA7aG3niSF6MknMS-06jFwg-ee0dzoJ50ck',
+        ])->get('https://contratos/api/v1/parcelas/reprova-parcela/' . $id);
+
+        // 2º Passo -> Verificar resposta
+        if ($req->successful()) {
+            // Processar a resposta da API
+            $data = $req->json();
+
+            dd($data);
+
+            return true;
+        } else {
+            return false;
         }
     }
 
