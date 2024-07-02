@@ -18,6 +18,7 @@ class PedidoAprovacaoFluxoResource extends JsonResource
             "id"            => $this->id,
             "descricao"     => $this->descricao,
             "protheus"      => $this->protheus,
+            "urgente"       => $this->urgente,
             "dt_inclusao"   => $this->created_at,
             "anexo"         => $this->anexo,
             "empresa"       => $this->empresa->nome_empresa,

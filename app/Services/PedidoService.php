@@ -1599,4 +1599,30 @@ class PedidoService
             return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador',  'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
         }
     }
+
+    public function alterarUrgente($id)
+    {
+        // 1º Passo -> Alterar pedido para urgente
+        $query = Pedido::where('id', $id)->update(['urgente' => 1]);
+
+        // 2º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Pedido foi definido como urgente com sucesso!', 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador',  'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+    }
+
+    public function alterarNormal($id)
+    {
+        // 1º Passo -> Alterar pedido para urgente
+        $query = Pedido::where('id', $id)->update(['urgente' => 0]);
+
+        // 2º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Pedido foi definido como normal com sucesso!', 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador',  'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+    }
 }

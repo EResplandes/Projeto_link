@@ -75,6 +75,8 @@ Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
         Route::post('/reprovar-pedido-financeiro-comprador/{id}', 'reprovarPedidoEnviadoFinanceiroComprador'); // ID do Pedido
         Route::post('/reprovar-pedido-financeiro-fiscal/{id}', 'reprovarPedidoEnviadoFinanceiroFiscal'); // ID do Pedido
         Route::get('/listar-pedidos-reprovados-finaceiro', 'listarReprovadosFinanceiro');
+        Route::get('/alterar-urgente/{id}', 'alterarUrgente'); // ID do pedido
+        Route::get('/alterar-normal/{id}', 'alterarNormal'); // ID do pedido
     });
 });
 

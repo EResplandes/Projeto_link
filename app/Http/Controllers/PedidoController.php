@@ -311,4 +311,17 @@ class PedidoController extends Controller
         $query = $this->pedidoService->listarReprovadosFinanceiro(); // Metódo responsável por listar todos pedidos reprovados pelo financeiro
         return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
     }
+
+    public function alterarUrgente($id)
+    {
+        $query = $this->pedidoService->alterarUrgente($id); // Metódo responsável por alterar se pedido é urgente ou não pela SOLENI
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
+    public function alterarNormal($id)
+    {
+        $query = $this->pedidoService->alterarNormal($id); // Metódo responsável por alterar se pedido é urgente ou não pela SOLENI
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
 }
