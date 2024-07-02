@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Pedido extends Model
 {
@@ -24,7 +25,8 @@ class Pedido extends Model
         'id_local',
         'tipo_pedido',
         'dt_vencimento',
-        'contrato_externo'
+        'contrato_externo',
+        'created_at'
     ];
 
     protected $hidden = ['updated_at'];
@@ -77,5 +79,17 @@ class Pedido extends Model
     public function chat()
     {
         return $this->hasOne(Chat::class, 'id_pedido');
+    }
+
+    public function getCreatedAtAttribute($value)
+    {
+        return Carbon::createFromFormat('Y-m-d H:i:s', $value, 'UTC')
+            ->setTimezone('America/Sao_Paulo');
+    }
+
+    public function getUpdatedAtAttribute($value)
+    {
+        return Carbon::createFromFormat('Y-m-d H:i:s', $value, 'UTC')
+            ->setTimezone('America/Sao_Paulo');
     }
 }
