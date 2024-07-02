@@ -293,12 +293,6 @@ class PedidoService
         // 1º Passo -> Buscar pedidos com status 3
         $query = PedidoAprovacaoFluxoResource::collection(Pedido::where('id_status', 6)->get());
 
-        $teste = Pedido::where('id_status', 6)->get();
-
-
-
-        dd($teste[43]);
-
         // 3º Passo -> Retornar resposta
         if ($query) {
             return ['resposta' => 'Pedidos em análise listados com sucesso!', 'pedidos' => $query, 'status' => Response::HTTP_OK];
@@ -578,7 +572,7 @@ class PedidoService
             'id_local' => $request->input('id_local'),
             'protheus' => intval($request->input('protheus')),
             'tipo_pedido' => 'Com Fluxo',
-            'created_at' => Carbon::now('America/Sao_Paulo')
+            'dt_inclusao' => Carbon::now('America/Sao_Paulo')
         ];
 
         DB::beginTransaction();
@@ -670,7 +664,9 @@ class PedidoService
                     'id_criador' => $request->input('id_criador'),
                     'id_local' => $request->input('id_local'),
                     'protheus' => intval($request->input('protheus')),
-                    'tipo_pedido' => 'Sem Fluxo'
+                    'tipo_pedido' => 'Sem Fluxo',
+                    'dt_inclusao' => Carbon::now('America/Sao_Paulo')
+
                 ];
             } else {
                 $dadosPedido = [
@@ -685,7 +681,9 @@ class PedidoService
                     'id_criador' => $request->input('id_criador'),
                     'id_local' => $request->input('id_local'),
                     'protheus' => intval($request->input('protheus')),
-                    'tipo_pedido' => 'Sem Fluxo'
+                    'tipo_pedido' => 'Sem Fluxo',
+                    'dt_inclusao' => Carbon::now('America/Sao_Paulo')
+
                 ];
             }
 
