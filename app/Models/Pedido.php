@@ -26,8 +26,7 @@ class Pedido extends Model
         'tipo_pedido',
         'dt_vencimento',
         'contrato_externo',
-        'created_at',
-        'dt_inclusao'
+        'created_at'
     ];
 
     protected $hidden = ['updated_at'];

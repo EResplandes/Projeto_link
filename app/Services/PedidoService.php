@@ -572,7 +572,6 @@ class PedidoService
             'id_local' => $request->input('id_local'),
             'protheus' => intval($request->input('protheus')),
             'tipo_pedido' => 'Com Fluxo',
-            'dt_inclusao' => Carbon::now('America/Sao_Paulo')
         ];
 
         DB::beginTransaction();
@@ -664,9 +663,7 @@ class PedidoService
                     'id_criador' => $request->input('id_criador'),
                     'id_local' => $request->input('id_local'),
                     'protheus' => intval($request->input('protheus')),
-                    'tipo_pedido' => 'Sem Fluxo',
-                    'dt_inclusao' => Carbon::now('America/Sao_Paulo')
-
+                    'tipo_pedido' => 'Sem Fluxo'
                 ];
             } else {
                 $dadosPedido = [
@@ -681,9 +678,7 @@ class PedidoService
                     'id_criador' => $request->input('id_criador'),
                     'id_local' => $request->input('id_local'),
                     'protheus' => intval($request->input('protheus')),
-                    'tipo_pedido' => 'Sem Fluxo',
-                    'dt_inclusao' => Carbon::now('America/Sao_Paulo')
-
+                    'tipo_pedido' => 'Sem Fluxo'
                 ];
             }
 
@@ -1303,7 +1298,7 @@ class PedidoService
         }
     }
 
-    public function aprovaEmFluxoDiretor($id, $idLink)
+    public function aprovaEmFluxoDiretor($id, $idLink, $urgente)
     {
         DB::beginTransaction();
 
@@ -1316,7 +1311,7 @@ class PedidoService
             $idPedido = Fluxo::where('id', $id)->pluck('id_pedido');
 
             // 3º Passo -> Altererar para quem vai ser enviado o pedido EMIVAL OU MONICA
-            Pedido::where('id', $idPedido[0])->update(['id_link' => $idLink]);
+            Pedido::where('id', $idPedido[0])->update(['id_link' => $idLink, 'urgente' => $urgente]);
 
             // 4º Passo -> Verificar se todo o fluxo referente a esse pedido foi aprovado
             $this->pedidosQuery->verificaFluxoAprovado($idPedido);

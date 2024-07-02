@@ -156,9 +156,9 @@ class PedidoController extends Controller
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
 
-    public function aprovaEmFluxoDiretor($id, $idLink)
+    public function aprovaEmFluxoDiretor($id, $idLink, $urgente)
     {
-        $query = $this->pedidoService->aprovaEmFluxoDiretor($id, $idLink); // Metódo responsável por aprovar pedido que está em fluxo
+        $query = $this->pedidoService->aprovaEmFluxoDiretor($id, $idLink, $urgente); // Metódo responsável por aprovar pedido que está em fluxo
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
 
