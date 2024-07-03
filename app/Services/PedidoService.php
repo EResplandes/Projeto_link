@@ -248,7 +248,7 @@ class PedidoService
     public function listarMonica()
     {
         // 1ª Passo -> Buscar todos os pedidos com status 2
-        $query = PedidoResource::collection(Pedido::where('id_status', 2)->get());
+        $query = PedidoResource::collection(Pedido::whereIn('id_status', [2, 12])->get());
 
         // 2º Passo -> Retornar resposta
         if ($query) {
