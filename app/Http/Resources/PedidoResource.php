@@ -2,8 +2,10 @@
 
 namespace App\Http\Resources;
 
+use App\Models\Chat;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\DB;
 
 class PedidoResource extends JsonResource
 {
@@ -31,6 +33,7 @@ class PedidoResource extends JsonResource
             "link"          => new LinkResource($this->link),
             "pendentes"     => $this->getPendentesComNomeUsuario(),
             "assinados"     => $this->getAssinadosComNomeUsuario(),
+            "verifica_chat" => $this->checkChatRecordForUser($this->id)
         ];
     }
 
@@ -65,5 +68,12 @@ class PedidoResource extends JsonResource
                 'funcao' => $item->usuario->funcao->funcao
             ];
         })->values()->all();
+    }
+
+    protected function checkChatRecordForUser($idPedido)
+    {
+        return Chat::where('id_pedido', $idPedido)
+            ->whereIn('id_usuario', [1, 3])
+            ->exists();
     }
 }

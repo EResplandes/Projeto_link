@@ -186,6 +186,18 @@ class PedidoController extends Controller
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
 
+    public function reprovarPedidoAcima($id, $idUsuario, $mensagem)
+    {
+        $query = $this->pedidoService->reprovarPedidoAcima($id, $mensagem, $idUsuario); // Metódo responsável por reprovar pedido
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
+    public function aprovarPedidoComRessalvaAcima($id, $idUsuario, $mensagem)
+    {
+        $query = $this->pedidoService->aprovarPedidoComRessalvaAcima($id, $idUsuario, $mensagem); // Metódo responsável por aprovar com ressalva
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
     public function listarQuantidades()
     {
         $query = $this->pedidoService->listarQuantidades(); // Metódo responsável por listar quantidades de cada tipo de pedido
@@ -323,5 +335,4 @@ class PedidoController extends Controller
         $query = $this->pedidoService->alterarNormal($id); // Metódo responsável por alterar se pedido é urgente ou não pela SOLENI
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
-
 }

@@ -91,6 +91,8 @@ Route::prefix('/app')->group(function () {
         Route::put('/aprovar', 'aprovarPedido');
         Route::put('/aprovar-monica', 'aprovarMonica');
         Route::put('/aprovar-acima/{id}', 'aprovarPedidoAcima');
+        Route::put('/reprovar-acima/{id}/{idUsuario}/{mensagem}', 'reprovarPedidoAcima'); // Id do pedido
+        Route::put('/ressalva-acima/{id}/{idUsuario}/{mensagem}', 'aprovarPedidoComRessalvaAcima'); // Id do pedido
     });
 });
 

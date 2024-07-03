@@ -376,7 +376,6 @@ class PedidoService
         DB::beginTransaction();
 
         $pedidosArray = $request['pedidos'];
-        // $pedidosArray = json_decode($pedidosArray, true); // Transformando JSON em Array
 
         try {
             // 1º Passo -> Itera sobre o array de objetos
@@ -388,13 +387,13 @@ class PedidoService
 
                 switch ($item['status']) {
                     case 3:
-                        $observacao = 'O pedido foi reprovado pelo Dr. Emival!';
+                        $observacao = 'O pedido foi reprovado pelo Dra. Mônica!';
                         break;
                     case 4:
-                        $observacao = 'O pedido foi aprovado pelo Dr. Emival!';
+                        $observacao = 'O pedido foi aprovado pelo Dra. Mônica!';
                         break;
                     case 5:
-                        $observacao = 'O pedido foi aprovado com ressalva pelo Dr. Emival!';
+                        $observacao = 'O pedido foi aprovado com ressalva pelo Dra. Mônica!';
                         break;
                 }
 
@@ -921,6 +920,84 @@ class PedidoService
             DB::rollback(); // Se uma exceção ocorrer durante as operações do banco de dados, fazemos o rollback
 
             return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador!', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+
+            throw $e;
+        }
+    }
+
+    public function reprovarPedidoAcima($id, $mensagem, $idUsuario)
+    {
+
+        DB::beginTransaction();
+
+        try {
+            // 1º Passo -> Aprovar pedido de acordo com id
+            $query = Pedido::find($id);
+            $query->id_status = 3;
+            $query->save();
+
+            // 2º Passo -> Gerar histórioco retornando id do histórico_gerado para possível delete
+            $id_historico = HistoricoPedidos::create([
+                'id_pedido' => $id,
+                'id_status' => 4,
+                'observacao' => 'Pedido reprovado'
+            ]);
+
+            // 3º Passo -> Gerar chat com mensagem do presidente
+            $dadosChat = [
+                'id_pedido'  => $id,
+                'id_usuario' => $idUsuario,
+                'mensagem'   => $mensagem
+            ];
+
+            Chat::create($dadosChat);
+
+            // 4º Passo -> Retornar resposta
+            DB::commit();
+            return ['resposta' => 'Pedido reprovado com sucesso!', 'status' => Response::HTTP_OK];
+        } catch (\Exception $e) {
+            DB::rollback(); // Se uma exceção ocorrer durante as operações do banco de dados, fazemos o rollback
+
+            return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador!', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+
+            throw $e;
+        }
+    }
+
+    public function aprovarPedidoComRessalvaAcima($id, $idUsuario, $mensagem)
+    {
+
+        DB::beginTransaction();
+
+        try {
+            // 1º Passo -> Aprovar pedido de acordo com id
+            $query = Pedido::find($id);
+            $query->id_status = 5;
+            $query->save();
+
+            // 2º Passo -> Gerar histórioco retornando id do  histórico_gerado para possível delete
+            $id_historico = HistoricoPedidos::create([
+                'id_pedido' => $id,
+                'id_status' => 4,
+                'observacao' => 'Pedido aprovado com ressalva'
+            ]);
+
+            // 3º Passo -> Gerar chat com mensagem do presidente
+            $dadosChat = [
+                'id_pedido'  => $id,
+                'id_usuario' => $idUsuario,
+                'mensagem'   => $mensagem
+            ];
+
+            Chat::create($dadosChat);
+
+            // 4º Passo -> Retornar resposta
+            DB::commit();
+            return ['resposta' => 'Pedido aprovado ressalva com sucesso', 'status' => Response::HTTP_OK];
+        } catch (\Exception $e) {
+            DB::rollback(); // Se uma exceção ocorrer durante as operações do banco de dados, fazemos o rollback
+
+            return ['resposta' => $e, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
 
             throw $e;
         }
