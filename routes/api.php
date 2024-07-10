@@ -34,6 +34,7 @@ Route::prefix("/autenticacao")->group(function () {
 Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
     Route::controller(PedidoController::class)->group(function () {
         Route::get('/listar-pedidos/{id}', 'listarPedidos'); // ID do local
+        Route::get('/listar-pedidos-limitado/{id}', 'listarPedidosLimitados'); // ID do local
         Route::get('/listar-pedidos-por-comprador/{id}', 'listarPedidosPorComprador'); // ID do comprador
         Route::get('/listar-pedidos-externos', 'listarPedidosExternos');
         Route::get('/listar-pedidos', 'listarTodosPedidosLocais');
