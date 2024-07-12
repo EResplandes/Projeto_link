@@ -18,20 +18,20 @@ class NotasService
 
         try {
             // 1º Passo -> Cadastra nota fiscal
-            $directory = "/notas"; // Criando diretório
-
             if ($request->file('nota')) {
-                $pdf = $request->file('nota')
+                $directory = "/notas"; // Criando diretório
+
+                $pdfNota = $request->file('nota')
                     ->store($directory, 'public'); // Salvando pdf da nota
             } else {
                 return ['resposta' => 'O envio da nota é obrigatório!', 'status' => Response::HTTP_BAD_REQUEST];
             }
 
             // 2º Passo -> Cadastra Boleto fiscal
-            $directory = "/boletos"; // Criando diretório
-
             if ($request->file('boleto')) {
-                $pdf = $request->file('boleto')
+                $directory = "/boletos"; // Criando diretório
+
+                $pdfBoleto = $request->file('boleto')
                     ->store($directory, 'public'); // Salvando pdf da boleto
             } else {
                 return ['resposta' => 'O envio do  boleto é obrigatório!', 'status' => Response::HTTP_BAD_REQUEST];
@@ -39,7 +39,7 @@ class NotasService
 
             // 3º Passo -> Cadastrar na tabela notas o registro
             $dadosNota = [
-                'nota' => $pdf,
+                'nota' => $pdfNota,
                 'id_pedido' => $id
             ];
 
@@ -47,7 +47,7 @@ class NotasService
 
             // 4º Passo -> Cadastrar na tabela notas o registro
             $dadosBoleto = [
-                'boleto' => $pdf,
+                'boleto' => $pdfBoleto,
                 'id_pedido' => $id
             ];
 

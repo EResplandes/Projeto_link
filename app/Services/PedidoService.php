@@ -12,7 +12,6 @@ use App\Http\Resources\FluxoPedidoResource;
 use App\Http\Resources\FluxoAprovadoResource;
 use App\Http\Resources\PedidoAprovadoResource;
 use App\Http\Resources\PedidoInformacoesResource;
-use App\Http\Resources\BoletosResource;
 use App\Http\Resources\NotasResource;
 use App\Http\Resources\PedidoAprovacaoFluxoResource;
 use App\Http\Resources\PedidosEnviadosFinanceiroResource;
@@ -21,8 +20,6 @@ use Illuminate\Support\Facades\DB;
 use App\Queries\PedidosQuery;
 use App\Models\Fluxo;
 use App\Models\NotasFiscais;
-use Carbon\Carbon;
-use \Datetime;
 
 class PedidoService
 {
