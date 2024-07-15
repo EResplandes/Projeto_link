@@ -37,40 +37,43 @@ class PedidoService
         $query = PedidoResource::collection(
             Pedido::orderBy('created_at', 'desc')
                 ->where('id_local', $id)
+                ->take(1000)
                 ->get()
         );
 
+        $quantidades = $query->count();
+
         // 2º Passo -> Retornar resposta
         if ($query) {
-            return ['resposta' => 'Pedidos listados com sucesso!', 'pedidos' => $query, 'status' => Response::HTTP_OK];
+            return ['resposta' => 'Pedidos listados com sucesso!', 'pedidos' => $query, 'total' => $quantidades, 'status' => Response::HTTP_OK];
         } else {
             return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
         }
     }
 
-    public function listarPedidosLimitados($id)
+    public function listarPedidosLimitados($id, $dtInicio, $dtFim)
     {
+
+        // Convertendo as datas para o formato Y-m-d se necessário
+        $dtInicio = \Carbon\Carbon::parse($dtInicio)->startOfDay();
+        $dtFim = \Carbon\Carbon::parse($dtFim)->endOfDay();
+
         // 1º Passo -> Buscar todos os pedidos cadastrados
         $query = PedidoResource::collection(
             Pedido::orderBy('created_at', 'desc')
                 ->where('id_local', $id)
-                ->paginate(10)
+                ->whereBetween('created_at', [$dtInicio, $dtFim])
+                ->get()
         );
+
+        $quantidades = $query->count();
 
         // 2º Passo -> Retornar resposta
         if ($query) {
             return [
                 'resposta' => 'Pedidos listados com sucesso!',
                 'pedidos' => $query,
-                'paginacao' => [
-                    'total_pedidos' => $query->total(),
-                    'por_pagina' => $query->perPage(),
-                    'pagina_atual' => $query->currentPage(),
-                    'ultima_pagina' => $query->lastPage(),
-                    'from' => $query->firstItem(),
-                    'to' => $query->lastItem(),
-                    'url_proxima_pagina' => $query->nextPageUrl(), // URL da próxima página
-                ],
+                'total' => $quantidades,
                 'status' => Response::HTTP_OK
             ];
         } else {
