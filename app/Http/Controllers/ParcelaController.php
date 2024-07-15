@@ -26,6 +26,12 @@ class ParcelaController extends Controller
         return response()->json(['resposta' => $query['resposta'], 'parcelas' => $query['parcelas'], 'total' => $query['total'], 'totalParcelas' => $query['totalParcelas']], $query['status']);
     }
 
+    public function buscaParcelasFiltradas($dtInicio, $dtFim)
+    {
+        $query = $this->parcelaService->buscaParcelasFiltradas($dtInicio, $dtFim); // Metódo responsável por buscar parcelas de acordo com filtro de data
+        return response()->json(['resposta' => $query['resposta'], 'parcelas' => $query['parcelas'], 'total' => $query['total'], 'totalParcelas' => $query['totalParcelas']], $query['status']);
+    }
+
     public function buscaParcelasHoje()
     {
         $query = $this->parcelaService->buscaParcelasHoje(); // Metódo responsável por buscar todos pedidos a serem pagos hoje

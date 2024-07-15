@@ -185,7 +185,7 @@ Route::prefix('local')->middleware('jwt.auth')->group(function () {
 Route::prefix('relatorios')->middleware('jwt.auth')->group(function () {
     Route::controller(RelatorioController::class)->group(function () {
         Route::get('/listar-locais/{data}', 'aprovadosDia');
-        Route::get('listar-reprovados/{data}', 'reprovadosDia');
+        Route::get('listar-reprovados/{dtInicio}/{dtFim}', 'reprovadosDia');
         Route::get('listar-historico-pedido', 'listarHistoricoPedido');
         Route::get('/quantidade-pedidos-por-status', 'quantidadePedidosPorStatus');
         Route::get('/quantidade-pedidos-por-status-pessoal/{id}', 'quantidadePedidosPorStatusPessoa');
@@ -221,6 +221,7 @@ Route::prefix('parcelas')->middleware('jwt.auth')->group(function () {
     Route::controller(ParcelaController::class)->group(function () {
         Route::post('/cadastrar-parcela/{id}', 'cadastrarParcela'); // ID do pedido
         Route::get('/listar-parcelas-hoje', 'buscaParcelasHoje');
+        Route::get('/listar-parcelas-filtradas/{dtInicio}/{dtFim}', 'buscaParcelasFiltradas');
         Route::post('/listar-parcelas', 'buscaParcelas');
     });
 });

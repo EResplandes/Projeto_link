@@ -20,9 +20,9 @@ class RelatorioController extends Controller
         return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
     }
 
-    public function reprovadosDia($data)
+    public function reprovadosDia($dtInicio, $dtFim)
     {
-        $query = $this->relatorioService->reprovadosDia($data); // Metódo responsável por buscar pedidos que foram reprovados no dia passado via url
+        $query = $this->relatorioService->reprovadosDia($dtInicio, $dtFim); // Metódo responsável por buscar pedidos que foram reprovados no dia passado via url
         return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
     }
 

@@ -34,15 +34,20 @@ class RelatorioService
         }
     }
 
-    public function reprovadosDia($data)
+    public function reprovadosDia($dtInicio, $dtFim)
     {
+        // Convertendo as datas para o formato Y-m-d se necessário
+        $dtInicio = \Carbon\Carbon::parse($dtInicio)->startOfDay();
+        $dtFim = \Carbon\Carbon::parse($dtFim)->endOfDay();
+
         // 1º Passo -> Buscar todos pedidos com status igual a 3 onde a updated_at é igual a data que foi enviada via parametro
         $query = PedidosReprovadosResource::collection(
             Pedido::orderBy('created_at', 'desc')
-                ->whereDate('updated_at', $data)
-                ->where(function ($query) {
-                    $query->where('id_status', 3);
-                })
+                ->whereBetween('updated_at', [$dtInicio, $dtFim])
+                // ->where(function ($query) {
+                //     $query->where('id_status', 3);
+                // })
+                ->where('id_status', 3)
                 ->get()
         );
 

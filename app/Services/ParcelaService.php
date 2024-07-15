@@ -104,4 +104,33 @@ class ParcelaService
             return ['resposta' => $e, 'parcelas' => null, 'total' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
         }
     }
+
+    public function buscaParcelasFiltradas($dtInicio, $dtFim)
+    {
+        DB::beginTransaction();
+
+        try {
+            // 1º Passo -> Validar e formatar as datas de entrada
+            $dataInicio = Carbon::parse($dtInicio)->format('Y-m-d');
+            $dataFim = Carbon::parse($dtFim)->format('Y-m-d');
+
+            // 2º Passo -> Buscar todas parcelas entre as datas
+            $parcelas = ParcelaResource::collection(
+                Parcela::whereBetween('dt_vencimento', [$dataInicio, $dataFim])->get()
+            );
+
+            // 3º Passo -> Fazer a soma de todas parcelas entre as datas
+            $total = Parcela::whereBetween('dt_vencimento', [$dataInicio, $dataFim])->sum('valor');
+
+            // 4º Passo -> Total de Pagamentos no dia
+            $totalParcelas = Parcela::whereBetween('dt_vencimento', [$dataInicio, $dataFim])->count('id');
+
+            // 5º Passo -> Retornar resposta
+            return ['resposta' => 'Parcelas listadas com sucesso!', 'parcelas' => $parcelas, 'total' => $total, 'totalParcelas' => $totalParcelas, 'status' => Response::HTTP_OK];
+        } catch (\Exception $e) {
+            DB::rollback(); // Se uma exceção ocorrer durante as operações do banco de dados, fazemos o rollback
+
+            return ['resposta' => $e, 'parcelas' => null, 'total' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+    }
 }
