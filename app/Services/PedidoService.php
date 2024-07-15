@@ -41,11 +41,9 @@ class PedidoService
                 ->get()
         );
 
-        $quantidades = $query->count();
-
         // 2º Passo -> Retornar resposta
         if ($query) {
-            return ['resposta' => 'Pedidos listados com sucesso!', 'pedidos' => $query, 'total' => $quantidades, 'status' => Response::HTTP_OK];
+            return ['resposta' => 'Pedidos listados com sucesso!', 'pedidos' => $query, 'status' => Response::HTTP_OK];
         } else {
             return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
         }
@@ -66,14 +64,11 @@ class PedidoService
                 ->get()
         );
 
-        $quantidades = $query->count();
-
         // 2º Passo -> Retornar resposta
         if ($query) {
             return [
                 'resposta' => 'Pedidos listados com sucesso!',
                 'pedidos' => $query,
-                'total' => $quantidades,
                 'status' => Response::HTTP_OK
             ];
         } else {

@@ -21,13 +21,13 @@ class PedidoController extends Controller
     public function listarPedidos($id)
     {
         $query = $this->pedidoService->listar($id); // Metódo responsável por listar pedidos
-        return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos'], 'total' => $query['total']], $query['status']);
+        return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos'], $query['status']);
     }
 
     public function listarPedidosLimitados($id, $dtInicio, $dtFim)
     {
         $query = $this->pedidoService->listarPedidosLimitados($id, $dtInicio, $dtFim); // Método responsável por buscar pedidos com limite
-        return response()->json(['resposta' => $query['resposta'], 'total' => $query['total'], 'pedidos' => $query['pedidos']], $query['status']);
+        return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
     }
 
     public function listarPedidosPorComprador($id)
