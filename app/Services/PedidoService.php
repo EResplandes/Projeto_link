@@ -37,7 +37,7 @@ class PedidoService
         $query = PedidoResource::collection(
             Pedido::orderBy('created_at', 'desc')
                 ->where('id_local', $id)
-                ->take(1000)
+                ->take(500)
                 ->get()
         );
 
