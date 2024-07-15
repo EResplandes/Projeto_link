@@ -33,7 +33,7 @@ class PedidoController extends Controller
     public function listarPedidosPorComprador($id)
     {
         $query = $this->pedidoService->listarPedidosPorComprador($id); // Metódo responsável por listar pedidos
-        return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos'], 'totalPedidos' => $query['totalPedidos']], $query['status']);
+        return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
     }
 
     public function listarPedidosExternos()
