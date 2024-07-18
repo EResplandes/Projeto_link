@@ -341,4 +341,10 @@ class PedidoController extends Controller
         $query = $this->pedidoService->alterarNormal($id); // Metódo responsável por alterar se pedido é urgente ou não pela SOLENI
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
+
+    public function relatorioEmival()
+    {
+        $query = $this->pedidoService->relatorioEmival(); // Metódo repsonsável por buscar todos pedidos com dt_emissao, dt_inclusao e dt_aprovacao
+        return response()->json(['resposta' => $query['resposta'], 'totalPedidos' => $query['totalPedidos'], 'totalValor' => $query['totalValor'], 'pedidos' => $query['pedidos'],], $query['status']);
+    }
 }

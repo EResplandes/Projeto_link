@@ -37,4 +37,11 @@ class ParcelaController extends Controller
         $query = $this->parcelaService->buscaParcelasHoje(); // Metódo responsável por buscar todos pedidos a serem pagos hoje
         return response()->json(['resposta' => $query['resposta'], 'parcelas' => $query['parcelas'], 'total' => $query['total'], 'totalParcelas' => $query['totalParcelas']], $query['status']);
     }
+
+    public function darBaixa($id)
+    {
+        $query = $this->parcelaService->darBaixa($id); // Metódo responsável por dar baixa na parcela
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
 }

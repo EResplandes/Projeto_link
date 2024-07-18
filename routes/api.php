@@ -78,6 +78,7 @@ Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
         Route::get('/listar-pedidos-reprovados-finaceiro', 'listarReprovadosFinanceiro');
         Route::get('/alterar-urgente/{id}', 'alterarUrgente'); // ID do pedido
         Route::get('/alterar-normal/{id}', 'alterarNormal'); // ID do pedido
+        Route::get('/listar-relatorio-emival' , 'relatorioEmival');
     });
 });
 
@@ -223,6 +224,7 @@ Route::prefix('parcelas')->middleware('jwt.auth')->group(function () {
         Route::get('/listar-parcelas-hoje', 'buscaParcelasHoje');
         Route::get('/listar-parcelas-filtradas/{dtInicio}/{dtFim}', 'buscaParcelasFiltradas');
         Route::post('/listar-parcelas', 'buscaParcelas');
+        Route::get('/dar-baiixa/{id}', 'darBaixa');
     });
 });
 

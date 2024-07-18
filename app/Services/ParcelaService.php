@@ -133,4 +133,17 @@ class ParcelaService
             return ['resposta' => $e, 'parcelas' => null, 'total' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
         }
     }
+
+    public function darBaixa($id)
+    {
+        // 1º Passo -> Definir como pago
+        $query = Parcela::where('id', $id)->update(['status' => 'Pago']);
+
+        // 2º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Parcela paga com sucesso!', 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+    }
 }

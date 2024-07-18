@@ -12,6 +12,7 @@ use App\Http\Resources\FluxoPedidoResource;
 use App\Http\Resources\FluxoAprovadoResource;
 use App\Http\Resources\PedidoAprovadoResource;
 use App\Http\Resources\PedidoInformacoesResource;
+use App\Http\Resources\PedidoRelatorioEmivalResource;
 use App\Http\Resources\NotasResource;
 use App\Http\Resources\PedidoAprovacaoFluxoResource;
 use App\Http\Resources\PedidosEnviadosFinanceiroResource;
@@ -585,8 +586,7 @@ class PedidoService
 
         $pdf = $request->file('anexo')->store($directory, 'public'); // Salvando pdf do pedido
 
-        // 2º Passo -> Montar array a ser inserid
-
+        // 2º Passo -> Montar array a ser inserido
         $dadosPedido = [
             'descricao' => $request->input('descricao'),
             'valor' => $request->input('valor'),
@@ -607,9 +607,47 @@ class PedidoService
         try {
 
             // 3º Passo -> Cadastrar pedido com status para soleni
+            if ($request->input('dt_emissao')) {
+                $dadosPedido['compra_antecipada'] = 'Sim';
+            }
+
             $queryPedido = Pedido::create($dadosPedido);
 
             $idPedido = $queryPedido->id;
+
+            // Caso o pedido foi realizado anteriormente
+            if ($request->input('dt_emissao')) {
+                // 1º Passo -> Salvar nota fiscal
+                $directory = "/notas"; // Criando diretório
+
+                $pdfNota = $request->file('nota')
+                    ->store($directory, 'public'); // Salvando pdf da nota
+
+                // 2º Passo -> Salvar informações
+                $dadosNota = [
+                    'nota' => $pdfNota,
+                    'id_pedido' => $idPedido,
+                    'dt_emissao' => $request->input('dt_emissao')
+                ];
+
+                NotasFiscais::create($dadosNota);
+            }
+
+            // Inserir boleto caso exista
+            if ($request->file('boleto')) {
+                $directory = "/boletos"; // Criando diretório
+
+                $pdfBoleto = $request->file('boleto')
+                    ->store($directory, 'public'); // Salvando pdf da boleto
+
+
+                $dadosBoleto = [
+                    'boleto' => $pdfBoleto,
+                    'id_pedido' => $idPedido
+                ];
+
+                Boleto::create($dadosBoleto);
+            }
 
             // 4º Passo -> Inserir Fluxo
             $fluxoArray = $request->input('fluxo');
@@ -653,7 +691,7 @@ class PedidoService
         } catch (\Exception $e) {
             DB::rollback(); // Se uma exceção ocorrer durante as operações do banco de dados, fazemos o rollback
 
-            return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador!', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+            return ['resposta' => $e, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
 
             throw $e;
         }
@@ -710,11 +748,49 @@ class PedidoService
                 ];
             }
 
+            if ($request->input('dt_emissao')) {
+                $dadosPedido['compra_antecipada'] = 'Sim';
+            }
 
             // 3º Passo -> Cadastrar pedido
             $queryPedido = Pedido::create($dadosPedido);
 
             $idPedido = $queryPedido->id;
+
+            // Caso o pedido foi realizado anteriormente
+            if ($request->input('dt_emissao')) {
+                // 1º Passo -> Salvar nota fiscal
+                $directory = "/notas"; // Criando diretório
+
+                $pdfNota = $request->file('nota')
+                    ->store($directory, 'public'); // Salvando pdf da nota
+
+                // 2º Passo -> Salvar informações
+                $dadosNota = [
+                    'nota' => $pdfNota,
+                    'id_pedido' => $idPedido,
+                    'dt_emissao' => $request->input('dt_emissao')
+                ];
+
+                NotasFiscais::create($dadosNota);
+            }
+
+            // Inserir boleto caso exista
+            if ($request->file('boleto')) {
+                $directory = "/boletos"; // Criando diretório
+
+                $pdfBoleto = $request->file('boleto')
+                    ->store($directory, 'public'); // Salvando pdf da boleto
+
+
+                $dadosBoleto = [
+                    'boleto' => $pdfBoleto,
+                    'id_pedido' => $idPedido
+                ];
+
+                Boleto::create($dadosBoleto);
+            }
+
 
             // 5º Passo -> Cadastrar no historico_pedido
             $dadosHistorico = [
@@ -1729,6 +1805,53 @@ class PedidoService
             return ['resposta' => 'Pedido foi definido como normal com sucesso!', 'status' => Response::HTTP_OK];
         } else {
             return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador',  'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+    }
+
+    public function relatorioEmival()
+    {
+        DB::beginTransaction();
+
+        try {
+            // 1º Passo -> Buscar todos pedidos no link limitando com 500
+            $query = PedidoRelatorioEmivalResource::collection(
+                Pedido::orderBy('compra_antecipada', 'asc')
+                    ->where('id_link', 2)
+                    ->take(500)
+                    ->get()
+            );
+
+            // 2º Passo -> Ver a quantidade de pedidos
+            $totalPedidos = Pedido::orderBy('created_at', 'desc')
+                ->where('id_link', 2)
+                ->take(500)
+                ->count();
+
+            // 3º Passo -> Ver valor
+            $totalValor =  Pedido::orderBy('created_at', 'desc')
+                ->where('id_link', 2)
+                ->take(500)
+                ->sum('valor');
+
+            // 4º Passo -> Retornar resposta
+            return [
+                'resposta' => 'Pedidos listado com sucesso!',
+                'totalPedidos' => $totalPedidos,
+                'totalValor' => $totalValor,
+                'pedidos' => $query,
+                'status' => Response::HTTP_OK
+            ];
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return [
+                'resposta' => $e,
+                'pedidos' => null,
+                'totalPedidos' => null,
+                'totalValor' => null,
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR
+            ];
+            throw $e;
         }
     }
 }

@@ -24,6 +24,7 @@ class Pedido extends Model
         'id_criador',
         'id_local',
         'tipo_pedido',
+        'compra_antecipada',
         'dt_vencimento',
         'contrato_externo',
         'created_at'
@@ -92,4 +93,5 @@ class Pedido extends Model
         return Carbon::createFromFormat('Y-m-d H:i:s', $value, 'UTC')
             ->setTimezone('America/Sao_Paulo');
     }
+
 }

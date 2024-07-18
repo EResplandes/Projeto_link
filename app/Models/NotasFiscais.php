@@ -14,6 +14,7 @@ class NotasFiscais extends Model
     protected $fillable = [
         'nota',
         'id_pedido',
+        'dt_emissao',
         'created_at',
         'updated_at'
     ];
