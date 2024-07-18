@@ -607,7 +607,7 @@ class PedidoService
         try {
 
             // 3º Passo -> Cadastrar pedido com status para soleni
-            if ($request->input('dt_emissao')) {
+            if ($request->file('nota')) {
                 $dadosPedido['compra_antecipada'] = 'Sim';
             }
 
@@ -616,7 +616,7 @@ class PedidoService
             $idPedido = $queryPedido->id;
 
             // Caso o pedido foi realizado anteriormente
-            if ($request->input('dt_emissao')) {
+            if ($request->file('nota')) {
                 // 1º Passo -> Salvar nota fiscal
                 $directory = "/notas"; // Criando diretório
 
@@ -748,7 +748,7 @@ class PedidoService
                 ];
             }
 
-            if ($request->input('dt_emissao')) {
+            if ($request->file('nota')) {
                 $dadosPedido['compra_antecipada'] = 'Sim';
             }
 
@@ -758,7 +758,7 @@ class PedidoService
             $idPedido = $queryPedido->id;
 
             // Caso o pedido foi realizado anteriormente
-            if ($request->input('dt_emissao')) {
+            if ($request->file('nota')) {
                 // 1º Passo -> Salvar nota fiscal
                 $directory = "/notas"; // Criando diretório
 

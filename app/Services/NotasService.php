@@ -108,7 +108,7 @@ class NotasService
         }
     }
 
-    public function darBaixaNota($id)
+    public function darBaixaNota($id, $emissao)
     {
         DB::beginTransaction();
         // 1º Passo -> Pegar id da nota
@@ -117,7 +117,7 @@ class NotasService
             ->first();
 
         // 2º Passo -> Alterar status da nota
-        NotasFiscais::where('id', $idNota)->update(['status' => 'Nota Escriturada']);
+        NotasFiscais::where('id', $idNota)->update(['status' => 'Nota Escriturada', 'dt_emissao' => $emissao]);
 
 
         // 3º Passo -> Alterar Status do Pedido
