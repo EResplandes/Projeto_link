@@ -347,4 +347,10 @@ class PedidoController extends Controller
         $query = $this->pedidoService->relatorioEmival(); // Metódo repsonsável por buscar todos pedidos com dt_emissao, dt_inclusao e dt_aprovacao
         return response()->json(['resposta' => $query['resposta'], 'totalPedidos' => $query['totalPedidos'], 'totalValor' => $query['totalValor'], 'pedidos' => $query['pedidos'],], $query['status']);
     }
+
+    public function listarControleFinanceiro()
+    {
+        $query = $this->pedidoService->listarControleFinanceiro(); // Metódo responsável por buscar todos pedidos que contém parcelas
+        return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
+    }
 }

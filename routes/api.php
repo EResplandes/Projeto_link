@@ -78,7 +78,8 @@ Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
         Route::get('/listar-pedidos-reprovados-finaceiro', 'listarReprovadosFinanceiro');
         Route::get('/alterar-urgente/{id}', 'alterarUrgente'); // ID do pedido
         Route::get('/alterar-normal/{id}', 'alterarNormal'); // ID do pedido
-        Route::get('/listar-relatorio-emival' , 'relatorioEmival');
+        Route::get('/listar-relatorio-emival', 'relatorioEmival');
+        Route::get('/listar-controle-financeiro', 'listarControleFinanceiro');
     });
 });
 

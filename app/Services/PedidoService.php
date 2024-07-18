@@ -15,6 +15,7 @@ use App\Http\Resources\PedidoInformacoesResource;
 use App\Http\Resources\PedidoRelatorioEmivalResource;
 use App\Http\Resources\NotasResource;
 use App\Http\Resources\PedidoAprovacaoFluxoResource;
+use App\Http\Resources\PedidosComParcelasResource;
 use App\Http\Resources\PedidosEnviadosFinanceiroResource;
 use App\Models\Boleto;
 use Illuminate\Support\Facades\DB;
@@ -1852,6 +1853,19 @@ class PedidoService
                 'status' => Response::HTTP_INTERNAL_SERVER_ERROR
             ];
             throw $e;
+        }
+    }
+
+    public function listarControleFinanceiro()
+    {
+        // 1º Passo -> Buscar todos pedidos e suas respectivas parcelas
+        $query = PedidosComParcelasResource::collection(Pedido::where('id_status', 21)->get());
+
+        // 2º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Pedidos listados com sucesso!', 'pedidos' => $query, 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador!', 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
         }
     }
 }

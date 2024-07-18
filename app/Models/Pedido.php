@@ -82,6 +82,11 @@ class Pedido extends Model
         return $this->hasOne(Chat::class, 'id_pedido');
     }
 
+    public function parcelas()
+    {
+        return $this->hasMany(Parcela::class, 'id_pedido');
+    }
+
     public function getCreatedAtAttribute($value)
     {
         return Carbon::createFromFormat('Y-m-d H:i:s', $value, 'UTC')
@@ -93,5 +98,4 @@ class Pedido extends Model
         return Carbon::createFromFormat('Y-m-d H:i:s', $value, 'UTC')
             ->setTimezone('America/Sao_Paulo');
     }
-
 }
