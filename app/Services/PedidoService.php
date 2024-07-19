@@ -1868,4 +1868,21 @@ class PedidoService
             return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador!', 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
         }
     }
+
+    public function listarControleFinanceiroFiltro($idEmpresa)
+    {
+        // 1º Passo -> Buscar todos pedidos e suas respectivas parcelas de acordo com empresa passada
+        $query = PedidosComParcelasResource::collection(
+            Pedido::where('id_status', 21)
+                ->where('id_empresa', $idEmpresa)
+                ->get()
+        );
+
+        // 2º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Pedidos listados com sucesso!', 'pedidos' => $query, 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador!', 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+    }
 }

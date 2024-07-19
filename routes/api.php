@@ -80,6 +80,7 @@ Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
         Route::get('/alterar-normal/{id}', 'alterarNormal'); // ID do pedido
         Route::get('/listar-relatorio-emival', 'relatorioEmival');
         Route::get('/listar-controle-financeiro', 'listarControleFinanceiro');
+        Route::get('/listar-controle-financeiro-filtro/{idEmpresa}', 'listarControleFinanceiroFiltro'); // ID da empresa
     });
 });
 

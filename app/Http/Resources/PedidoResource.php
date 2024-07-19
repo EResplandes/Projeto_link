@@ -28,6 +28,8 @@ class PedidoResource extends JsonResource
             "dt_assinatura" => $this->updated_at,
             "local"         => $this->local,
             "criador"       => $this->criador->name,
+            "nota"                  => $this->notas,
+            "compra_antecipada"     => $this->compra_antecipada,
             "empresa"       => new EmpresaResource($this->empresa),
             "status"        => new StatusResource($this->status),
             "link"          => new LinkResource($this->link),
