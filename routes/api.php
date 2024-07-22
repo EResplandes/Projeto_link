@@ -18,7 +18,6 @@ use App\Http\Controllers\ParcelaController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\RelatorioController;
 use App\Http\Controllers\StatusController;
-use App\Services\ExternoService;
 
 // Módulo de Autenticação
 Route::prefix("/autenticacao")->group(function () {
