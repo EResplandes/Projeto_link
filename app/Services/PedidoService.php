@@ -1825,12 +1825,14 @@ class PedidoService
             // 2º Passo -> Ver a quantidade de pedidos
             $totalPedidos = Pedido::orderBy('created_at', 'desc')
                 ->where('id_link', 2)
+                ->where('id_status', '!=', 3)
                 ->take(500)
                 ->count();
 
             // 3º Passo -> Ver valor
             $totalValor =  Pedido::orderBy('created_at', 'desc')
                 ->where('id_link', 2)
+                ->where('id_status', '!=', 3)
                 ->take(500)
                 ->sum('valor');
 
