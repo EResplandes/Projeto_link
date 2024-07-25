@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Services\ExternoService;
 use Illuminate\Support\Js;
+use App\Http\Requests\EmpresaRequest;
 
 class ExternoController extends Controller
 {

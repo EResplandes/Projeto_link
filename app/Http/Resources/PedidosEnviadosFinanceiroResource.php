@@ -25,6 +25,7 @@ class PedidosEnviadosFinanceiroResource extends JsonResource
             "status"        => $this->status->status,
             "comprador"     => $this->criador->name,
             "boleto"        => $this->boletos,
+            "parcelas"      => $this->parcelas,
             "nota"          => $this->notas
         ];
     }

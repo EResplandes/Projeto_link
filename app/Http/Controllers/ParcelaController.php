@@ -44,4 +44,15 @@ class ParcelaController extends Controller
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
 
+    public function validarParcelas($id)
+    {
+        $query = $this->parcelaService->validarParcelas($id); // Metódo responsável por validar parcelas e enviar para pagamento
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
+    public function reprovarParcelas(Request $request)
+    {
+        $query = $this->parcelaService->reprovarParcelas($request); // Metódo responsável apagar parcelas e enviar novamente para o comprador
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
 }

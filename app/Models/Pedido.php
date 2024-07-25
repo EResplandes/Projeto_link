@@ -26,6 +26,7 @@ class Pedido extends Model
         'tipo_pedido',
         'compra_antecipada',
         'dt_vencimento',
+        'dt_criacao_pedido',
         'contrato_externo',
         'created_at'
     ];

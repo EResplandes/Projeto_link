@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 use App\Models\Pedido;
 use App\Http\Resources\ParcelaResource;
+use App\Models\Chat;
 
 class ParcelaService
 {
@@ -35,8 +36,8 @@ class ParcelaService
                 ]);
             }
 
-            // 3º Passo -> Alterar status do pedido para 21
-            Pedido::where('id', $id)->update(['id_status' => 21]);
+            // 3º Passo -> Alterar status do pedido para 15
+            Pedido::where('id', $id)->update(['id_status' => 15]);
 
             // 4º Passo -> Retornar respostas
             DB::commit();
@@ -59,7 +60,12 @@ class ParcelaService
             $dataFormatada = $currentDate->format('Y/m/d');
 
             // 2º Passo -> Buscar todas parcelas com a data atual
-            $parcelas = ParcelaResource::collection(Parcela::where('dt_vencimento', $dataFormatada)->get());
+            $parcelas = ParcelaResource::collection(
+                Parcela::where('dt_vencimento', $dataFormatada)
+                    ->where('validado', 'Sim')
+                    ->where('status', 'Pendente')
+                    ->get()
+            );
 
             // 3º Passo -> Fazer a soma de todas parcelas
             $total = Parcela::where('dt_vencimento', $dataFormatada)->sum('valor');
@@ -87,7 +93,8 @@ class ParcelaService
 
             // 2º Passo -> Buscar todas parcelas entre as datas
             $parcelas = ParcelaResource::collection(
-                Parcela::whereBetween('dt_vencimento', [$dataInicio, $dataFim])->get()
+                Parcela::whereBetween('dt_vencimento', [$dataInicio, $dataFim])
+                    ->get()
             );
 
             // 3º Passo -> Fazer a soma de todas parcelas entre as datas
@@ -116,7 +123,10 @@ class ParcelaService
 
             // 2º Passo -> Buscar todas parcelas entre as datas
             $parcelas = ParcelaResource::collection(
-                Parcela::whereBetween('dt_vencimento', [$dataInicio, $dataFim])->get()
+                Parcela::whereBetween('dt_vencimento', [$dataInicio, $dataFim])
+                    ->where('validado', 'Sim')
+                    ->where('status', 'Pendente')
+                    ->get()
             );
 
             // 3º Passo -> Fazer a soma de todas parcelas entre as datas
@@ -144,6 +154,62 @@ class ParcelaService
             return ['resposta' => 'Parcela paga com sucesso!', 'status' => Response::HTTP_OK];
         } else {
             return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+    }
+
+    public function validarParcelas($id)
+    {
+
+        DB::beginTransaction();
+
+        try {
+            // 1º Passo -> Alterar campos para sim de todas parcelas com o id do pedido referente
+            $query = Parcela::where('id_pedido', $id)->update(['validado' => 'Sim']);
+
+            // 2º Passo -> Alterar na tabela pedidos informando que as parcelas já foram validas
+            Pedido::where('id', $id)->update(['parcelas_validadas' => 'Sim']);
+
+            // 2º Passo -> Retornar resposta
+            if ($query) {
+                DB::commit();
+                return ['resposta' => 'Validação de parcelas realizada com sucesso!', 'status' => Response::HTTP_OK];
+            } else {
+                return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador!', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+            }
+        } catch (\Exception $e) {
+            DB::rollBack(); // Refaz alterações no banco de dados
+            return ['resposta' => $e, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+    }
+
+    public function reprovarParcelas($request)
+    {
+        DB::beginTransaction();
+
+        try {
+            // 1º Passo -> Apagar todas parcelas e enviar pedido para o comprador inserir novamente as parcelas do pedido
+            Parcela::where('id_pedido', $request->input('id_pedido'))->delete();
+
+            // 2º Passo -> Alterar status do Pedido
+            Pedido::where('id', $request->input('id_pedido'))->update(['id_status' => 19]);
+
+            // 3º Passo -> Gerar chat com motivo da reprovação
+            $dadosChat = [
+                'id_pedido' => $request->input('id_pedido'),
+                'id_usuario' => $request->input('id_usuario'),
+                'mensagem' => $request->input('mensagem')
+            ];
+
+            Chat::create($dadosChat);
+
+            // 4º Passo -> Retornar resposta
+            DB::commit();
+
+            return ['resposta' => 'Pedido reprovado com sucesso!', 'status' => Response::HTTP_OK];
+        } catch (\Exception $e) {
+            DB::rollback(); // Se uma exceção ocorrer durante as operações do banco de dados, fazemos o rollback
+
+            return ['resposta' => $e, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
         }
     }
 }

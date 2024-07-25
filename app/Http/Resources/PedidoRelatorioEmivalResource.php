@@ -6,6 +6,7 @@ use App\Models\HistoricoPedidos;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use DateTime;
+use Carbon\Carbon;
 
 class PedidoRelatorioEmivalResource extends JsonResource
 {
@@ -23,6 +24,7 @@ class PedidoRelatorioEmivalResource extends JsonResource
             "protheus"              => $this->protheus,
             "valor"                 => $this->valor,
             "dt_vencimento"         => $this->dt_vencimento,
+            "dt_protheus"           => $this->dt_criacao_pedido,
             "anexo"                 => $this->anexo,
             "status"                => $this->status->status,
             "empresa"               => $this->empresa->nome_empresa,

@@ -226,6 +226,8 @@ Route::prefix('parcelas')->middleware('jwt.auth')->group(function () {
         Route::get('/listar-parcelas-filtradas/{dtInicio}/{dtFim}', 'buscaParcelasFiltradas');
         Route::post('/listar-parcelas', 'buscaParcelas');
         Route::get('/dar-baiixa/{id}', 'darBaixa');
+        Route::get('/validar-parcelas/{id}', 'validarParcelas'); // ID do Pedido
+        Route::post('/reprovar-parcelas', 'reprovarParcelas'); // ID do Pedido
     });
 });
 

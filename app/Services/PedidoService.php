@@ -22,6 +22,9 @@ use Illuminate\Support\Facades\DB;
 use App\Queries\PedidosQuery;
 use App\Models\Fluxo;
 use App\Models\NotasFiscais;
+use App\Models\Parcela;
+use Carbon\Carbon;
+
 
 class PedidoService
 {
@@ -593,6 +596,7 @@ class PedidoService
             'valor' => $request->input('valor'),
             'urgente' => $request->input('urgente'),
             'dt_vencimento' => $request->input('dt_vencimento'),
+            'dt_criacao_pedido' => $request->input('dt_criacao_pedido'),
             'anexo' => $pdf,
             'id_link' => $request->input('id_link'),
             'id_empresa' => $request->input('id_empresa'),
@@ -615,6 +619,25 @@ class PedidoService
             $queryPedido = Pedido::create($dadosPedido);
 
             $idPedido = $queryPedido->id;
+
+            // Caso existam parcelas inserir
+            if ($request->input('parcelas')) {
+                // 1º Passo -> Decodificar array
+                $dadosParcelas = json_decode($request->input('parcelas'), true);
+                // 2º Passo -> Inserir dados na tabela Parcela
+                foreach ($dadosParcelas as $parcela) {
+                    // Convertendo a string de data para um objeto Carbon
+                    $dataVencimento = Carbon::parse($parcela['dataVencimento']);
+                    // Formatando a data para o formato yy-mm-dd
+                    $dataFormatada = $dataVencimento->format('Y-m-d');
+                    Parcela::create([
+                        'dt_vencimento' => $dataFormatada,
+                        'valor' => $parcela['valor'],
+                        'id_pedido' => $idPedido,
+                        'status' => 'Pendente'
+                    ]);
+                }
+            }
 
             // Caso o pedido foi realizado anteriormente
             if ($request->file('nota')) {
@@ -723,6 +746,7 @@ class PedidoService
                     'valor' => $request->input('valor'),
                     'urgente' => $request->input('urgente'),
                     'dt_vencimento' => $request->input('dt_vencimento'),
+                    'dt_criacao_pedido' => $request->input('dt_criacao_pedido'),
                     'anexo' => $pdf,
                     'id_link' => $idLink,
                     'id_empresa' => $request->input('id_empresa'),
@@ -738,6 +762,7 @@ class PedidoService
                     'valor' => $request->input('valor'),
                     'urgente' => $request->input('urgente'),
                     'dt_vencimento' => $request->input('dt_vencimento'),
+                    'dt_criacao_pedido' => $request->input('dt_criacao_pedido'),
                     'anexo' => $pdf,
                     'id_link' => $idLink,
                     'id_empresa' => $request->input('id_empresa'),
@@ -757,6 +782,25 @@ class PedidoService
             $queryPedido = Pedido::create($dadosPedido);
 
             $idPedido = $queryPedido->id;
+
+            // Caso existam parcelas inserir
+            if ($request->input('parcelas')) {
+                // 1º Passo -> Decodificar array
+                $dadosParcelas = json_decode($request->input('parcelas'), true);
+                // 2º Passo -> Inserir dados na tabela Parcela
+                foreach ($dadosParcelas as $parcela) {
+                    // Convertendo a string de data para um objeto Carbon
+                    $dataVencimento = Carbon::parse($parcela['dataVencimento']);
+                    // Formatando a data para o formato yy-mm-dd
+                    $dataFormatada = $dataVencimento->format('Y-m-d');
+                    Parcela::create([
+                        'dt_vencimento' => $dataFormatada,
+                        'valor' => $parcela['valor'],
+                        'id_pedido' => $idPedido,
+                        'status' => 'Pendente'
+                    ]);
+                }
+            }
 
             // Caso o pedido foi realizado anteriormente
             if ($request->file('nota')) {
@@ -1211,7 +1255,6 @@ class PedidoService
 
     public function buscaInformacoesPedidoAlterar($id)
     {
-
         try {
             // 1º Passo -> Buscar informações do pedido
             $pedido = PedidoInformacoesResource::collection(Pedido::where('id', $id)->get());
@@ -1658,6 +1701,7 @@ class PedidoService
         // 1º Passo -> Pegar todos pedidos com status 15
         $pedidos = PedidosEnviadosFinanceiroResource::collection(
             Pedido::where('id_status', 15)
+                ->where('parcelas_validadas', 'Não')
                 ->orderBy('dt_vencimento', 'desc')
                 ->get()
         );
@@ -1817,7 +1861,9 @@ class PedidoService
             // 1º Passo -> Buscar todos pedidos no link limitando com 500
             $query = PedidoRelatorioEmivalResource::collection(
                 Pedido::orderBy('compra_antecipada', 'asc')
+                    ->orderBy('created_at', 'desc')
                     ->where('id_link', 2)
+                    ->where('id_status', '!=', 3)
                     ->take(500)
                     ->get()
             );
