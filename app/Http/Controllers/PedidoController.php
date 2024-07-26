@@ -359,4 +359,10 @@ class PedidoController extends Controller
         $query = $this->pedidoService->listarControleFinanceiroFiltro($idEmpresa); // Metódo responsável por buscar todos pedidos que contém parcelas com filtro por empresa
         return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
     }
+
+    public function auditoriaFinanceiro()
+    {
+        $query = $this->pedidoService->auditoriaFinanceiro(); // Metódo responsável por auditória do financeiro
+        return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
+    }
 }

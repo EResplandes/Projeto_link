@@ -18,7 +18,7 @@ class ParcelaService
 
         try {
 
-            // 1º Passo -> Decodificar array
+            // 1º Passo -> Decodificar arrayxR
             $dadosParcelas = $request->input('parcelas');
 
             // 2º Passo -> Inserir dados na tabela Parcela
@@ -164,10 +164,15 @@ class ParcelaService
 
         try {
             // 1º Passo -> Alterar campos para sim de todas parcelas com o id do pedido referente
-            $query = Parcela::where('id_pedido', $id)->update(['validado' => 'Sim']);
+            $query = Parcela::where('id_pedido', $id)->update([
+                'validado' => 'Sim',
+                'dt_validacao' => Carbon::now('America/Sao_Paulo')
+            ]);
 
             // 2º Passo -> Alterar na tabela pedidos informando que as parcelas já foram validas
-            Pedido::where('id', $id)->update(['parcelas_validadas' => 'Sim']);
+            Pedido::where('id', $id)->update([
+                'parcelas_validadas' => 'Sim',
+            ]);
 
             // 2º Passo -> Retornar resposta
             if ($query) {

@@ -16,6 +16,7 @@ class Parcela extends Model
         'dt_vencimento',
         'dt_pagamento',
         'validado',
+        'dt_validacao',
         'status',
         'valor'
     ];

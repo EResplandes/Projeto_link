@@ -80,6 +80,7 @@ Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
         Route::get('/listar-relatorio-emival', 'relatorioEmival');
         Route::get('/listar-controle-financeiro', 'listarControleFinanceiro');
         Route::get('/listar-controle-financeiro-filtro/{idEmpresa}', 'listarControleFinanceiroFiltro'); // ID da empresa
+        Route::get('/auditoria-financeiro', 'auditoriaFinanceiro');
     });
 });
 
@@ -199,7 +200,7 @@ Route::prefix('notas')->middleware('jwt.auth')->group(function () {
     Route::controller(NotasController::class)->group(function () {
         Route::post('/cadastrar/{id}', 'cadastrarNota'); // ID do pedido
         Route::post('/cadastrar-somente-nota/{id}', 'cadastrarSomenteNota'); // ID do pedido
-        Route::get('/dar-baixa/{id}/{emissao}', 'darBaixaNota'); // ID do pedido
+        Route::post('/dar-baixa/{id}', 'darBaixaNota'); // ID do pedido
         Route::get('/reprovar/{id}/{mensagem}/{idUsuario}', 'reprovarNota'); // ID do pedido, mensagem e id do usuário
     });
 });

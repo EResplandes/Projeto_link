@@ -15,6 +15,9 @@ class NotasFiscais extends Model
         'nota',
         'id_pedido',
         'dt_emissao',
+        'numero_nota',
+        'valor',
+        'dt_escrituracao',
         'created_at',
         'updated_at'
     ];

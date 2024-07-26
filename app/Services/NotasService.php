@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\NotasFiscais;
 use App\Models\Pedido;
 use App\Models\Boleto;
+use Carbon\Carbon;
 
 class NotasService
 {
@@ -108,7 +109,7 @@ class NotasService
         }
     }
 
-    public function darBaixaNota($id, $emissao)
+    public function darBaixaNota($id, $request)
     {
         DB::beginTransaction();
         // 1º Passo -> Pegar id da nota
@@ -117,8 +118,13 @@ class NotasService
             ->first();
 
         // 2º Passo -> Alterar status da nota
-        NotasFiscais::where('id', $idNota)->update(['status' => 'Nota Escriturada', 'dt_emissao' => $emissao]);
-
+        NotasFiscais::where('id', $idNota)->update([
+            'status' => 'Nota Escriturada',
+            'dt_emissao' => $request->input('dt_emissao'),
+            'valor' => $request->input('valor'),
+            'numero_nota' => $request->input('numero_nota'),
+            'dt_escrituracao' => Carbon::now('America/Sao_Paulo')
+        ]);
 
         // 3º Passo -> Alterar Status do Pedido
         $verificaBoleto = Boleto::where('id_pedido', $id)->pluck('status')->first();

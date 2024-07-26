@@ -2,11 +2,13 @@
 
 namespace App\Http\Resources;
 
-use App\Models\HistoricoPedidos;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Models\HistoricoPedidos;
+use App\Models\NotasFiscais;
+use App\Models\Parcela;
 
-class PedidoRelatorioEmivalResource extends JsonResource
+class PedidosAuditoriaFinanceiro extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -32,6 +34,9 @@ class PedidoRelatorioEmivalResource extends JsonResource
             "compra_antecipada"     => $this->compra_antecipada,
             "dt_inclusao"           => $this->created_at,
             "dt_aprovacao"          => $this->buscaDtAprovacao($this->id),
+            "parcelas"              => $this->parcelas,
+            "dt_lancamento_fiscal"  => $this->buscaDtEscrituracao($this->notas ?? null),
+            'dt_validacao_finan'    => $this->buscaDtValidacaoFinanceiro($this->id),
         ];
     }
 
@@ -46,6 +51,43 @@ class PedidoRelatorioEmivalResource extends JsonResource
                 ->first();
         } else {
             return null;
+        }
+    }
+
+    public function buscaDtValidacaoFinanceiro($idPedido)
+    {
+        $query = Parcela::where('id_pedido', $idPedido)->pluck('dt_validacao')->first();
+
+        if ($query) {
+            return $query;
+        } else {
+            return null;
+        }
+    }
+
+    public function buscaDtEscrituracao($nota)
+    {
+
+        if (empty($this->notas)) {
+            return null;
+        }
+
+        if ($this->notas->isEmpty()) {
+            return null;
+        }
+
+        if ($nota == null) {
+            return null;
+        } else {
+            $query = NotasFiscais::where('id', $nota[0]->id)
+                ->pluck('dt_escrituracao')
+                ->first();
+
+            if ($query) {
+                return $query;
+            } else {
+                return null;
+            }
         }
     }
 }

@@ -28,9 +28,9 @@ class NotasController extends Controller
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
 
-    public function darBaixaNota($id, $emissao)
+    public function darBaixaNota(Request $request, $id)
     {
-        $query = $this->notasService->darBaixaNota($id, $emissao); // Metódo responsável por dar baixa na nora
+        $query = $this->notasService->darBaixaNota($id, $request); // Metódo responsável por dar baixa na nora
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
 

@@ -15,6 +15,7 @@ use App\Http\Resources\PedidoInformacoesResource;
 use App\Http\Resources\PedidoRelatorioEmivalResource;
 use App\Http\Resources\NotasResource;
 use App\Http\Resources\PedidoAprovacaoFluxoResource;
+use App\Http\Resources\PedidosAuditoriaFinanceiro;
 use App\Http\Resources\PedidosComParcelasResource;
 use App\Http\Resources\PedidosEnviadosFinanceiroResource;
 use App\Models\Boleto;
@@ -373,7 +374,14 @@ class PedidoService
                         'observacao' => $observacao
                     ];
                 } else {
-                    Pedido::where('id', $item['id'])->update(['id_status' => $item['status']]);
+
+                    $compraAntecipada = Pedido::where('id', $item['id'])->pluck('compra_antecipada')->first();
+
+                    if ($compraAntecipada == 'Sim' && $observacao != 'O pedido foi reprovado pelo Dr. Emival!') {
+                        Pedido::where('id', $item['id'])->update(['id_status' => 14]);
+                    } else {
+                        Pedido::where('id', $item['id'])->update(['id_status' => $item['status']]);
+                    }
 
                     $dadosHistorico = [
                         'id_pedido' => $item['id'],
@@ -1053,7 +1061,13 @@ class PedidoService
         try {
             // 1º Passo -> Aprovar pedido de acordo com id
             $query = Pedido::find($id);
-            $query->id_status = 4;
+
+            if ($query->compra_antecipada == 'Sim') {
+                $query->id_status = 14;
+            } else {
+                $query->id_status = 4;
+            }
+
             $query->save();
 
             // 2º Passo -> Gerar histórioco retornando id do histórico_gerado para possível delete
@@ -1863,7 +1877,7 @@ class PedidoService
                 Pedido::orderBy('compra_antecipada', 'asc')
                     ->orderBy('created_at', 'desc')
                     ->where('id_link', 2)
-                    ->where('id_status', '!=', 3)
+                    ->where('id_status', '!=', 8)
                     ->take(500)
                     ->get()
             );
@@ -1931,6 +1945,57 @@ class PedidoService
             return ['resposta' => 'Pedidos listados com sucesso!', 'pedidos' => $query, 'status' => Response::HTTP_OK];
         } else {
             return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador!', 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+    }
+
+    public function auditoriaFinanceiro()
+    {
+        DB::beginTransaction();
+
+        try {
+            // 1º Passo -> Buscar todos pedidos no link limitando com 500
+            $query = PedidosAuditoriaFinanceiro::collection(
+                Pedido::orderBy('compra_antecipada', 'asc')
+                    ->orderBy('created_at', 'desc')
+                    ->where('id_link', 2)
+                    ->where('id_status', '!=', 3)
+                    ->take(500)
+                    ->get()
+            );
+
+            // 2º Passo -> Ver a quantidade de pedidos
+            $totalPedidos = Pedido::orderBy('created_at', 'desc')
+                ->where('id_link', 2)
+                ->where('id_status', '!=', 3)
+                ->take(500)
+                ->count();
+
+            // 3º Passo -> Ver valor
+            $totalValor =  Pedido::orderBy('created_at', 'desc')
+                ->where('id_link', 2)
+                ->where('id_status', '!=', 3)
+                ->take(500)
+                ->sum('valor');
+
+            // 4º Passo -> Retornar resposta
+            return [
+                'resposta' => 'Pedidos listado com sucesso!',
+                'totalPedidos' => $totalPedidos,
+                'totalValor' => $totalValor,
+                'pedidos' => $query,
+                'status' => Response::HTTP_OK
+            ];
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return [
+                'resposta' => $e,
+                'pedidos' => null,
+                'totalPedidos' => null,
+                'totalValor' => null,
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR
+            ];
+            throw $e;
         }
     }
 }
