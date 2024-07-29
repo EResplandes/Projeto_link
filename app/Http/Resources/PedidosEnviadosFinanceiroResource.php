@@ -19,6 +19,7 @@ class PedidosEnviadosFinanceiroResource extends JsonResource
             "descricao"     => $this->descricao,
             "dt_vencimento" => $this->dt_vencimento,
             "valor"         => $this->valor,
+            "protheus"         => $this->protheus,
             "anexo"         => $this->anexo,
             "empresa"       => $this->empresa->nome_empresa,
             "local"         => $this->local->local,

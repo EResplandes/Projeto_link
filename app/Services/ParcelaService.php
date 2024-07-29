@@ -217,4 +217,21 @@ class ParcelaService
             return ['resposta' => $e, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
         }
     }
+
+    public function alterarDadosParcela($request)
+    {
+        // 1º Passo -> Alterar dados de parcela especifica de acordo com parcela
+        $query = Parcela::where('id', $request->input('id_parcela'))
+            ->update([
+                'valor' => $request->input('valor'),
+                'dt_vencimento' => $request->input('dt_vencimento')
+            ]);
+
+        // 2º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Informações atualizadas com sucesso!', 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Ocorreu um erro, entre em contato com o Administrador', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+    }
 }

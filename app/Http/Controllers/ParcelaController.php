@@ -55,4 +55,10 @@ class ParcelaController extends Controller
         $query = $this->parcelaService->reprovarParcelas($request); // Metódo responsável apagar parcelas e enviar novamente para o comprador
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
+
+    public function alterarDadosParcela(Request $request)
+    {
+        $query = $this->parcelaService->alterarDadosParcela($request); // Metódo responsável por alterar dados de uma parcela especifica
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
 }
