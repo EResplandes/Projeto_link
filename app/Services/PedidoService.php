@@ -43,6 +43,7 @@ class PedidoService
         $query = PedidoResource::collection(
             Pedido::orderBy('created_at', 'desc')
                 ->where('id_local', $id)
+                ->where('id_criador', '!=', '7')
                 ->take(500)
                 ->get()
         );
@@ -105,6 +106,7 @@ class PedidoService
         $query = PedidoResource::collection(
             Pedido::orderBy('created_at', 'desc')
                 ->whereIn('id_local', [2, 3]) // Busca pedidos com IDs 2 e 3
+                ->where('id_criador', '!=', '7')
                 ->get()
         );
 
