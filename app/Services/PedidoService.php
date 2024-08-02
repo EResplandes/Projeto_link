@@ -121,6 +121,7 @@ class PedidoService
         // 1º Passo -> Buscar todos os pedidos cadastrados
         $query = PedidoResource::collection(
             Pedido::orderBy('created_at', 'desc')
+                ->where('id_status', '!=', 8)
                 ->take(1500)
                 ->get()
         );
