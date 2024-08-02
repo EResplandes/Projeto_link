@@ -88,6 +88,7 @@ class PedidoService
         $query = PedidoResource::collection(
             Pedido::orderBy('created_at', 'desc')
                 ->where('id_criador', $id)
+                ->where('id_status', '!=', 8)
                 ->get()
         );
 
