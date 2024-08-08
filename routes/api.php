@@ -173,7 +173,7 @@ Route::prefix('/fluxo')->middleware('jwt.auth')->group(function () {
 // Módulo de Dashboard
 Route::prefix('dashboard')->middleware('jwt.auth')->group(function () {
     Route::controller(DashboardController::class)->group(function () {
-        Route::get('/', 'listarInformacoes');
+        Route::get('/{id}', 'listarInformacoes');
     });
 });
 

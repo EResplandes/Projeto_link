@@ -1889,6 +1889,7 @@ class PedidoService
             $totalPedidos = Pedido::orderBy('created_at', 'desc')
                 ->where('id_link', 2)
                 ->where('id_status', '!=', 3)
+                ->where('id_status', '!=', 8)
                 ->take(500)
                 ->count();
 
@@ -1896,6 +1897,7 @@ class PedidoService
             $totalValor =  Pedido::orderBy('created_at', 'desc')
                 ->where('id_link', 2)
                 ->where('id_status', '!=', 3)
+                ->where('id_status', '!=', 8)
                 ->take(500)
                 ->sum('valor');
 

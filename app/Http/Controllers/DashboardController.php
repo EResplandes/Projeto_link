@@ -14,9 +14,9 @@ class DashboardController extends Controller
         $this->dashboardService = $dashboardService;
     }
 
-    public function listarInformacoes()
+    public function listarInformacoes($id)
     {
-        $query = $this->dashboardService->listar(); // Metódo responsável por buscar todas informações necessarias para montar o dashboard
+        $query = $this->dashboardService->listar($id); // Metódo responsável por buscar todas informações necessarias para montar o dashboard
         return response()->json(['resposta' => $query['resposta'], 'informacoes' => $query['informacoes']], $query['status']);
     }
 }
