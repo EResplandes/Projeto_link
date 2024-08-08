@@ -55,6 +55,18 @@ class PedidosQuery
                 $historico = HistoricoPedidos::create($dados);
 
                 return true;
+            } else if ($idLink[0] == 3) {
+                $atualizaPedido = Pedido::where('id', $idPedido)->update(['id_status' => 22]);
+
+                $dados = [
+                    'id_pedido' => $idPedido,
+                    'id_status' => 22,
+                    'observacao' => 'O pedido foi enviado para Dr. Giovana!'
+                ];
+
+                $historico = HistoricoPedidos::create($dados);
+
+                return true;
             } else {
                 $atualizaPedido = Pedido::where('id', $idPedido)->update(['id_status' => 1]);
 

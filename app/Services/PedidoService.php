@@ -1311,6 +1311,8 @@ class PedidoService
 
             if ($link == 2) {
                 $id_status = 1;
+            } else if ($link == 3) {
+                $id_status = 22;
             } else {
                 $id_status = 2;
             }
@@ -1553,7 +1555,7 @@ class PedidoService
             // 2º Passo -> Pegar id do pedido referente a esse fluxo
             $idPedido = Fluxo::where('id', $id)->pluck('id_pedido');
 
-            // 3º Passo -> Altererar para quem vai ser enviado o pedido EMIVAL OU MONICA
+            // 3º Passo -> Altererar para quem vai ser enviado o pedido EMIVAL OU MONICA OU GIOVANA
             Pedido::where('id', $idPedido[0])->update(['id_link' => $idLink, 'urgente' => $urgente]);
 
             // 4º Passo -> Verificar se todo o fluxo referente a esse pedido foi aprovado
@@ -2000,6 +2002,88 @@ class PedidoService
                 'totalValor' => null,
                 'status' => Response::HTTP_INTERNAL_SERVER_ERROR
             ];
+            throw $e;
+        }
+    }
+
+    public function listarGiovana()
+    {
+        DB::beginTransaction();
+
+        try {
+            // 1º Passo -> Listar todos pedidos com status 22
+            $query = PedidoResource::collection(
+                Pedido::where('id_status', 22)
+                    ->get()
+            );
+
+            // 2º Passo -> Retornar resposta
+            return ['resposta' => 'Pedidos listados com sucesso!', 'pedidos' => $query, 'status' => Response::HTTP_OK];
+        } catch (\Exception $e) {
+            DB::rollback(); // Se uma exceção ocorrer durante as operações do banco de dados, fazemos o rollback
+
+            return ['resposta' => $e, 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+
+            throw $e;
+        }
+    }
+
+    public function aprovarGiovana($id)
+    {
+        DB::beginTransaction();
+
+        try {
+            // 1º Passo -> Atualizar status do pedidos
+            Pedido::where('id', $id)->update(['id_status' => 4]);
+
+            // 2º Passo -> Gerar histórico de pedido aprovado
+            HistoricoPedidos::create([
+                'id_pedido' => $id,
+                'id_status' => 4,
+                'observacao' => 'Pedido aprovado por Dr. Giovana!'
+            ]);
+
+            // 3º Passo -> Retornar resposta
+            DB::commit();
+            return ['resposta' => 'Pedido aprovado com sucesso!', 'status' => Response::HTTP_OK];
+        } catch (\Exception $e) {
+            DB::rollback(); // Se uma exceção ocorrer durante as operações do banco de dados, fazemos o rollback
+
+            return ['resposta' => $e, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+
+            throw $e;
+        }
+    }
+
+    public function reprovarGiovana($request)
+    {
+        DB::beginTransaction();
+
+        try {
+            // 1º Passo -> Atualizar status do pedidos
+            Pedido::where('id', $request->input('id_pedido'))->update(['id_status' => 3]);
+
+            // 2º Passo -> Gerar histórico de pedido aprovado
+            HistoricoPedidos::create([
+                'id_pedido' => $request->input('id_pedido'),
+                'id_status' => 3,
+                'observacao' => 'Pedido reprovado por Dr. Giovana!'
+            ]);
+
+            // 3º Passo -> Gerar chat
+            $teste = Chat::create([
+                'id_pedido' => $request->input('id_pedido'),
+                'id_usuario' => 22,
+                'mensagem' => $request->input('mensagem')
+            ]);
+
+            DB::commit();
+            return ['resposta' => 'Pedido aprovado com sucesso!', 'status' => Response::HTTP_OK];
+        } catch (\Exception $e) {
+            DB::rollback(); // Se uma exceção ocorrer durante as operações do banco de dados, fazemos o rollback
+
+            return ['resposta' => $e, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+
             throw $e;
         }
     }

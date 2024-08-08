@@ -54,6 +54,24 @@ class PedidoController extends Controller
         return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
     }
 
+    public function listarGiovana()
+    {
+        $query = $this->pedidoService->listarGiovana(); // Metódo responsável por listar pedidos com Dr Giovana - status 22
+        return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
+    }
+
+    public function aprovarGiovana($id)
+    {
+        $query = $this->pedidoService->aprovarGiovana($id); // Metódo responsável por aprovar pedido
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
+    public function reprovarGiovana(Request $request)
+    {
+        $query = $this->pedidoService->reprovarGiovana($request); // Metódo responsável por reprovar pedido
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
     public function listarEmivalMenorQuinhentos()
     {
         $query = $this->pedidoService->listarEmivalMenorQuinhentos(); // Metódo responsável por listar pedidos com status 1 e valor abaixo de 500

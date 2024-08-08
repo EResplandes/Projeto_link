@@ -39,6 +39,7 @@ Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
         Route::get('/listar-pedidos', 'listarTodosPedidosLocais');
         Route::get('/filtro-emival', 'listarEmivalFiltro');
         Route::get('/listar-emival', 'listarEmival');
+        Route::get('/listar-giovana', 'listarGiovana');
         Route::get('/listar-monica', 'listarMonica');
         Route::get('/listar-aprovados', 'listarAprovados');
         Route::get('/listar-reprovado/{id?}', 'listarReprovados');
@@ -81,6 +82,8 @@ Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
         Route::get('/listar-controle-financeiro', 'listarControleFinanceiro');
         Route::get('/listar-controle-financeiro-filtro/{idEmpresa}', 'listarControleFinanceiroFiltro'); // ID da empresa
         Route::get('/auditoria-financeiro', 'auditoriaFinanceiro');
+        Route::get('/aprovar-giovana/{id}', 'aprovarGiovana'); // ID do pedido
+        Route::post('/reprovar-giovana', 'reprovarGiovana');
     });
 });
 
