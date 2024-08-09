@@ -48,6 +48,12 @@ class PedidoController extends Controller
         return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
     }
 
+    public function listarTodosPedidosLocaisFiltro(Request $request)
+    {
+        $query = $this->pedidoService->listarTodosLocaisFiltro($request); // Metódo responsável por listar pedidos com filtro
+        return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
+    }
+
     public function listarEmival()
     {
         $query = $this->pedidoService->listarEmival(); // Metódo responsável por listar todos pedidos com Emival

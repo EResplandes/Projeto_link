@@ -123,7 +123,29 @@ class PedidoService
         $query = PedidoResource::collection(
             Pedido::orderBy('created_at', 'desc')
                 ->where('id_status', '!=', 8)
-                ->take(1500)
+                ->take(500)
+                ->get()
+        );
+
+        // 2º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Pedidos listados com sucesso!', 'pedidos' => $query, 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+    }
+
+    public function listarTodosLocaisFiltro($request)
+    {
+        // Convertendo as datas para o formato Y-m-d se necessário
+        $dtInicio = \Carbon\Carbon::parse($request->input('dt_inicio'))->startOfDay();
+        $dtFim = \Carbon\Carbon::parse($request->input('dt_fim'))->endOfDay();
+
+        // 1º Passo -> Buscar todos os pedidos cadastrados
+        $query = PedidoResource::collection(
+            Pedido::orderBy('created_at', 'desc')
+                ->where('id_status', '!=', 8)
+                ->whereBetween('created_at', [$dtInicio, $dtFim])
                 ->get()
         );
 
