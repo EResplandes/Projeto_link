@@ -220,11 +220,15 @@ class ParcelaService
 
     public function alterarDadosParcela($request)
     {
+
+        $dataFormatada = Carbon::parse($request->input('dt_vencimento'));
+        $dataFinal = $dataFormatada->format('d/m/Y');
+
         // 1º Passo -> Alterar dados de parcela especifica de acordo com parcela
         $query = Parcela::where('id', $request->input('id_parcela'))
             ->update([
                 'valor' => $request->input('valor'),
-                'dt_vencimento' => $request->input('dt_vencimento')
+                'dt_vencimento' => $dataFormatada
             ]);
 
         // 2º Passo -> Retornar resposta
