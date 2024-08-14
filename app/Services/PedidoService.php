@@ -402,8 +402,12 @@ class PedidoService
 
                     $compraAntecipada = Pedido::where('id', $item['id'])->pluck('compra_antecipada')->first();
 
+                    $fiscal = Pedido::where('id', $item['id'])->pluck('fiscal')->first();
+
                     if ($compraAntecipada == 'Sim' && $observacao != 'O pedido foi reprovado pelo Dr. Emival!') {
                         Pedido::where('id', $item['id'])->update(['id_status' => 14]);
+                    } else if ($fiscal == 'Sim' && $observacao != 'O pedido foi reprovado pelo Dr. Emival!') {
+                        Pedido::where('id', $item['id'])->update(['id_status' => 15]);
                     } else {
                         Pedido::where('id', $item['id'])->update(['id_status' => $item['status']]);
                     }
@@ -897,6 +901,88 @@ class PedidoService
         }
     }
 
+    public function cadastrarNotaFiscal($request)
+    {
+        // 1º Passo -> Salvar arquivo e pegar hash gerado
+        $directory = "/pedidos"; // Criando diretório
+
+        $pdf = $request->file('anexo')->store($directory, 'public'); // Salvando pdf do pedido
+
+        // 2º Passo -> Montar array a ser inserido
+        $dadosPedido = [
+            'descricao' => $request->input('descricao'),
+            'valor' => $request->input('valor'),
+            'urgente' => $request->input('urgente'),
+            'dt_vencimento' => $request->input('dt_vencimento'),
+            'dt_criacao_pedido' => Carbon::now()->toDateString(),
+            'anexo' => $pdf,
+            'id_link' => $request->input('id_link'),
+            'id_empresa' => $request->input('id_empresa'),
+            'id_status' => 7,
+            'id_criador' => $request->input('id_criador'),
+            'id_local' => $request->input('id_local'),
+            'protheus' => intval($request->input('protheus')),
+            'tipo_pedido' => 'Com Fluxo',
+            'fiscal' => 'Sim'
+        ];
+
+        DB::beginTransaction();
+
+        try {
+
+            // 3º Passo -> Cadastrar pedido com status para soleni
+            $queryPedido = Pedido::create($dadosPedido);
+
+            $idPedido = $queryPedido->id;
+
+            // 4º Passo -> Inserir Fluxo
+            $fluxoArray = $request->input('fluxo');
+            $fluxoArray = json_decode($fluxoArray, true); // Transformando JSON em Array
+
+            // Verificando se array foi preenchido
+            if (empty($fluxoArray)) {
+                return ['resposta' => 'O fluxo é obrigatório!', 'status' => Response::HTTP_BAD_REQUEST];
+            }
+
+            // Insere os itens na tabela fluxos
+            if ($fluxoArray != null || $fluxoArray != '') {
+                foreach ($fluxoArray as $item) {
+                    DB::table('fluxos')->insert([
+                        'id_usuario' => $item['id_usuario'],
+                        'id_pedido' => $idPedido,
+                        'assinado' => 0,
+                    ]);
+                }
+            } else {
+                return ['resposta' => 'Occoreu algum problema, tente mais tarde!', 'status' => Response::HTTP_BAD_REQUEST];
+            }
+
+            // 5º Passo -> Cadastrar no historico_pedido
+            $dadosHistorico = [
+                'id_pedido' => $idPedido,
+                'id_status' => 7,
+                'observacao' => 'O pedido foi enviado para Análise (SOLENI)!'
+            ];
+
+            HistoricoPedidos::create($dadosHistorico); // Inserindo log
+
+            if ($queryPedido) {
+                DB::commit();
+                return ['resposta' => 'Pedido cadastrado com sucesso!', 'status' => Response::HTTP_CREATED];
+            } else {
+                return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador!', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+            }
+
+            // 5º Passo -> Retornar resposta
+        } catch (\Exception $e) {
+            DB::rollback(); // Se uma exceção ocorrer durante as operações do banco de dados, fazemos o rollback
+
+            return ['resposta' => $e, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+
+            throw $e;
+        }
+    }
+
     public function listarEmFluxo($id)
     {
         // 1º Passo -> Buscar pedidos
@@ -1089,6 +1175,8 @@ class PedidoService
 
             if ($query->compra_antecipada == 'Sim') {
                 $query->id_status = 14;
+            } else if ($query->fiscal == 'Sim') {
+                $query->id_status = 15;
             } else {
                 $query->id_status = 4;
             }
@@ -2056,7 +2144,13 @@ class PedidoService
 
         try {
             // 1º Passo -> Atualizar status do pedidos
-            Pedido::where('id', $id)->update(['id_status' => 4]);
+            $fiscal = Pedido::where('id', $id)->pluck('fiscal')->first();
+
+            if ($fiscal == 'Sim') {
+                Pedido::where('id', $id)->update(['id_status' => 15]);
+            } else {
+                Pedido::where('id', $id)->update(['id_status' => 4]);
+            }
 
             // 2º Passo -> Gerar histórico de pedido aprovado
             HistoricoPedidos::create([

@@ -174,6 +174,12 @@ class PedidoController extends Controller
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
 
+    public function cadastrarNotaFiscal(Request $request)
+    {
+        $query = $this->pedidoService->cadastrarNotaFiscal($request); // Metódo responsável por cadastrar nota
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
     public function listarEmFluxo($id)
     {
         $query = $this->pedidoService->listarEmFluxo($id); // Metódo responsável por listar pedidos em fluxo

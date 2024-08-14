@@ -28,6 +28,7 @@ class Pedido extends Model
         'dt_vencimento',
         'dt_criacao_pedido',
         'contrato_externo',
+        'fiscal',
         'created_at'
     ];
 
