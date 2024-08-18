@@ -144,10 +144,14 @@ class ParcelaService
         }
     }
 
-    public function darBaixa($id)
+    public function darBaixa($id, $idBanco)
     {
         // 1º Passo -> Definir como pago
-        $query = Parcela::where('id', $id)->update(['status' => 'Pago']);
+        $query = Parcela::where('id', $id)->update([
+            'status' => 'Pago',
+            'id_banco' => $idBanco,
+            'dt_pagamento' => Carbon::now('America/Sao_Paulo')
+        ]);
 
         // 2º Passo -> Retornar resposta
         if ($query) {

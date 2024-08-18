@@ -6,6 +6,7 @@ use App\Http\Controllers\BoletosController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ComprovanteController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\BancoController;
 use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\ExternoController;
 use App\Http\Controllers\FluxoController;
@@ -231,10 +232,17 @@ Route::prefix('parcelas')->middleware('jwt.auth')->group(function () {
         Route::get('/listar-parcelas-hoje', 'buscaParcelasHoje');
         Route::get('/listar-parcelas-filtradas/{dtInicio}/{dtFim}', 'buscaParcelasFiltradas');
         Route::post('/listar-parcelas', 'buscaParcelas');
-        Route::get('/dar-baiixa/{id}', 'darBaixa');
+        Route::get('/dar-baiixa/{id}/{idBanco}', 'darBaixa');
         Route::get('/validar-parcelas/{id}', 'validarParcelas'); // ID do Pedido
         Route::post('/reprovar-parcelas', 'reprovarParcelas');
         Route::post('/alterar-dados-parcela', 'alterarDadosParcela');
+    });
+});
+
+// Módulo de Bancos
+Route::prefix('bancos')->middleware('jwt.auth')->group(function () {
+    Route::controller(BancoController::class)->group(function () {
+        Route::get('listar-bancos', 'listarBancos');
     });
 });
 

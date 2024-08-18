@@ -38,9 +38,9 @@ class ParcelaController extends Controller
         return response()->json(['resposta' => $query['resposta'], 'parcelas' => $query['parcelas'], 'total' => $query['total'], 'totalParcelas' => $query['totalParcelas']], $query['status']);
     }
 
-    public function darBaixa($id)
+    public function darBaixa($id, $idBanco)
     {
-        $query = $this->parcelaService->darBaixa($id); // Metódo responsável por dar baixa na parcela
+        $query = $this->parcelaService->darBaixa($id, $idBanco); // Metódo responsável por dar baixa na parcela
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
 
