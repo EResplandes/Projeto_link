@@ -106,6 +106,7 @@ class PedidoService
         $query = PedidoResource::collection(
             Pedido::orderBy('created_at', 'desc')
                 ->whereIn('id_local', [2, 3]) // Busca pedidos com IDs 2 e 3
+                ->limit(250)
                 ->get()
         );
 
