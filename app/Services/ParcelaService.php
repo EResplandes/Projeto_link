@@ -68,10 +68,16 @@ class ParcelaService
             );
 
             // 3º Passo -> Fazer a soma de todas parcelas
-            $total = Parcela::where('dt_vencimento', $dataFormatada)->sum('valor');
+            $total = Parcela::where('dt_vencimento', $dataFormatada)
+                ->where('validado', 'Sim')
+                ->where('status', 'Pendente')
+                ->sum('valor');
 
             // 4º Passo -> Total de Pagamentos no dia
-            $totalParcelas = Parcela::where('dt_vencimento', $dataFormatada)->count('id');
+            $totalParcelas = Parcela::where('dt_vencimento', $dataFormatada)
+                ->where('validado', 'Sim')
+                ->where('status', 'Pendente')
+                ->count('id');
 
             // 5º Passo -> Retornar resposta
             return ['resposta' => 'Parcelas listadas com sucesso!', 'parcelas' => $parcelas, 'total' => $total, 'totalParcelas' => $totalParcelas, 'status' => Response::HTTP_OK];
