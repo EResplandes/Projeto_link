@@ -395,4 +395,10 @@ class PedidoController extends Controller
         $query = $this->pedidoService->auditoriaFinanceiro(); // Metódo responsável por auditória do financeiro
         return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
     }
+
+    public function listarTodosPedidosCompradorExternoFiltro(Request $request)
+    {
+        $query = $this->pedidoService->listarTodosPedidosCompradorExternoFiltro($request); // Metódo responsável por buscar todos pedidos de comprador externo com filtros
+        return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
+    }
 }

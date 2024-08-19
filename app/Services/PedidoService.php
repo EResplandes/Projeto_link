@@ -2153,7 +2153,6 @@ class PedidoService
                 } else {
                     Pedido::where('id', $id)->update(['id_status' => 15]);
                 }
-                
             } else {
                 Pedido::where('id', $id)->update(['id_status' => 4]);
             }
@@ -2207,6 +2206,28 @@ class PedidoService
             return ['resposta' => $e, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
 
             throw $e;
+        }
+    }
+
+    public function listarTodosPedidosCompradorExternoFiltro($request)
+    {
+        // Convertendo as datas para o formato Y-m-d se necessário
+        $dtInicio = \Carbon\Carbon::parse($request->input('dt_inicio'))->startOfDay();
+        $dtFim = \Carbon\Carbon::parse($request->input('dt_fim'))->endOfDay();
+
+        // 1º Passo -> Buscar todos os pedidos cadastrados
+        $query = PedidoResource::collection(
+            Pedido::orderBy('created_at', 'desc')
+                ->whereIn('id_local', [2, 3]) // Busca pedidos com IDs 2 e 3
+                ->whereBetween('created_at', [$dtInicio, $dtFim])
+                ->get()
+        );
+
+        // 2º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Pedidos listados com sucesso!', 'pedidos' => $query, 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
         }
     }
 }
