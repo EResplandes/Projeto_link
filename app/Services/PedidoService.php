@@ -2138,7 +2138,7 @@ class PedidoService
         }
     }
 
-    public function aprovarGiovana($id)
+    public function aprovarGiovana($id, $idsDestino)
     {
         DB::beginTransaction();
 
@@ -2147,7 +2147,13 @@ class PedidoService
             $fiscal = Pedido::where('id', $id)->pluck('fiscal')->first();
 
             if ($fiscal == 'Sim') {
-                Pedido::where('id', $id)->update(['id_status' => 15]);
+
+                if ($idsDestino == 1) {
+                    Pedido::where('id', $id)->update(['id_status' => 1]);
+                } else {
+                    Pedido::where('id', $id)->update(['id_status' => 15]);
+                }
+                
             } else {
                 Pedido::where('id', $id)->update(['id_status' => 4]);
             }

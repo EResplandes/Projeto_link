@@ -66,9 +66,9 @@ class PedidoController extends Controller
         return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
     }
 
-    public function aprovarGiovana($id)
+    public function aprovarGiovana($id, $idDestino)
     {
-        $query = $this->pedidoService->aprovarGiovana($id); // Metódo responsável por aprovar pedido
+        $query = $this->pedidoService->aprovarGiovana($id, $idDestino); // Metódo responsável por aprovar pedido
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
 
