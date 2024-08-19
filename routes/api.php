@@ -233,7 +233,7 @@ Route::prefix('parcelas')->middleware('jwt.auth')->group(function () {
         Route::get('/listar-parcelas-hoje', 'buscaParcelasHoje');
         Route::get('/listar-parcelas-filtradas/{dtInicio}/{dtFim}', 'buscaParcelasFiltradas');
         Route::post('/listar-parcelas', 'buscaParcelas');
-        Route::get('/dar-baiixa/{id}/{idBanco}', 'darBaixa');
+        Route::get('/dar-baixa/{id}/{idBanco}', 'darBaixa');
         Route::get('/validar-parcelas/{id}', 'validarParcelas'); // ID do Pedido
         Route::post('/reprovar-parcelas', 'reprovarParcelas');
         Route::post('/alterar-dados-parcela', 'alterarDadosParcela');
