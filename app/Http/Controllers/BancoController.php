@@ -21,4 +21,5 @@ class BancoController extends Controller
         $query = $this->bancoService->listar(); // Metódo responsável por buscar todos bancos
         return response()->json(['resposta' => $query['resposta'], 'bancos' => $query['bancos']], $query['status']);
     }
+
 }

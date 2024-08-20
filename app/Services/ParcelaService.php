@@ -262,4 +262,35 @@ class ParcelaService
             return ['resposta' => 'Ocorreu um erro, entre em contato com o Administrador', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
         }
     }
+
+    public function listarParcelasPorBanco($id)
+    {
+        // 1º Passo -> Buscar todas parcelas de acordo com banco
+        $query = ParcelaResource::collection(
+            Parcela::where('id_banco', $id)
+                ->whereDate('dt_vencimento', Carbon::today('America/Sao_Paulo'))
+                ->where('status', 'Pago')
+                ->get()
+        );
+
+        // 2º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Parcelas listadas com sucesso!', 'parcelas' => $query, 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Ocorreu um erro, entre em contato com o Administrador', 'parcelas' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+    }
+
+    public function listarParcelasPorPedido($id)
+    {
+        // 1º Passo -> Buscar todas parcelas de 1 pedido
+        $query = Parcela::where('id_pedido', $id)->get();
+
+        // 2º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Parcelas listadas com sucesso!', 'parcelas' => $query, 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Ocorreu um erro, entre em contato com o Administrador', 'parcelas' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+    }
 }

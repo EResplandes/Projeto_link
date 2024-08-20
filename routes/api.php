@@ -237,7 +237,9 @@ Route::prefix('parcelas')->middleware('jwt.auth')->group(function () {
         Route::get('/validar-parcelas/{id}', 'validarParcelas'); // ID do Pedido
         Route::post('/reprovar-parcelas', 'reprovarParcelas');
         Route::post('/alterar-dados-parcela', 'alterarDadosParcela');
-        Route::delete('/deletar-parcela/{id}', 'deletarParcela');
+        Route::delete('/deletar-parcela/{id}', 'deletarParcela'); // ID da Parcela
+        Route::get('/listar-parcelas-por-banco/{id}', 'listarParcelasPorBanco'); // ID do banco
+        Route::get('/listar-parcelas-por-pedido/{id}', 'listarParcelasPorPedido'); // ID do pedido
     });
 });
 

@@ -65,6 +65,18 @@ class ParcelaController extends Controller
     public function deletarParcela($id)
     {
         $query = $this->parcelaService->deletarParcela($id); // Metódo responsável por deletar parcela no módulo financeiro (Neide e Luiz)
-        return response()->json(['resposta'=> $query['resposta']], $query['status']);
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
+    public function listarParcelasPorBanco($id)
+    {
+        $query = $this->parcelaService->listarParcelasPorBanco($id); // Metódo responsável por listar todas parcelas de acordo com banco
+        return response()->json(['resposta' => $query['resposta'], 'parcelas' => $query['parcelas']], $query['status']);
+    }
+
+    public function listarParcelasPorPedido($id)
+    {
+        $query = $this->parcelaService->listarParcelasPorPedido($id); // Metódo responsável por listar parcelas por pedido
+        return response()->json(['resposta' => $query['resposta'], 'parcelas' => $query['parcelas']], $query['status']);
     }
 }
