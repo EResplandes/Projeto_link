@@ -237,6 +237,7 @@ Route::prefix('parcelas')->middleware('jwt.auth')->group(function () {
         Route::get('/validar-parcelas/{id}', 'validarParcelas'); // ID do Pedido
         Route::post('/reprovar-parcelas', 'reprovarParcelas');
         Route::post('/alterar-dados-parcela', 'alterarDadosParcela');
+        Route::delete('/deletar-parcela/{id}', 'deletarParcela');
     });
 });
 

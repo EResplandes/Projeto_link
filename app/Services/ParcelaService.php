@@ -248,4 +248,18 @@ class ParcelaService
             return ['resposta' => 'Ocorreu um erro, entre em contato com o Administrador', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
         }
     }
+
+    public function deletarParcela($id)
+    {
+        // 1º Passo -> Apagar parcela de acordo com id passado
+        $query = Parcela::where('id', $id)
+            ->delete();
+
+        // 2º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Parcela deletada com sucesso!', 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Ocorreu um erro, entre em contato com o Administrador', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+    }
 }

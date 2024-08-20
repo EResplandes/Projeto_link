@@ -61,4 +61,10 @@ class ParcelaController extends Controller
         $query = $this->parcelaService->alterarDadosParcela($request); // Metódo responsável por alterar dados de uma parcela especifica
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
+
+    public function deletarParcela($id)
+    {
+        $query = $this->parcelaService->deletarParcela($id); // Metódo responsável por deletar parcela no módulo financeiro (Neide e Luiz)
+        return response()->json(['resposta'=> $query['resposta']], $query['status']);
+    }
 }
