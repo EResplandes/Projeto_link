@@ -270,6 +270,7 @@ class ParcelaService
             Parcela::where('id_banco', $id)
                 ->whereDate('dt_vencimento', Carbon::today('America/Sao_Paulo'))
                 ->where('status', 'Pago')
+                ->orderBy('dt_pagamento', 'desc')
                 ->get()
         );
 
