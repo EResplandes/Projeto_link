@@ -12,6 +12,14 @@ use App\Models\Chat;
 
 class ParcelaService
 {
+    /**
+     * Cadastra parcelas de um pedido
+     *
+     * @param Request $request Requisição contendo os dados das parcelas.
+     * @param int $id ID do pedido ao qual as parcelas pertencem.
+     * @throws \Exception Se ocorrer um erro durante a operação no banco de dados.
+     * @return array Resposta com a mensagem de resultado e o status da operação.
+     */
     public function cadastrarParcela($request, $id)
     {
         DB::beginTransaction();
@@ -49,6 +57,12 @@ class ParcelaService
         }
     }
 
+    /**
+     * Busca todas as parcelas com vencimento para o dia atual.
+     *
+     * @throws \Exception Caso ocorra um erro durante a busca das parcelas.
+     * @return array Contendo as parcelas, total de parcelas, total de valor e status da resposta.
+     */
     public function buscaParcelasHoje()
     {
         DB::beginTransaction();
@@ -88,6 +102,17 @@ class ParcelaService
         }
     }
 
+    /**
+     * Busca parcelas entre duas datas específicas.
+     *
+     * Este método busca todas as parcelas entre duas datas de início e fim,
+     * calcula o total de parcelas e o total de valor entre essas datas,
+     * e retorna uma resposta com essas informações.
+     *
+     * @param Request $request Objeto de requisição com as datas de início e fim.
+     * @throws Exception Exceção caso ocorra um erro durante a operação.
+     * @return array Resposta com as parcelas, total de parcelas, total de valor e status da operação.
+     */
     public function buscaParcelas($request)
     {
         DB::beginTransaction();
@@ -118,6 +143,14 @@ class ParcelaService
         }
     }
 
+    /**
+     * Recupera parcelas filtradas entre duas datas especificadas.
+     *
+     * @param string $dtInicio A data de início no formato 'Y-m-d'.
+     * @param string $dtFim A data de fim no formato 'Y-m-d'.
+     * @throws \Exception Se um erro ocorrer durante as operações do banco de dados.
+     * @return array Um array contendo a mensagem de resposta, as parcelas recuperadas, o valor total, o número total de parcelas e o código de status HTTP.
+     */
     public function buscaParcelasFiltradas($dtInicio, $dtFim)
     {
         DB::beginTransaction();
@@ -150,6 +183,13 @@ class ParcelaService
         }
     }
 
+    /**
+     * Dá baixa em uma parcela.
+     *
+     * @param int $id ID da parcela
+     * @param int $idBanco ID do banco
+     * @return array Resposta com status e mensagem
+     */
     public function darBaixa($id, $idBanco)
     {
         // 1º Passo -> Definir como pago
@@ -167,6 +207,13 @@ class ParcelaService
         }
     }
 
+    /**
+     * Valida as parcelas de um pedido.
+     *
+     * @param int $id ID do pedido a ser validado
+     * @throws \Exception Caso ocorra algum erro durante a validação
+     * @return array Resposta com o status da validação
+     */
     public function validarParcelas($id)
     {
 
@@ -197,6 +244,19 @@ class ParcelaService
         }
     }
 
+    /**
+     * Reprova todas as parcelas de um pedido e cria um chat com o motivo da reprovação.
+     *
+     * @param object $request Objeto contendo os dados do pedido a ser reprovado.
+     *                       Deve conter os campos 'id_pedido', 'id_usuario' e 'mensagem'.
+     * @throws \Exception Se ocorrer um erro durante as operações no banco de dados.
+     * @return array Retorna um array com a resposta da operação.
+     *              Se a operação for bem-sucedida, o array conterá a chave 'resposta' com a
+     *              mensagem 'Pedido reprovado com sucesso!' e a chave 'status' com o valor
+     *              Response::HTTP_OK.
+     *              Se ocorrer um erro, o array conterá a chave 'resposta' com a mensagem do
+     *              erro e a chave 'status' com o valor Response::HTTP_INTERNAL_SERVER_ERROR.
+     */
     public function reprovarParcelas($request)
     {
         DB::beginTransaction();
@@ -228,6 +288,12 @@ class ParcelaService
         }
     }
 
+    /**
+     * Altera os dados de uma parcela específica de acordo com os dados fornecidos no request.
+     *
+     * @param Request $request Objeto request contendo os dados a serem atualizados.
+     * @return array Resposta contendo o resultado da atualização.
+     */
     public function alterarDadosParcela($request)
     {
 
@@ -249,6 +315,12 @@ class ParcelaService
         }
     }
 
+    /**
+     * Deleta uma parcela pelo seu ID.
+     *
+     * @param int $id O ID da parcela a ser deletada.
+     * @return array A resposta contendo o resultado da deleção.
+     */
     public function deletarParcela($id)
     {
         // 1º Passo -> Apagar parcela de acordo com id passado
@@ -263,6 +335,13 @@ class ParcelaService
         }
     }
 
+    /**
+     * Lista todas as parcelas de um banco específico.
+     *
+     * @param int $id ID do banco
+     * @throws Exception Se ocorrer um erro ao recuperar as parcelas
+     * @return array Resposta com parcelas e status
+     */
     public function listarParcelasPorBanco($id)
     {
         // 1º Passo -> Buscar todas parcelas de acordo com banco
@@ -282,6 +361,14 @@ class ParcelaService
         }
     }
 
+
+    /**
+     * Lista todas as parcelas de um pedido específico.
+     *
+     * @param int $id ID do pedido
+     * @throws Exception Se ocorrer um erro ao recuperar as parcelas
+     * @return array Resposta com parcelas e status
+     */
     public function listarParcelasPorPedido($id)
     {
         // 1º Passo -> Buscar todas parcelas de 1 pedido
