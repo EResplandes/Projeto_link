@@ -64,7 +64,7 @@ class CaixaService
         }
     }
 
-    public function cadastrarControleCaixa($request)
+    public function cadastrarFluxoDeCaixa($request)
     {
         // 1º Passo -> Montar array a ser inserido
         $dados = [
@@ -74,8 +74,11 @@ class CaixaService
             'tipo_caixa' => $request->input('tipo_caixa')
         ];
 
+        $soma = false;
+
         if ($request->input('debito')) {
             $dados['debito'] = $request->input('debito');
+            $soma = true;
         }
 
         if ($request->input('credito')) {
@@ -85,6 +88,24 @@ class CaixaService
         if ($request->input('observacao')) {
             $dados['observacao'] = $request->input('observacao');
         }
+
+        // 2º Passo -> Pegar ultimo saldo do caixa
+        $saldoAtual = ControleCaixa::orderBy('created_at', 'desc')->first();
+
+        if ($saldoAtual == null) {
+            $saldoAtual = 0;
+        } else {
+            $saldoAtual = $saldoAtual->saldo;
+        }
+
+        // 3º Passo -> Verificar se é entrada ou saíada de caixa
+        if ($soma) {
+            $novoSaldo = intval($saldoAtual) - intval($request->input('debito'));
+        } else {
+            $novoSaldo = intval($saldoAtual) + intval($request->input('credito'));
+        }
+
+        $dados['saldo'] = $novoSaldo;
 
         // 2º Passo -> Inserir na tabela controle caixas
         $query = ControleCaixa::create($dados);

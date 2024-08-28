@@ -35,9 +35,9 @@ class CaixaController extends Controller
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
 
-    public function cadastrarControleCaixa(ControleCaixaRequest $request)
+    public function cadastrarFluxoDeCaixa(ControleCaixaRequest $request)
     {
-        $query = $this->caixaService->cadastrarControleCaixa($request); // Metódo responsável por cadastrar controles de caixas
+        $query = $this->caixaService->cadastrarFluxoDeCaixa($request); // Metódo responsável por cadastrar controles de caixas
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
 

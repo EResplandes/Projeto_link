@@ -276,5 +276,6 @@ Route::prefix('caixas')->middleware('jwt.auth')->group(function () {
         Route::delete('/excluir-caixa/{id}', 'excluirCaixa');
         Route::post('/filtrar-caixa-por-funcionario', 'filtrarCaixaPorFuncionario');
         Route::get('/listar-controle-caixa/{id}/{tipo}', 'listarControleCaixa');
+        Route::post('/cadastrar-fluxo-de-caixa', 'cadastrarFluxoDeCaixa');
     });
 });
