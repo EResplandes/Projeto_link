@@ -2150,6 +2150,7 @@ class PedidoService
             if ($fiscal == 'Sim') {
                 if ($idsDestino == 1) {
                     Pedido::where('id', $id)->update(['id_status' => 1, 'id_link' => 2]);
+                    // Gerar fluxo em nome da dr giovana e mudar tipo do pedido par Com Fluxo
                 } else {
                     Pedido::where('id', $id)->update(['id_status' => 15]);
                 }
