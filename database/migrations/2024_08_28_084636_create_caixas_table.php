@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('banco');
             $table->integer('agencia');
             $table->integer('conta');
-            $table->integer('cpf')->nullable();
+            $table->bigInteger('cpf')->nullable();
             $table->timestamps();
         });
     }
