@@ -109,4 +109,17 @@ class CaixaService
             return ['resposta' => 'Ocorreu um erro, entre em contato com o Administrador!', 'controles' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
         }
     }
+
+    public function filtrarCaixaPorFuncionario($request)
+    {
+        // 1º Passo -> Buscar controle de caixa de acordo com nome do funcionário
+        $query = Caixa::where('funcionario', 'like', '%' . $request->input('funcionario') . '%')->get();
+
+        // 2º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Controles de caixa listados com sucesso!', 'caixas' => $query, 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Ocorreu um erro, entre em contato com o Administrador!', 'caixas' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+    }
 }
