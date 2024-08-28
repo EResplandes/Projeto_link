@@ -21,6 +21,7 @@ return new class extends Migration
             $table->float('saldo')->nullable();
             $table->string('observacao')->nullable();
             $table->enum('tipo_caixa', ['Caixa Rotativo', 'Ajuda de Custo']);
+            $table->foreign('id_caixa')->references('id')->on('caixas');
             $table->timestamps();
         });
     }
