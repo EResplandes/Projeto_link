@@ -19,6 +19,7 @@ use App\Http\Controllers\ParcelaController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\RelatorioController;
 use App\Http\Controllers\StatusController;
+use App\Http\Controllers\CaixaController;
 
 // Módulo de Autenticação
 Route::prefix("/autenticacao")->group(function () {
@@ -250,6 +251,8 @@ Route::prefix('bancos')->middleware('jwt.auth')->group(function () {
     });
 });
 
+//////////////////////////////////////////////////////////////////////////////////
+
 // Rotas do Sistema de Controle de Pagamentos - SCP
 Route::prefix('externo')->middleware('jwt.auth')->group(function () {
     Route::controller(ExternoController::class)->group(function () {
@@ -260,5 +263,16 @@ Route::prefix('externo')->middleware('jwt.auth')->group(function () {
         Route::get('/listar-locais', 'listarLocais');
         Route::post('/cadastrar-pedido', 'cadastrarPedido');
         Route::get('/consultar-status/{id}', 'consultaStatusPedido');
+    });
+});
+
+//////////////////////////////////////////////////////////////////////////////////
+
+// Módulo de Caixa
+Route::prefix('caixas')->middleware('jwt.auth')->group(function () {
+    Route::controller(CaixaController::class)->group(function () {
+        Route::get('/listar-caixas', 'listarCaixas');
+        Route::post('/cadastrar-caixa', 'cadastrarCaixa');
+        Route::delete('/excluir-caixa/{id}', 'excluirCaixa');
     });
 });
