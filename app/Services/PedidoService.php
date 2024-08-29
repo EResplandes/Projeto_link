@@ -2147,17 +2147,22 @@ class PedidoService
             // 1º Passo -> Atualizar status do pedidos
             $fiscal = Pedido::where('id', $id)->pluck('fiscal')->first();
 
-            if ($fiscal == 'Sim') {
                 if ($idsDestino == 1) {
                     Pedido::where('id', $id)->update(['id_status' => 1, 'id_link' => 2]);
+
                     // Gerar fluxo em nome da dr giovana e mudar tipo do pedido par Com Fluxo
+                    Pedido::where('id', $id)->update(['tipo_pedido' => 'Com Fluxo']);
+
+                    Fluxo::create([
+                        'id_pedido' => $id,
+                        'id_usuario' => 11,
+                        'assinado' => 1
+                    ]);
+
                 } else {
                     Pedido::where('id', $id)->update(['id_status' => 15]);
                 }
-            } else {
-                Pedido::where('id', $id)->update(['id_status' => 4]);
-            }
-
+            
             // 2º Passo -> Gerar histórico de pedido aprovado
             HistoricoPedidos::create([
                 'id_pedido' => $id,

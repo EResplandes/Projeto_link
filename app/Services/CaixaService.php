@@ -2,10 +2,12 @@
 
 namespace App\Services;
 
+use App\Imports\FluxoCaixaImport;
 use Illuminate\Http\Response;
 use App\Models\Caixa;
 use App\Models\ControleCaixa;
 use Illuminate\Support\Facades\DB;
+use Maatwebsite\Excel\Facades\Excel;
 
 class CaixaService
 {
@@ -141,6 +143,25 @@ class CaixaService
             return ['resposta' => 'Controles de caixa listados com sucesso!', 'caixas' => $query, 'status' => Response::HTTP_OK];
         } else {
             return ['resposta' => 'Ocorreu um erro, entre em contato com o Administrador!', 'caixas' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+    }
+
+    public function importarFluxoDeCaixa($request)
+    {
+
+        DB::beginTransaction();
+
+        try {
+            // 1º Passo -> Importar dados
+            Excel::import(new FluxoCaixaImport, $request->file('file'));
+
+            // 2º Passo -> Retornar resposta
+            DB::commit();
+            return ['resposta' => 'Fluxo de caixa importado com sucesso!', 'status' => Response::HTTP_OK];
+        } catch (\Exception $e) {
+
+            DB::rollBack();
+            return ['resposta' => $e, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
         }
     }
 }

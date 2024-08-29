@@ -52,4 +52,11 @@ class CaixaController extends Controller
         $query = $this->caixaService->filtrarCaixaPorFuncionario($request); // Metódo responsável por listar caixas por funcionário
         return response()->json(['resposta' => $query['resposta'], 'caixas' => $query['caixas']], $query['status']);
     }
+
+    public function importarFluxoDeCaixa(Request $request)
+    {
+        $query = $this->caixaService->importarFluxoDeCaixa($request); // Metódo responsável por importar controles de caixas
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
 }
