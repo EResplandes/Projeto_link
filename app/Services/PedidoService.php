@@ -1354,7 +1354,7 @@ class PedidoService
 
             // Adicionar a data de aprovação ao recurso
             $pedido = $pedido->map(function ($item) use ($dtAprovacao) {
-                $item->dt_assinatura = $dtAprovacao;
+                $item->dt_aprovacao = $dtAprovacao;
                 return new PedidoAprovadoResource($item);
             });
 
