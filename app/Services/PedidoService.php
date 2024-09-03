@@ -1348,13 +1348,24 @@ class PedidoService
 
             // 2º Passo -> Data de Aprovação do pedido por Emival
             $dtAprovacao = HistoricoPedidos::where('id_pedido', $id)
-                ->where('observacao', 'O pedido foi aprovado pelo Dr. Emival!')
+                ->where(function ($query) {
+                    $query->where('observacao', 'O pedido foi aprovado pelo Dr. Emival!')
+                        ->orWhere('observacao', 'Pedido aprovado por Dr. Giovana!')
+                        ->orWhere('observacao', 'Pedido aprovado');
+                })
                 ->pluck('created_at')
                 ->first();
 
             // Adicionar a data de aprovação ao recurso
             $pedido = $pedido->map(function ($item) use ($dtAprovacao) {
                 $item->dt_aprovacao = $dtAprovacao;
+                if ($dtAprovacao instanceof Carbon && $dtAprovacao->isValid()) {
+                    // Formata a data de dt_assinatura para o mesmo formato de created_at
+                    $item->dt_assinatura = $dtAprovacao->format('Y-m-d H:i:s');
+                } else {
+                    // Tratar o caso onde a data não é válida
+                    $item->dt_assinatura = null; // Ou algum valor padrão que você preferir
+                }
                 return new PedidoAprovadoResource($item);
             });
 
@@ -2147,22 +2158,21 @@ class PedidoService
             // 1º Passo -> Atualizar status do pedidos
             $fiscal = Pedido::where('id', $id)->pluck('fiscal')->first();
 
-                if ($idsDestino == 1) {
-                    Pedido::where('id', $id)->update(['id_status' => 1, 'id_link' => 2]);
+            if ($idsDestino == 1) {
+                Pedido::where('id', $id)->update(['id_status' => 1, 'id_link' => 2]);
 
-                    // Gerar fluxo em nome da dr giovana e mudar tipo do pedido par Com Fluxo
-                    Pedido::where('id', $id)->update(['tipo_pedido' => 'Com Fluxo']);
+                // Gerar fluxo em nome da dr giovana e mudar tipo do pedido par Com Fluxo
+                Pedido::where('id', $id)->update(['tipo_pedido' => 'Com Fluxo']);
 
-                    Fluxo::create([
-                        'id_pedido' => $id,
-                        'id_usuario' => 11,
-                        'assinado' => 1
-                    ]);
+                Fluxo::create([
+                    'id_pedido' => $id,
+                    'id_usuario' => 11,
+                    'assinado' => 1
+                ]);
+            } else {
+                Pedido::where('id', $id)->update(['id_status' => 15]);
+            }
 
-                } else {
-                    Pedido::where('id', $id)->update(['id_status' => 15]);
-                }
-            
             // 2º Passo -> Gerar histórico de pedido aprovado
             HistoricoPedidos::create([
                 'id_pedido' => $id,

@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Carbon\Carbon;
 
 class PedidoAprovadoResource extends JsonResource
 {
@@ -28,7 +29,7 @@ class PedidoAprovadoResource extends JsonResource
             "status"        => $this->status->status,
             "link"          => $this->link->link,
             "local"         => $this->local->local,
-            "dt_aprovacao"  => $this->dt_aprovacao
+            "dt_assinatura" => $this->dt_assinatura
         ];
     }
 }
