@@ -23,11 +23,12 @@ class PedidoAprovadoResource extends JsonResource
             "anexo"         => $this->anexo,
             "tipo_pedido"   => $this->tipo_pedido,
             "dt_inclusao"   => $this->created_at,
+            // "dt_assinatura" => $this->updated_at,
             "empresa"       => $this->empresa->nome_empresa,
             "status"        => $this->status->status,
             "link"          => $this->link->link,
             "local"         => $this->local->local,
-            "dt_aprovacao"  => $this->dt_aprovacao
+            "dt_assinatura" => $this->dt_assinatura
         ];
     }
 }
