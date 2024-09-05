@@ -103,8 +103,6 @@ class PedidosQuery
             // Processar a resposta da API
             $data = $req->json();
 
-            dd($data);
-
             return true;
         } else {
             return false;
@@ -122,8 +120,6 @@ class PedidosQuery
         if ($req->successful()) {
             // Processar a resposta da API
             $data = $req->json();
-
-            dd($data);
 
             return true;
         } else {
