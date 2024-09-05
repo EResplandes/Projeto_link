@@ -622,28 +622,45 @@ class PedidoService
 
     public function cadastraPedido($request)
     {
-
         // 1º Passo -> Salvar arquivo e pegar hash gerado
         $directory = "/pedidos"; // Criando diretório
 
         $pdf = $request->file('anexo')->store($directory, 'public'); // Salvando pdf do pedido
 
         // 2º Passo -> Montar array a ser inserido
-        $dadosPedido = [
-            'descricao' => $request->input('descricao'),
-            'valor' => $request->input('valor'),
-            'urgente' => $request->input('urgente'),
-            'dt_vencimento' => $request->input('dt_vencimento'),
-            'dt_criacao_pedido' => $request->input('dt_criacao_pedido'),
-            'anexo' => $pdf,
-            'id_link' => $request->input('id_link'),
-            'id_empresa' => $request->input('id_empresa'),
-            'id_status' => 7,
-            'id_criador' => $request->input('id_criador'),
-            'id_local' => $request->input('id_local'),
-            'protheus' => intval($request->input('protheus')),
-            'tipo_pedido' => 'Com Fluxo',
-        ];
+        if ($request->input('id_criador') == 59) {
+            $dadosPedido = [
+                'descricao' => $request->input('descricao'),
+                'valor' => $request->input('valor'),
+                'urgente' => $request->input('urgente'),
+                'dt_vencimento' => $request->input('dt_vencimento'),
+                'dt_criacao_pedido' => $request->input('dt_criacao_pedido'),
+                'anexo' => $pdf,
+                'id_link' => $request->input('id_link'),
+                'id_empresa' => $request->input('id_empresa'),
+                'id_status' => 6,
+                'id_criador' => $request->input('id_criador'),
+                'id_local' => $request->input('id_local'),
+                'protheus' => intval($request->input('protheus')),
+                'tipo_pedido' => 'Com Fluxo',
+            ];
+        } else {
+            $dadosPedido = [
+                'descricao' => $request->input('descricao'),
+                'valor' => $request->input('valor'),
+                'urgente' => $request->input('urgente'),
+                'dt_vencimento' => $request->input('dt_vencimento'),
+                'dt_criacao_pedido' => $request->input('dt_criacao_pedido'),
+                'anexo' => $pdf,
+                'id_link' => $request->input('id_link'),
+                'id_empresa' => $request->input('id_empresa'),
+                'id_status' => 7,
+                'id_criador' => $request->input('id_criador'),
+                'id_local' => $request->input('id_local'),
+                'protheus' => intval($request->input('protheus')),
+                'tipo_pedido' => 'Com Fluxo',
+            ];
+        }
 
         DB::beginTransaction();
 

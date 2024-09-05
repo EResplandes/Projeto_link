@@ -53,13 +53,13 @@ class FluxoService
                     ];
                 } else if ($idLink == 3) {
                     // Atualiza o status do pedido
-                    Pedido::where('id', $id)->update(['id_status' => 22]);
+                    Pedido::where('id', $id)->update(['id_status' => 7]);
 
                     // Dados para o histórico
                     $dados = [
                         'id_pedido' => $id,
                         'id_status' => 22,
-                        'observacao' => 'O pedido foi enviado para Dr. Giovana!'
+                        'observacao' => 'O pedido foi enviado para Eduardo Porto!'
                     ];
                 } else {
                     // Atualiza o status do pedido

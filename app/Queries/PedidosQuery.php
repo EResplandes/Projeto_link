@@ -21,7 +21,15 @@ class PedidosQuery
         if ($query > 0) {
             return true;
         } else {
-            Pedido::where('id', $idPedido[0])->update(['id_status' => 6]);
+
+            $verificaCriador = Pedido::where('id', $idPedido[0])->pluck('id_criador')->first();
+
+            if ($verificaCriador == 59) {
+                Pedido::where('id', $idPedido[0])->update(['id_status' => 22]); // Enviado para Giovana Caiado
+            } else {
+                Pedido::where('id', $idPedido[0])->update(['id_status' => 6]);
+            }
+
             return true;
         }
     }
