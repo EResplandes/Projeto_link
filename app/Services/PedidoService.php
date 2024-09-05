@@ -1375,6 +1375,7 @@ class PedidoService
 
             // Adicionar a data de aprovação ao recurso
             $pedido = $pedido->map(function ($item) use ($dtAprovacao) {
+                $item->dt_aprovacao = $dtAprovacao;
                 if ($dtAprovacao instanceof Carbon && $dtAprovacao->isValid()) {
                     // Formata a data de dt_assinatura para o mesmo formato de created_at
                     $item->dt_assinatura = $dtAprovacao->format('Y-m-d H:i:s');
