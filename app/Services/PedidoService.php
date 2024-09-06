@@ -2153,6 +2153,7 @@ class PedidoService
             // 1º Passo -> Listar todos pedidos com status 22
             $query = PedidoResource::collection(
                 Pedido::where('id_status', 22)
+                    ->orderBy('urgente', 'desc')
                     ->get()
             );
 
