@@ -53,7 +53,14 @@ class FluxoService
                     ];
                 } else if ($idLink == 3) {
                     // Atualiza o status do pedido
-                    Pedido::where('id', $id)->update(['id_status' => 7]);
+
+                    $verificaFluxo = Fluxo::where('id_pedido', $id)->where('assinado', 0)->count();
+
+                    if ($verificaFluxo >= 1) {
+                        Pedido::where('id', $id)->update(['id_status' => 7]);
+                    } else {
+                        Pedido::where('id', $id)->update(['id_status' => 22]);
+                    }
 
                     // Dados para o histórico
                     $dados = [
