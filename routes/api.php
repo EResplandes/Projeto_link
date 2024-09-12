@@ -20,6 +20,7 @@ use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\RelatorioController;
 use App\Http\Controllers\StatusController;
 use App\Http\Controllers\CaixaController;
+use App\Http\Controllers\GerenteController;
 
 // Módulo de Autenticação
 Route::prefix("/autenticacao")->group(function () {
@@ -89,6 +90,14 @@ Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
         Route::get('/auditoria-financeiro', 'auditoriaFinanceiro');
         Route::get('/aprovar-giovana/{id}/{idDestino}', 'aprovarGiovana'); // ID do pedido
         Route::post('/reprovar-giovana', 'reprovarGiovana');
+        Route::get('/listar-pedidos-reprovados-emival/{id}', 'listarReprovadosEmivalGerente'); // ID do usuário (Gerente)
+    });
+});
+
+// Rotas Geremte
+Route::prefix('/gerente')->group(function() {
+    Route::controller(GerenteController::class)->group(function () {
+        Route::get('/listar-pedidos-reprovados-emival/{id}', 'listarReprovadosRessalvaEmivalGerente'); // ID do usuário (Gerente)
     });
 });
 
