@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Carbon\Carbon;
 
 class FluxoAprovadoResource extends JsonResource
 {
@@ -19,7 +20,7 @@ class FluxoAprovadoResource extends JsonResource
             "usuario"           => $this->usuario,
             "assinado"          => $this->assinado,
             "data_criacao"      => $this->created_at,
-            "data_assinatura"   => $this->updated_at
+            "data_assinatura"   => Carbon::parse($this->updated_at)->format('Y-m-d H:i:s')
         ];
     }
 }
