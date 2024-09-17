@@ -38,6 +38,7 @@ Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
         Route::get('/listar-pedidos/{id}', 'listarPedidos'); // ID do local
         Route::get('/listar-pedidos-limitado/{id}/{dtInicio}/{dtFim}', 'listarPedidosLimitados'); // ID do local
         Route::get('/listar-pedidos-por-comprador/{id}', 'listarPedidosPorComprador'); // ID do comprador
+        Route::get('/listar-pedidos-por-comprador-status/{id}/{idStatus}', 'listarPedidosPorCompradorStatus'); // ID do comprador
         Route::get('/listar-pedidos-externos', 'listarPedidosExternos');
         Route::get('/listar-pedidos', 'listarTodosPedidosLocais');
         Route::post('/listar-pedidos-filtro', 'listarTodosPedidosLocaisFiltro');
@@ -95,7 +96,7 @@ Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
 });
 
 // Rotas Geremte
-Route::prefix('/gerente')->group(function() {
+Route::prefix('/gerente')->group(function () {
     Route::controller(GerenteController::class)->group(function () {
         Route::get('/listar-pedidos-reprovados-emival/{id}', 'listarReprovadosRessalvaEmivalGerente'); // ID do usuário (Gerente)
     });

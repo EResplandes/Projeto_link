@@ -100,6 +100,25 @@ class PedidoService
         }
     }
 
+    public function listarPedidosPorCompradorStatus($id, $idStatus)
+    {
+        // 1º Passo -> Buscar todos os pedidos cadastrados
+        $query = PedidoResource::collection(
+            Pedido::orderBy('created_at', 'desc')
+                ->where('id_criador', $id)
+                ->where('id_status', $idStatus)
+                ->where('id_status', '!=', 8)
+                ->get()
+        );
+
+        // 2º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Pedidos listados com sucesso!', 'pedidos' => $query, 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+    }
+
     public function listarTodosExternos()
     {
         // 1º Passo -> Buscar todos os pedidos cadastrados
