@@ -21,6 +21,8 @@ use App\Http\Controllers\RelatorioController;
 use App\Http\Controllers\StatusController;
 use App\Http\Controllers\CaixaController;
 use App\Http\Controllers\GerenteController;
+use App\Http\Controllers\CotacaoController;
+use PHPUnit\Framework\Attributes\Group;
 
 // Módulo de Autenticação
 Route::prefix("/autenticacao")->group(function () {
@@ -288,5 +290,13 @@ Route::prefix('caixas')->middleware('jwt.auth')->group(function () {
         Route::get('/listar-controle-caixa/{id}/{tipo}', 'listarControleCaixa');
         Route::post('/cadastrar-fluxo-de-caixa', 'cadastrarFluxoDeCaixa');
         Route::post('/importar-fluxo-de-caixa', 'importarFluxoDeCaixa');
+    });
+});
+
+Route::prefix('cotacoes')->middleware('jwt.auth')->group(function () {
+    Route::controller(CotacaoController::class)->group(function () {
+        Route::post('/buscar-precos', 'buscarPrecos');
+        Route::get('/buscar-cotacoes/{id}', 'buscarCotacoes'); // ID do comprador
+        Route::post('/cadastrar-cotacao', 'cadastrarCotacao');
     });
 });

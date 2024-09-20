@@ -82,4 +82,9 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->belongsTo(Local::class, 'id_local');
     }
+
+    public function cotacoes()
+    {
+        return $this->hasMany(Cotacoes::class, 'id_comprador');
+    }
 }
