@@ -1387,7 +1387,9 @@ class PedidoService
                 ->where(function ($query) {
                     $query->where('observacao', 'O pedido foi aprovado pelo Dr. Emival!')
                         ->orWhere('observacao', 'Pedido aprovado por Dr. Giovana!')
-                        ->orWhere('observacao', 'Pedido aprovado');
+                        ->orWhere('observacao', 'Pedido aprovado')
+                        ->orWhere('observacao', 'O pedido foi aprovado com ressalva pelo Dr. Emival!')
+                    ;
                 })
                 ->pluck('created_at')
                 ->first();
