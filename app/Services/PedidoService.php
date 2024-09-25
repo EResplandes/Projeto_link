@@ -641,8 +641,11 @@ class PedidoService
 
     public function cadastraPedido($request)
     {
-        // 1º Passo -> Salvar arquivo e pegar hash gerado
-        $directory = "/pedidos"; // Criando diretório
+        // 1º Passo -> Criar estrutura de diretório com ano/mês
+        $ano = date('Y'); // Ano atual
+        $mes = date('m'); // Mês atual
+
+        $directory = "/pedidos/{$ano}/{$mes}"; // Criando diretório ano/mês
 
         $pdf = $request->file('anexo')->store($directory, 'public'); // Salvando pdf do pedido
 
@@ -805,9 +808,11 @@ class PedidoService
                 // return ['resposta' => 'O envio do ANEXO é obrigatório!', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
             }
 
-            // 1º Passo -> Salvar arquivo e pegar hash gerado
-            $directory = "/pedidos"; // Criando diretório
+            // 1º Passo -> Criar estrutura de diretório com ano/mês
+            $ano = date('Y'); // Ano atual
+            $mes = date('m'); // Mês atual
 
+            $directory = "/pedidos/{$ano}/{$mes}"; // Criando diretório ano/mês
             $pdf = $request->file('anexo')->store($directory, 'public'); // Salvando pdf do pedido
 
             // 2º Passo -> Montar array a ser inserido
