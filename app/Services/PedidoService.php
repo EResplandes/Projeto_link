@@ -10,6 +10,7 @@ use App\Http\Resources\PedidoResource;
 use App\Http\Resources\PedidoFluxoResource;
 use App\Http\Resources\FluxoPedidoResource;
 use App\Http\Resources\FluxoAprovadoResource;
+use App\Http\Resources\HistoricoRespostaPedidosReprovados;
 use App\Http\Resources\PedidoAprovadoResource;
 use App\Http\Resources\PedidoInformacoesResource;
 use App\Http\Resources\PedidoRelatorioEmivalResource;
@@ -2286,6 +2287,28 @@ class PedidoService
         // 2º Passo -> Retornar resposta
         if ($query) {
             return ['resposta' => 'Pedidos listados com sucesso!', 'pedidos' => $query, 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+    }
+
+    public function listarPedidosRespondidosParaEmival()
+    {
+        // 1º Passo -> Buscar últimos 250 pedidos que foram reprovados por Emival para acompanhar chat
+        $query = HistoricoRespostaPedidosReprovados::collection(
+            HistoricoPedidos::where('id_status', 3)
+                ->whereHas('pedido', function ($query) {
+                    $query->where('id_status', '!=', 8); // Excluir pedidos com id_status igual a 8
+                })
+                ->with('pedido')  // Carregar os dados do relacionamento 'pedido'
+                ->limit(100)
+                ->orderBy('created_at', 'desc')
+                ->get()
+        );
+
+        // 2º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Pedidos listados com sucesso', 'pedidos' => $query, 'status' => Response::HTTP_OK];
         } else {
             return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
         }

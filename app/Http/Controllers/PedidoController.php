@@ -407,4 +407,10 @@ class PedidoController extends Controller
         $query = $this->pedidoService->listarTodosPedidosCompradorExternoFiltro($request); // Metódo responsável por buscar todos pedidos de comprador externo com filtros
         return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
     }
+
+    public function listarPedidosRespondidosParaEmival()
+    {
+        $query = $this->pedidoService->listarPedidosRespondidosParaEmival(); // Metódo responsável por buscar todos pedidos respondidos para Emival
+        return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
+    }
 }
