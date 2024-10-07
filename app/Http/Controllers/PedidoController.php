@@ -413,4 +413,10 @@ class PedidoController extends Controller
         $query = $this->pedidoService->listarPedidosRespondidosParaEmival(); // Metódo responsável por buscar todos pedidos respondidos para Emival
         return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
     }
+
+    public function enviarParaComprador($id)
+    {
+        $query = $this->pedidoService->enviarParaComprador($id); // Metódo responsável por enviar pedido para comprador justificar
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
 }

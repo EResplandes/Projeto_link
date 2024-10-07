@@ -95,6 +95,7 @@ Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
         Route::post('/reprovar-giovana', 'reprovarGiovana');
         Route::get('/listar-pedidos-reprovados-emival/{id}', 'listarReprovadosEmivalGerente'); // ID do usuário (Gerente)
         Route::get('/listar-pedidos-respondidos-para-emival', 'listarPedidosRespondidosParaEmival');
+        Route::get('/enviar-pedido-comprador/{id}', 'enviarParaComprador'); // ID do pedido
     });
 });
 

@@ -1789,6 +1789,23 @@ class PedidoService
             $dados['anexo'] = $pdf;
         }
 
+        // 3º Passo -> Verificar se o Status atual é igual a 23, se for enviar direto último status. Podendo ser eles o de Reprovado ou Aprovado com Ressalva
+        $statusAtual = Pedido::where('id', $id)->pluck('id_status')->first();
+
+        if ($statusAtual) {
+            $historicoPedido = Historicopedidos::whereIn('id_status', [3, 5])
+                ->orderBy('id', 'desc')
+                ->first();
+
+            if ($historicoPedido) {
+                $pedido = Pedido::find($id); // Substitua $pedidoId pelo ID do pedido que deseja atualizar
+                if ($pedido) {
+                    $pedido->id_status = $historicoPedido->id_status; // Ajuste o nome do campo na tabela 'pedidos' para o campo correto
+                    $pedido->save();
+                }
+            }
+        }
+
         if (!empty($dados)) {
             $query = Pedido::where('id', $id)->update($dados);
             return ['resposta' => 'Pedido atualizado com sucesso!', 'status' => Response::HTTP_OK];
@@ -2311,6 +2328,19 @@ class PedidoService
             return ['resposta' => 'Pedidos listados com sucesso', 'pedidos' => $query, 'status' => Response::HTTP_OK];
         } else {
             return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+    }
+
+    public function enviarParaComprador($id)
+    {
+        // 1º Passo -> Alterar id do status do pedido para 23
+        $query = Pedido::where('id', $id)->update(['id_status' => 23]);
+
+        // 2º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Pedido enviado para comprador com sucesso!', 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador',  'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
         }
     }
 }
