@@ -762,15 +762,31 @@ class PedidoService
 
             // Insere os itens na tabela fluxos
             if ($fluxoArray != null || $fluxoArray != '') {
+                $contadorUsuario6 = 0;
+
                 foreach ($fluxoArray as $item) {
+                    $assinado = $item['id_usuario'] == 6 ? 1 : 0;
+
+                    // Insere o fluxo
                     DB::table('fluxos')->insert([
                         'id_usuario' => $item['id_usuario'],
                         'id_pedido' => $idPedido,
-                        'assinado' => 0,
+                        'assinado' => $assinado,
                     ]);
+
+                    // Conta os usuários com id_usuario == 6
+                    if ($item['id_usuario'] == 6) {
+                        $contadorUsuario6++;
+                    }
                 }
+
+                // Verifica se somente o fluxo do id_usuario == 6 foi inserido
+                if ($contadorUsuario6 == 1 && count($fluxoArray) == 1) {
+                    Pedido::where('id', $idPedido)->update(['id_status' => 6]);
+                }
+                
             } else {
-                return ['resposta' => 'Occoreu algum problema, tente mais tarde!', 'status' => Response::HTTP_BAD_REQUEST];
+                return ['resposta' => 'Ocorreu algum problema, tente mais tarde!', 'status' => Response::HTTP_BAD_REQUEST];
             }
 
             // 5º Passo -> Cadastrar no historico_pedido
@@ -925,7 +941,7 @@ class PedidoService
             ];
 
 
-            $teste = HistoricoPedidos::create($dadosHistorico); // Inserindo log
+            HistoricoPedidos::create($dadosHistorico); // Inserindo log
 
             if ($queryPedido) {
                 DB::commit();
