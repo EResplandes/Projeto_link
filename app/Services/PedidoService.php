@@ -767,14 +767,14 @@ class PedidoService
                 foreach ($fluxoArray as $item) {
                     $assinado = $item['id_usuario'] == 6 ? 1 : 0;
 
-                    // Insere o fluxo
+                    // Insere o fluxowha
                     DB::table('fluxos')->insert([
                         'id_usuario' => $item['id_usuario'],
                         'id_pedido' => $idPedido,
                         'assinado' => $assinado,
                     ]);
 
-                    // Conta os usuários com id_usuario == 6
+                    // Conta os usuários com id_usuario == 6remo
                     if ($item['id_usuario'] == 6) {
                         $contadorUsuario6++;
                     }
@@ -784,9 +784,8 @@ class PedidoService
                 if ($contadorUsuario6 == 1 && count($fluxoArray) == 1) {
                     Pedido::where('id', $idPedido)->update(['id_status' => 6]);
                 }
-                
             } else {
-                return ['resposta' => 'Ocorreu algum problema, tente mais tarde!', 'status' => Response::HTTP_BAD_REQUEST];
+                return ['resposta' => 'Ocorreu Falgum problema, tente mais tarde!', 'status' => Response::HTTP_BAD_REQUEST];
             }
 
             // 5º Passo -> Cadastrar no historico_pedido
@@ -1805,22 +1804,22 @@ class PedidoService
             $dados['anexo'] = $pdf;
         }
 
-        // 3º Passo -> Verificar se o Status atual é igual a 23, se for enviar direto último status. Podendo ser eles o de Reprovado ou Aprovado com Ressalva
-        $statusAtual = Pedido::where('id', $id)->pluck('id_status')->first();
+        // // 3º Passo -> Verificar se o Status atual é igual a 23, se for enviar direto último status. Podendo ser eles o de Reprovado ou Aprovado com Ressalva
+        // $statusAtual = Pedido::where('id', $id)->pluck('id_status')->first();
 
-        if ($statusAtual) {
-            $historicoPedido = Historicopedidos::whereIn('id_status', [3, 5])
-                ->orderBy('id', 'desc')
-                ->first();
+        // if ($statusAtual) {
+        //     $historicoPedido = Historicopedidos::whereIn('id_status', [3, 5])
+        //         ->orderBy('id', 'desc')
+        //         ->first();
 
-            if ($historicoPedido) {
-                $pedido = Pedido::find($id); // Substitua $pedidoId pelo ID do pedido que deseja atualizar
-                if ($pedido) {
-                    $pedido->id_status = $historicoPedido->id_status; // Ajuste o nome do campo na tabela 'pedidos' para o campo correto
-                    $pedido->save();
-                }
-            }
-        }
+        //     if ($historicoPedido) {
+        //         $pedido = Pedido::find($id); // Substitua $pedidoId pelo ID do pedido que deseja atualizar
+        //         if ($pedido) {
+        //             $pedido->id_status = $historicoPedido->id_status; // Ajuste o nome do campo na tabela 'pedidos' para o campo correto
+        //             $pedido->save();
+        //         }
+        //     }
+        // }
 
         if (!empty($dados)) {
             $query = Pedido::where('id', $id)->update($dados);
