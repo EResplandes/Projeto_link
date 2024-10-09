@@ -1804,22 +1804,22 @@ class PedidoService
             $dados['anexo'] = $pdf;
         }
 
-        // // 3º Passo -> Verificar se o Status atual é igual a 23, se for enviar direto último status. Podendo ser eles o de Reprovado ou Aprovado com Ressalva
-        // $statusAtual = Pedido::where('id', $id)->pluck('id_status')->first();
+        // 3º Passo -> Verificar se o Status atual é igual a 23, se for enviar direto último status. Podendo ser eles o de Reprovado ou Aprovado com Ressalva
+        $statusAtual = Pedido::where('id', $id)->pluck('id_status')->first();
 
-        // if ($statusAtual) {
-        //     $historicoPedido = Historicopedidos::whereIn('id_status', [3, 5])
-        //         ->orderBy('id', 'desc')
-        //         ->first();
+        if ($statusAtual == 23) {
+            $historicoPedido = Historicopedidos::whereIn('id_status', [3, 5])
+                ->orderBy('id', 'desc')
+                ->first();
 
-        //     if ($historicoPedido) {
-        //         $pedido = Pedido::find($id); // Substitua $pedidoId pelo ID do pedido que deseja atualizar
-        //         if ($pedido) {
-        //             $pedido->id_status = $historicoPedido->id_status; // Ajuste o nome do campo na tabela 'pedidos' para o campo correto
-        //             $pedido->save();
-        //         }
-        //     }
-        // }
+            if ($historicoPedido) {
+                $pedido = Pedido::find($id); // Substitua $pedidoId pelo ID do pedido que deseja atualizar
+                if ($pedido) {
+                    $pedido->id_status = $historicoPedido->id_status; // Ajuste o nome do campo na tabela 'pedidos' para o campo correto
+                    $pedido->save();
+                }
+            }
+        }
 
         if (!empty($dados)) {
             $query = Pedido::where('id', $id)->update($dados);
