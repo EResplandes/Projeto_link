@@ -767,17 +767,21 @@ class PedidoService
                 foreach ($fluxoArray as $item) {
                     $assinado = $item['id_usuario'] == 6 ? 1 : 0;
 
-                    // Insere o fluxowha
-                    DB::table('fluxos')->insert([
+                    // Prepara o array de dados a serem inseridos
+                    $data = [
                         'id_usuario' => $item['id_usuario'],
                         'id_pedido' => $idPedido,
                         'assinado' => $assinado,
-                    ]);
+                    ];
 
-                    // Conta os usuários com id_usuario == 6remo
+                    // Se o usuário for 6, adiciona o campo updated_at
                     if ($item['id_usuario'] == 6) {
+                        $data['updated_at'] = now(); // ou \Carbon\Carbon::now()
                         $contadorUsuario6++;
                     }
+
+                    // Insere o fluxowha
+                    DB::table('fluxos')->insert($data);
                 }
 
                 // Verifica se somente o fluxo do id_usuario == 6 foi inserido
