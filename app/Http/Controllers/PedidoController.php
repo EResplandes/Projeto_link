@@ -419,4 +419,10 @@ class PedidoController extends Controller
         $query = $this->pedidoService->enviarParaComprador($id); // Metódo responsável por enviar pedido para comprador justificar
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
+
+    public function enviarMensagem($id, $mensagem)
+    {
+        $query = $this->pedidoService->enviarMensagem($id, $mensagem); // Metódo responsável por enviar mensagem sem aprovar nem reprovar pedido
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
 }

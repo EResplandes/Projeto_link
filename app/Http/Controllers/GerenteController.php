@@ -16,7 +16,6 @@ class GerenteController extends Controller
     }
 
     // Metódo reponsável por listar todos pedidos com status 3 onde tem fluxo associado a id do usuário passado
-
     public function listarReprovadosRessalvaEmivalGerente($id)
     {
         $query = $this->gerenteService->listarReprovadosRessalvaEmivalGerente($id);
@@ -24,6 +23,16 @@ class GerenteController extends Controller
             'resposta' => $query['resposta'],
             'pedidos_com_fluxo' => $query['pedidos_com_fluxo'],
             'pedidos_sem_fluxo' => $query['pedidos_sem_fluxo'],
+            'status' => $query['status']
+        ]);
+    }
+
+    // Metódo responsável por responder mensagem de Emival e devolver para ele
+    public function respoondeMensagemEmival($idPedido, Request $request)
+    {
+        $query = $this->gerenteService->respoondeMensagemEmival($idPedido, $request);
+        return response()->json([
+            'resposta' => $query['resposta'],
             'status' => $query['status']
         ]);
     }

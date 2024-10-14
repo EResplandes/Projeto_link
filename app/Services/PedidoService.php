@@ -407,6 +407,9 @@ class PedidoService
                     case 5:
                         $observacao = 'O pedido foi aprovado com ressalva pelo Dr. Emival!';
                         break;
+                    case 24:
+                        $observacao = 'Mensagem enviada por Dr. Emival!';
+                        break;
                 }
 
                 $dadosHistorico = [''];
@@ -1812,7 +1815,7 @@ class PedidoService
         $statusAtual = Pedido::where('id', $id)->pluck('id_status')->first();
 
         if ($statusAtual == 23) {
-            $historicoPedido = Historicopedidos::whereIn('id_status', [3, 5])
+            $historicoPedido = Historicopedidos::whereIn('id_status', [3, 5, 24])
                 ->orderBy('id', 'desc')
                 ->first();
 
@@ -2360,6 +2363,57 @@ class PedidoService
             return ['resposta' => 'Pedido enviado para comprador com sucesso!', 'status' => Response::HTTP_OK];
         } else {
             return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador',  'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+    }
+
+    public function aprovarPedidoComMensagemAcima($id, $mensagem)
+    {
+        DB::beginTransaction();
+
+        try {
+            // 1º Passo -> Atualizar status do pedidos
+            Pedido::where('id', $id)->update(['id_status' => 24]);
+
+            // 2º Passo -> Inserir dados da mensagem na tabela chat
+            Chat::create([
+                'id_pedido' => $id,
+                'id_usuario' => 1,
+                'mensagem' => $mensagem
+            ]);
+
+            // 3º Passo -> Retornar resposta
+            DB::commit();
+
+            return ['resposta' => 'Mensagem enviada com sucesso!', 'status' => Response::HTTP_OK];
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return ['resposta' => $e, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+    }
+
+    public function enviarMensagem($idPedido, $mensagem)
+    {
+        DB::beginTransaction();
+
+        try {
+
+            // 1º Passo -> Alterar status do pedido
+            Pedido::where('id', $idPedido)->update(['id_status' => 24]);
+
+            // 2º Passo -> Inseririr dados da mensagem na tabela chat
+            Chat::create([
+                'id_pedido' => $idPedido,
+                'id_usuario' => 1,
+                'mensagem' => $mensagem
+            ]);
+
+            // 3º Passo -> Retornar resposta
+            DB::commit();
+
+            return ['resposta' => 'Mensagem enviada com sucesso!', 'status' => Response::HTTP_OK];
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return ['resposta' => $e, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
         }
     }
 }

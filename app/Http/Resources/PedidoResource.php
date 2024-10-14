@@ -35,7 +35,8 @@ class PedidoResource extends JsonResource
             "link"                  => new LinkResource($this->link),
             "pendentes"             => $this->getPendentesComNomeUsuario(),
             "assinados"             => $this->getAssinadosComNomeUsuario(),
-            "verifica_chat"         => $this->checkChatRecordForUser($this->id)
+            "verifica_chat"         => $this->checkChatRecordForUser($this->id),
+            "quantidade_mensagens"  => $this->contaQauntidadeMensagensPorPedido($this->id),
         ];
     }
 
@@ -77,5 +78,10 @@ class PedidoResource extends JsonResource
         return Chat::where('id_pedido', $idPedido)
             ->whereIn('id_usuario', [1, 3])
             ->exists();
+    }
+
+    public function contaQauntidadeMensagensPorPedido($idPedido)
+    {
+        return Chat::where('id_pedido', $idPedido)->count();
     }
 }

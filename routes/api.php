@@ -103,6 +103,7 @@ Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
 Route::prefix('/gerente')->group(function () {
     Route::controller(GerenteController::class)->group(function () {
         Route::get('/listar-pedidos-reprovados-emival/{id}', 'listarReprovadosRessalvaEmivalGerente'); // ID do usuário (Gerente)
+        Route::post('/responde-mensagem-emival/{idPedido}', 'respoondeMensagemEmival'); // ID do pedido
     });
 });
 
@@ -119,6 +120,7 @@ Route::prefix('/app')->group(function () {
         Route::put('/aprovar-acima/{id}', 'aprovarPedidoAcima');
         Route::put('/reprovar-acima/{id}/{idUsuario}/{mensagem}', 'reprovarPedidoAcima'); // Id do pedido
         Route::put('/ressalva-acima/{id}/{idUsuario}/{mensagem}', 'aprovarPedidoComRessalvaAcima'); // Id do pedido
+        Route::put('/enviar-mensagem/{id}/{mensagem}', 'enviarMensagem'); // Id do pedido
     });
 });
 
