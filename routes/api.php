@@ -22,7 +22,21 @@ use App\Http\Controllers\StatusController;
 use App\Http\Controllers\CaixaController;
 use App\Http\Controllers\GerenteController;
 use App\Http\Controllers\CotacaoController;
-use PHPUnit\Framework\Attributes\Group;
+use App\Models\Pedido;
+
+Route::get('/pdf/{id}', function ($id) {
+    $diretorioPdf = Pedido::where('id', $id)->pluck('anexo')->first();
+
+    $path = storage_path('app/public/' . $diretorioPdf);
+
+    if (!file_exists($path)) {
+        abort(404);
+    }
+
+    return response()->file($path);
+});
+
+
 
 // Módulo de Autenticação
 Route::prefix("/autenticacao")->group(function () {
@@ -92,6 +106,7 @@ Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
         Route::get('/listar-controle-financeiro-filtro/{idEmpresa}', 'listarControleFinanceiroFiltro'); // ID da empresa
         Route::get('/auditoria-financeiro', 'auditoriaFinanceiro');
         Route::get('/aprovar-giovana/{id}/{idDestino}', 'aprovarGiovana'); // ID do pedido
+        Route::post('/aprovar-giovana-pdf', 'aprovarGiovanaPdf'); // ID do pedido
         Route::post('/reprovar-giovana', 'reprovarGiovana');
         Route::get('/listar-pedidos-reprovados-emival/{id}', 'listarReprovadosEmivalGerente'); // ID do usuário (Gerente)
         Route::get('/listar-pedidos-respondidos-para-emival', 'listarPedidosRespondidosParaEmival');
@@ -104,6 +119,8 @@ Route::prefix('/gerente')->group(function () {
     Route::controller(GerenteController::class)->group(function () {
         Route::get('/listar-pedidos-reprovados-emival/{id}', 'listarReprovadosRessalvaEmivalGerente'); // ID do usuário (Gerente)
         Route::post('/responde-mensagem-emival/{idPedido}', 'respoondeMensagemEmival'); // ID do pedido
+        Route::get('/buscar-pdf/{id}', 'encontrarPdf');
+        Route::post('/aprovar-pedido-gerente', 'aprovarPedidoGerente');
     });
 });
 

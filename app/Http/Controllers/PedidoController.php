@@ -78,6 +78,12 @@ class PedidoController extends Controller
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
 
+    public function aprovarGiovanaPdf(Request $request)
+    {
+        $query = $this->pedidoService->aprovarGiovanaPdf($request); // Metódo responsável por aprovar pdf
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
     public function reprovarGiovana(Request $request)
     {
         $query = $this->pedidoService->reprovarGiovana($request); // Metódo responsável por reprovar pedido

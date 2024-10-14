@@ -36,4 +36,17 @@ class GerenteController extends Controller
             'status' => $query['status']
         ]);
     }
+
+    // Metódo responsável por encontrar pdf
+    public function encontrarPdf($id)
+    {
+        $query = $this->gerenteService->encontrarPdf($id);
+    }
+
+    public function aprovarPedidoGerente(Request $request)
+    {
+        $query = $this->gerenteService->aprovarPedidoGerente($request); // Metódo responsável por aprovar pedido
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+    
 }

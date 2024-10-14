@@ -216,6 +216,7 @@ class PedidoService
         $query = PedidoResource::collection(
             Pedido::where('id_status', 1)
                 ->where('id_link', 2)
+                ->where('id_criador', '!=', 7)
                 ->orderBy('urgente', 'desc')
                 ->get()
         );
@@ -2414,6 +2415,59 @@ class PedidoService
         } catch (\Exception $e) {
             DB::rollBack();
             return ['resposta' => $e, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+    }
+
+    public function aprovarGiovanaPdf($request)
+    {
+        DB::beginTransaction();
+
+        try {
+            // 1º Passo -> Atualizar status do pedidos
+            Pedido::where('id', $request->idPedido)->pluck('fiscal')->first();
+
+            if ($request->idDestino == 1) {
+                Pedido::where('id', $request->idPedido)->update(['id_status' => 1, 'id_link' => 2]);
+
+                // Gerar fluxo em nome da dr giovana e mudar tipo do pedido par Com Fluxo
+                Pedido::where('id', $request->idPedido)->update(['tipo_pedido' => 'Com Fluxo']);
+
+                Fluxo::create([
+                    'id_pedido' => $request->idPedido,
+                    'id_usuario' => 11,
+                    'assinado' => 1
+                ]);
+            } else {
+                Pedido::where('id', $request->idPedido)->update(['id_status' => 15]);
+            }
+
+            // 2º Passo -> Cadastra pdf assinado
+            $ano = date('Y'); // Ano atual
+            $mes = date('m'); // Mês atual
+            $directory = "/pedidos/{$ano}/{$mes}"; // Criando diretório ano/mês
+
+            // Salvar novo PDF do pedido
+            $pdf = $request->file('anexo')->store($directory, 'public');
+
+            // Atualizar o registro do pedido com o novo anexo
+            Pedido::where('id', $request->idPedido)->update(['anexo' => $pdf]); // Atualiza o campo 'anexo' com o novo arquivo
+
+            // 3º Passo -> Gerar histórico de pedido aprovado
+            HistoricoPedidos::create([
+                'id_pedido' => $request->idPedido,
+                'id_status' => 4,
+                'observacao' => 'Pedido aprovado por Dr. Giovana!'
+            ]);
+
+            // 3º Passo -> Retornar resposta
+            DB::commit();
+            return ['resposta' => 'Pedido aprovado com sucesso!', 'status' => Response::HTTP_OK];
+        } catch (\Exception $e) {
+            DB::rollback(); // Se uma exceção ocorrer durante as operações do banco de dados, fazemos o rollback
+
+            return ['resposta' => $e, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+
+            throw $e;
         }
     }
 }
