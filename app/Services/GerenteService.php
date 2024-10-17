@@ -158,16 +158,16 @@ class GerenteService
 
             $historico = HistoricoPedidos::create($dados); // Salvando
 
-            // 6º Passo -> Cadastra pdf assinado
-            $ano = date('Y'); // Ano atual
-            $mes = date('m'); // Mês atual
-            $directory = "/pedidos/{$ano}/{$mes}"; // Criando diretório ano/mês
+            // // 6º Passo -> Cadastra pdf assinado
+            // $ano = date('Y'); // Ano atual
+            // $mes = date('m'); // Mês atual
+            // $directory = "/pedidos/{$ano}/{$mes}"; // Criando diretório ano/mês
 
-            // Salvar novo PDF do pedido
-            $pdf = $request->file('anexo')->store($directory, 'public');
+            // // Salvar novo PDF do pedido
+            // $pdf = $request->file('anexo')->store($directory, 'public');
 
-            // Atualizar o registro do pedido com o novo anexo
-            Pedido::where('id', $idPedido)->update(['anexo' => $pdf]); // Atualiza o campo 'anexo' com o novo arquivo
+            // // Atualizar o registro do pedido com o novo anexo
+            // Pedido::where('id', $idPedido)->update(['anexo' => $pdf]); // Atualiza o campo 'anexo' com o novo arquivo
 
             // 7º Passo -> Retornar resposta
             DB::commit();
@@ -175,7 +175,6 @@ class GerenteService
                 'resposta' => [
                     'mensagem' => 'Pedido aprovado com sucesso!',
                     'id_pedido' => $idPedido,
-                    'anexo' => $pdf // Informações adicionais sobre o que foi salvo
                 ],
                 'status' => Response::HTTP_OK
             ];
