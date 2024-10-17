@@ -36,8 +36,6 @@ Route::get('/pdf/{id}', function ($id) {
     return response()->file($path);
 });
 
-
-
 // Módulo de Autenticação
 Route::prefix("/autenticacao")->group(function () {
     Route::controller(AutenticacaoController::class)->group(function () {
@@ -121,6 +119,7 @@ Route::prefix('/gerente')->group(function () {
         Route::post('/responde-mensagem-emival/{idPedido}', 'respoondeMensagemEmival'); // ID do pedido
         Route::get('/buscar-pdf/{id}', 'encontrarPdf');
         Route::post('/aprovar-pedido-gerente', 'aprovarPedidoGerente');
+        Route::get('/listar-pedidos/{id}', 'listarTodosPedidosAssociados');
     });
 });
 

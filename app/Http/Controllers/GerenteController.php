@@ -27,6 +27,17 @@ class GerenteController extends Controller
         ]);
     }
 
+    // Metódo reponsável por contar todos pedidos associados a um gerente para ele acompanhar o fluxo
+    public function listarTodosPedidosAssociados($id)
+    {
+        $query = $this->gerenteService->listarTodosPedidosAssociados($id);
+        return response()->json([
+            'resposta' => $query['resposta'],
+            'pedidos_com_fluxo' => $query['pedidos_com_fluxo'],
+            'status' => $query['status']
+        ]);
+    }
+
     // Metódo responsável por responder mensagem de Emival e devolver para ele
     public function respoondeMensagemEmival($idPedido, Request $request)
     {
@@ -48,5 +59,4 @@ class GerenteController extends Controller
         $query = $this->gerenteService->aprovarPedidoGerente($request); // Metódo responsável por aprovar pedido
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
-    
 }

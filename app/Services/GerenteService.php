@@ -56,6 +56,34 @@ class GerenteService
         }
     }
 
+    public function listarTodosPedidosAssociados($id)
+    {
+        DB::beginTransaction();
+
+        try {
+            $pedidosComFluxo = PedidoResource::collection(Pedido::where('id_status', '!=', 8)
+                ->whereHas('fluxo', function ($query) use ($id) {
+                    $query->where('id_usuario', $id);
+                })
+                ->limit(500)
+                ->get());
+
+            return [
+                'resposta' => 'Pedidos listados com sucesso!',
+                'pedidos_com_fluxo' => $pedidosComFluxo,
+                'status' => Response::HTTP_OK
+            ];
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return [
+                'resposta' => 'Erro ao listar pedidos: ' . $e->getMessage(),
+                'pedidos_com_fluxo' => null,
+                'pedidos_sem_fluxo' => null,
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR
+            ];
+        }
+    }
+
 
     public function respoondeMensagemEmival($idPedido, $request)
     {
@@ -108,7 +136,7 @@ class GerenteService
             $query = Fluxo::where('id', $request->idFluxo)->update(['assinado' => 1]);
 
             // 2º Passo -> Pegar id do pedido referente a esse fluxo
-            $idPedido = Fluxo::where('id', $request->idFluxo)->pluck('id_pedido'); 
+            $idPedido = Fluxo::where('id', $request->idFluxo)->pluck('id_pedido');
 
             // Verificar se o idPedido foi encontrado
             if (!$idPedido) {
@@ -137,7 +165,7 @@ class GerenteService
 
             // Salvar novo PDF do pedido
             $pdf = $request->file('anexo')->store($directory, 'public');
-            
+
             // Atualizar o registro do pedido com o novo anexo
             Pedido::where('id', $idPedido)->update(['anexo' => $pdf]); // Atualiza o campo 'anexo' com o novo arquivo
 
