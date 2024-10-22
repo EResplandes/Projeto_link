@@ -65,6 +65,7 @@ class GerenteService
                 ->whereHas('fluxo', function ($query) use ($id) {
                     $query->where('id_usuario', $id);
                 })
+                ->orderBy('created_at', 'desc')
                 ->limit(500)
                 ->get());
 
