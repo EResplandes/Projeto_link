@@ -163,16 +163,24 @@ class PedidoService
         $dtFim = \Carbon\Carbon::parse($request->input('dt_fim'))->endOfDay();
 
         // 1º Passo -> Buscar todos os pedidos cadastrados
-        $query = PedidoResource::collection(
-            Pedido::orderBy('created_at', 'desc')
-                ->where('id_status', '!=', 8)
-                ->whereBetween('created_at', [$dtInicio, $dtFim])
-                ->get()
-        );
+        $query = Pedido::orderBy('created_at', 'desc')
+            ->where('id_status', '!=', 8);
+
+        // Verifica se os campos existem e adiciona as cláusulas
+        if ($request->has('numero_pedido')) {
+            $query->where('protheus', intval($request->input('numero_pedido')));
+        }
+
+        if ($request->input('dt_inicio') != false && $request->input('dt_fim') != false) {
+            $query->whereBetween('created_at', [$dtInicio, $dtFim]);
+        }
+
+        // Obtém os resultados
+        $resultado = PedidoResource::collection($query->get());
 
         // 2º Passo -> Retornar resposta
-        if ($query) {
-            return ['resposta' => 'Pedidos listados com sucesso!', 'pedidos' => $query, 'status' => Response::HTTP_OK];
+        if ($resultado) {
+            return ['resposta' => 'Pedidos listados com sucesso!', 'pedidos' => $resultado, 'status' => Response::HTTP_OK];
         } else {
             return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
         }
