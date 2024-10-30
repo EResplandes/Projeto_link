@@ -59,6 +59,7 @@ Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
         Route::post('/listar-pedidos-filtro-comprador-externo', 'listarTodosPedidosCompradorExternoFiltro');
         Route::get('/filtro-emival', 'listarEmivalFiltro');
         Route::get('/listar-emival', 'listarEmival');
+        Route::get('/listar-emival-gestor-fluxo', 'listarPedidoComEmivalGestorFluxo');
         Route::get('/listar-giovana', 'listarGiovana');
         Route::get('/listar-monica', 'listarMonica');
         Route::get('/listar-aprovados', 'listarAprovados');

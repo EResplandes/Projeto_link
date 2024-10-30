@@ -66,6 +66,12 @@ class PedidoController extends Controller
         return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
     }
 
+    public function listarPedidoComEmivalGestorFluxo()
+    {
+        $query = $this->pedidoService->listarPedidoComEmivalGestorFluxo(); // Metódo responsável por listar todos pedidos com Emival
+        return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
+    }
+
     public function listarGiovana()
     {
         $query = $this->pedidoService->listarGiovana(); // Metódo responsável por listar pedidos com Dr Giovana - status 22

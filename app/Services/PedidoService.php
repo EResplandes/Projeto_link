@@ -236,6 +236,22 @@ class PedidoService
         }
     }
 
+    public function listarPedidoComEmivalGestorFluxo()
+    {
+        // 1ª Passo -> Buscar todos os pedidos que estão com Dr. Emival
+        $query = PedidoResource::collection(
+            Pedido::where('id_status', 1)
+                ->where('id_link', 2)
+                ->orderBy('urgente', 'desc')
+                ->get()
+        );
+
+        // 2º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Pedidos listados com sucesso!', 'pedidos' => $query, 'status' => Response::HTTP_OK];
+        }
+    }
+
     public function listarEmivalMenorQuinhentos()
     {
         // 1ª Passo -> Buscar todos os pedidos com status 1
