@@ -22,6 +22,7 @@ class PedidoAprovadoResource extends JsonResource
             "protheus"      => $this->protheus,
             "urgente"       => $this->urgente,
             "anexo"         => $this->anexo,
+            "comprador"     => $this->criador->name,
             "tipo_pedido"   => $this->tipo_pedido,
             "dt_inclusao"   => $this->created_at,
             "dt_assinatura" => $this->updated_at,
