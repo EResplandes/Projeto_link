@@ -22,6 +22,7 @@ use App\Http\Controllers\StatusController;
 use App\Http\Controllers\CaixaController;
 use App\Http\Controllers\GerenteController;
 use App\Http\Controllers\CotacaoController;
+use App\Http\Controllers\DpController;
 use App\Models\Pedido;
 
 Route::get('/pdf/{id}', function ($id) {
@@ -121,6 +122,14 @@ Route::prefix('/gerente')->group(function () {
         Route::get('/buscar-pdf/{id}', 'encontrarPdf');
         Route::post('/aprovar-pedido-gerente', 'aprovarPedidoGerente');
         Route::get('/listar-pedidos/{id}', 'listarTodosPedidosAssociados');
+    });
+});
+
+// Rotas DP
+Route::prefix('/dp')->group(function () {
+    Route::controller(DpController::class)->group(function () {
+        Route::get('/listar-pedidos', 'listarPedidosDP');
+        Route::get('/listar-pedidos-justificar', 'listarPedisoParaJustificar');
     });
 });
 

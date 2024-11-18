@@ -144,7 +144,7 @@ class PedidoService
         $query = PedidoResource::collection(
             Pedido::orderBy('created_at', 'desc')
                 ->where('id_status', '!=', 8)
-                ->where('id_criador', '!=', 7)
+                ->whereIn('id_criador', [7, 80])
                 ->take(500)
                 ->get()
         );
@@ -166,7 +166,7 @@ class PedidoService
         // 1º Passo -> Buscar todos os pedidos cadastrados
         $query = Pedido::orderBy('created_at', 'desc')
             ->where('id_status', '!=', 8)
-            ->where('id_criador', '!=', 7);
+            ->whereIn('id_criador', [7, 80]);
 
         // Verifica se os campos existem e adiciona as cláusulas
         if ($request->has('numero_pedido')) {
@@ -226,7 +226,7 @@ class PedidoService
         $query = PedidoResource::collection(
             Pedido::where('id_status', 1)
                 ->where('id_link', 2)
-                ->where('id_criador', '!=', 7)
+                ->whereIn('id_criador', [7, 80])
                 ->orderBy('urgente', 'desc')
                 ->get()
         );
