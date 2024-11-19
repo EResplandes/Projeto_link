@@ -144,7 +144,7 @@ class PedidoService
         $query = PedidoResource::collection(
             Pedido::orderBy('created_at', 'desc')
                 ->where('id_status', '!=', 8)
-                ->whereIn('id_criador', [7, 80])
+                ->where('id_criador', '!=', 7)
                 ->take(500)
                 ->get()
         );
