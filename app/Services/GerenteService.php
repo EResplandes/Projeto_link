@@ -28,7 +28,7 @@ class GerenteService
 
         try {
             $pedidosComFluxo = PedidoResource::collection(Pedido::whereIn('id_status', [3, 5, 24])
-                ->whereIn('id_criador', [7, 80])
+                ->where('id_criador', '!=', 7)
                 ->whereHas('fluxo', function ($query) use ($id) {
                     $query->where('id_usuario', $id);
                 })
@@ -36,7 +36,7 @@ class GerenteService
 
             $pedidosSemFluxo = PedidoResource::collection(
                 Pedido::whereIn('id_status', [3, 5, 24])
-                    ->whereIn('id_criador', [7, 80])
+                    ->where('id_criador', '!=', 7)
                     ->where('tipo_pedido', 'Sem Fluxo')
                     ->get()
             );
