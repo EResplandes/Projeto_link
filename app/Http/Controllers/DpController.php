@@ -26,4 +26,10 @@ class DpController extends Controller
         $query = $this->dpService->listarPedisoParaJustificar(); // Metódo responsável por listar pedidos para justificar
         return response()->json($query);
     }
+
+    public function listarPedidosEmivalDp()
+    {
+        $query = $this->dpService->listarPedidosEmivalDp(); // Metódo responsável por listar pedidos para justificar
+        return response()->json($query);
+    }
 }

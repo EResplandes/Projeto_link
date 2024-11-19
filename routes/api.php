@@ -130,6 +130,7 @@ Route::prefix('/dp')->group(function () {
     Route::controller(DpController::class)->group(function () {
         Route::get('/listar-pedidos', 'listarPedidosDP');
         Route::get('/listar-pedidos-justificar', 'listarPedisoParaJustificar');
+        Route::get('/listar-emival-dp', 'listarPedidosEmivalDp');
     });
 });
 
