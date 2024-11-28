@@ -23,6 +23,7 @@ use App\Http\Controllers\CaixaController;
 use App\Http\Controllers\GerenteController;
 use App\Http\Controllers\CotacaoController;
 use App\Http\Controllers\DpController;
+use App\Http\Controllers\LmController;
 use App\Models\Pedido;
 
 Route::get('/pdf/{id}', function ($id) {
@@ -294,7 +295,6 @@ Route::prefix('bancos')->middleware('jwt.auth')->group(function () {
     });
 });
 
-//////////////////////////////////////////////////////////////////////////////////
 
 // Rotas do Sistema de Controle de Pagamentos - SCP
 Route::prefix('externo')->middleware('jwt.auth')->group(function () {
@@ -309,7 +309,6 @@ Route::prefix('externo')->middleware('jwt.auth')->group(function () {
     });
 });
 
-//////////////////////////////////////////////////////////////////////////////////
 
 // Módulo de Caixa
 Route::prefix('caixas')->middleware('jwt.auth')->group(function () {
@@ -324,10 +323,39 @@ Route::prefix('caixas')->middleware('jwt.auth')->group(function () {
     });
 });
 
+// Módulo de Cotações
 Route::prefix('cotacoes')->middleware('jwt.auth')->group(function () {
     Route::controller(CotacaoController::class)->group(function () {
         Route::post('/buscar-precos', 'buscarPrecos');
         Route::get('/buscar-cotacoes/{id}', 'buscarCotacoes'); // ID do comprador
         Route::post('/cadastrar-cotacao', 'cadastrarCotacao');
+    });
+});
+
+// Módulo de Listas de Materias
+Route::prefix('lm')->middleware('jwt.auth')->group(function () {
+    Route::controller(LmController::class)->group(function () {
+        Route::get('/listar-lms', 'listarLms');
+        Route::post('/cadastrar-lm', 'cadastarLm');
+        Route::get('/listar-compradores', 'listarCompradores');
+        Route::get('/associar-comprador/{idLm}/{idComprador}/{idGerente}', 'associarComprador');
+        Route::get('/lm-associadas/{idComprador}', 'lmAssociadas');
+        Route::get('/associar-pedido/{idPedido}/{idItem}', 'associarPedido');
+        Route::post('/cadastrar-lancamento', 'cadastrarLancamento');
+        Route::get('/listar-lancamentos/{idMaterial}', 'listarLancamentos');
+        Route::get('/listar-locais', 'listarLocais');
+        Route::get('/listar-chat/{idMaterial}', 'listarChat');
+        Route::get('/listar-chat-lm/{idLm}', 'listarChatLm');
+        Route::post('/enviar-mensagem', 'enviarMensagem');
+        Route::post('/enviar-mensagem-lm', 'enviarMensagemLm');
+        Route::get('/finalizar-lm/{idLm}', 'finalizarLm');
+        Route::get('/iniciar-lm/{idLm}/{idComprador}', 'iniciarLm');
+        Route::get('/listar-status-lm', 'listarStatusLm');
+        Route::get('alterar-status-lm/{idLm}/{idStatus}/{idComprador}', 'alterarStatusLm');
+        Route::get('/listar-status-materiais', 'listarStatusMateriais');
+        Route::get('/alterar-status-material/{idMaterial}/{idStatus}/{idComprador}', 'alterarStatusMaterial');
+        Route::get('/liberar-material/{idMaterial}/{idComprador}', 'liberarMaterial');
+        Route::get('/bloquear-material/{idMaterial}/{idComprador}', 'bloquearMaterial');
+        Route::get('/listar-lms-almoxarifado', 'listarLmsAlmoxarifado');
     });
 });
