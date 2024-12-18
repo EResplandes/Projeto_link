@@ -149,10 +149,14 @@ Route::prefix('/app')->group(function () {
         Route::put('/reprovar-acima/{id}/{idUsuario}/{mensagem}', 'reprovarPedidoAcima'); // Id do pedido
         Route::put('/ressalva-acima/{id}/{idUsuario}/{mensagem}', 'aprovarPedidoComRessalvaAcima'); // Id do pedido
         Route::put('/enviar-mensagem/{id}/{mensagem}', 'enviarMensagem'); // Id do pedido
+        Route::get('/listar-todos-pedidos-emival-temp', 'listarTodosPedidosEmivalTemp');
+        Route::get('/aprovar-pedido-emival-temp/{id}', 'aprovarPedidoEmivalTemp');
+        Route::post('/reprovar-pedido-emival-temp', 'reprovarPedidoEmivalTemp');
+        Route::post('/ressalva-pedido-emival-temp', 'ressalvaPedidoEmivalTemp');
     });
 });
 
-// Rotas App Monica
+// Rotas App Monicaf
 Route::prefix('/monica')->group(function () {
     Route::controller(MonicaController::class)->group(function () {
         Route::get('/listarMonicaMenorQuinhentos', 'listarMonicaMenorQuinhentos');

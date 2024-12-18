@@ -437,4 +437,28 @@ class PedidoController extends Controller
         $query = $this->pedidoService->enviarMensagem($id, $mensagem); // Metódo responsável por enviar mensagem sem aprovar nem reprovar pedido
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
+
+    public function listarTodosPedidosEmivalTemp()
+    {
+        $query = $this->pedidoService->listarTodosPedidosEmivalTemp();
+        return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
+    }
+
+    public function aprovarPedidoEmivalTemp($id)
+    {
+        $query = $this->pedidoService->aprovarPedidoEmivalTemp($id);
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
+    public function reprovarPedidoEmivalTemp(Request $request)
+    {
+        $query = $this->pedidoService->reprovarPedidoEmivalTemp($request);
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
+    public function ressalvaPedidoEmivalTemp(Request $request)
+    {
+        $query = $this->pedidoService->ressalvaPedidoEmivalTemp($request);
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
 }

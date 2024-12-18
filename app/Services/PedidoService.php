@@ -2496,4 +2496,85 @@ class PedidoService
             throw $e;
         }
     }
+
+    public function listarTodosPedidosEmivalTemp()
+    {
+        // 1ª Passo -> Buscar todos os pedidos com status 1
+        $query = PedidoResource::collection(
+            Pedido::whereIn('id_status', [1, 12]) // Substitua [1, 2, 3] pelos valores desejados
+                ->where('id_link', 2)
+                ->orderBy('urgente', 'desc')
+                ->get()
+        );
+
+        // 2º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Pedidos para o Dr. Emival Caiado!', 'pedidos' => $query, 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+    }
+
+    public function aprovarPedidoEmivalTemp($id)
+    {
+        // 1º Passo -> Alterar status do pedido
+        $query = Pedido::where('id', $id)->update(['id_status' => 4]);
+
+        HistoricoPedidos::create([
+            'id_pedido' => $id,
+            'id_status' => 4,
+            'observacao' => 'Pedido aprovado pelo Dr. Emival Caiado!'
+        ]);
+
+        // 2º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Pedido aprovado com sucesso!', 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+    }
+
+    public function reprovarPedidoEmivalTemp($request)
+    {
+        // 1º Passo -> Alterar status do pedido
+        $query = Pedido::where('id', $request->id_pedido)->update(['id_status' => 3]);
+
+        // 2º Passo -> Inserir mensagem na tabela chat
+        $dadosChat = [
+            'id_pedido' => $request->id_pedido,
+            'id_usuario' => 1,
+            'mensagem' => $request->mensagem
+        ];
+
+        Chat::create($dadosChat);
+
+        // 2º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Pedido reprovado com sucesso!', 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+    }
+
+    public function ressalvaPedidoEmivalTemp($request)
+    {
+        // 1º Passo -> Alterar status do pedido
+        $query = Pedido::where('id', $request->id_pedido)->update(['id_status' => 5]);
+
+        // 2º Passo -> Inserir mensagem na tabela chat
+        $dadosChat = [
+            'id_pedido' => $request->id_pedido,
+            'id_usuario' => 1,
+            'mensagem' => $request->mensagem
+        ];
+
+        Chat::create($dadosChat);
+
+        // 3º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Pedido ressaldado com sucesso!', 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+    }
 }
