@@ -2523,7 +2523,7 @@ class PedidoService
         HistoricoPedidos::create([
             'id_pedido' => $id,
             'id_status' => 4,
-            'observacao' => 'Pedido aprovado pelo Dr. Emival Caiado!'
+            'observacao' => 'O pedido foi aprovado pelo Dr. Emival!'
         ]);
 
         // 2º Passo -> Retornar resposta
@@ -2539,7 +2539,14 @@ class PedidoService
         // 1º Passo -> Alterar status do pedido
         $query = Pedido::where('id', $request->id_pedido)->update(['id_status' => 3]);
 
-        // 2º Passo -> Inserir mensagem na tabela chat
+        // 2º Posso -> Gerar histórico de pedido reprovado
+        HistoricoPedidos::create([
+            'id_pedido' => $request->id_pedido,
+            'id_status' => 3,
+            'observacao' => 'O pedido foi reprovado pelo Dr. Emival!'
+        ]);
+
+        // 3º Passo -> Inserir mensagem na tabela chat
         $dadosChat = [
             'id_pedido' => $request->id_pedido,
             'id_usuario' => 1,
@@ -2548,7 +2555,7 @@ class PedidoService
 
         Chat::create($dadosChat);
 
-        // 2º Passo -> Retornar resposta
+        // 4º Passo -> Retornar resposta
         if ($query) {
             return ['resposta' => 'Pedido reprovado com sucesso!', 'status' => Response::HTTP_OK];
         } else {
@@ -2561,7 +2568,14 @@ class PedidoService
         // 1º Passo -> Alterar status do pedido
         $query = Pedido::where('id', $request->id_pedido)->update(['id_status' => 5]);
 
-        // 2º Passo -> Inserir mensagem na tabela chat
+        // 2º Posso -> Gerar histórico de pedido reprovado
+        HistoricoPedidos::create([
+            'id_pedido' => $request->id_pedido,
+            'id_status' => 5,
+            'observacao' => 'O pedido foi aprovado com ressalva pelo Dr. Emival!'
+        ]);
+
+        // 3º Passo -> Inserir mensagem na tabela chat
         $dadosChat = [
             'id_pedido' => $request->id_pedido,
             'id_usuario' => 1,
@@ -2570,7 +2584,7 @@ class PedidoService
 
         Chat::create($dadosChat);
 
-        // 3º Passo -> Retornar resposta
+        // 4º Passo -> Retornar resposta
         if ($query) {
             return ['resposta' => 'Pedido ressaldado com sucesso!', 'status' => Response::HTTP_OK];
         } else {
