@@ -24,6 +24,7 @@ use App\Http\Controllers\GerenteController;
 use App\Http\Controllers\CotacaoController;
 use App\Http\Controllers\DpController;
 use App\Http\Controllers\LmController;
+use App\Http\Controllers\MetodoController;
 use App\Models\Pedido;
 
 Route::get('/pdf/{id}', function ($id) {
@@ -182,6 +183,13 @@ Route::prefix('/empresas')->middleware('jwt.auth')->group(function () {
         Route::get('/listar-empresas', 'listarEmpresas');
         Route::post('/cadastrar-empresa', 'cadastrarEmpresa');
         Route::delete('/deletar-empresa/{id}', 'deletarEmpresa');
+    });
+});
+
+// Módulo de Metódos de Pagamentos
+Route::prefix('/metodos')->middleware('jwt.auth')->group(function () {
+    Route::controller(MetodoController::class)->group(function () {
+        Route::get('/listar-metodos', 'listarMetodos');
     });
 });
 

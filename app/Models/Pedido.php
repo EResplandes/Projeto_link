@@ -23,6 +23,7 @@ class Pedido extends Model
         'id_empresa',
         'id_criador',
         'id_local',
+        'id_metodo',
         'tipo_pedido',
         'compra_antecipada',
         'dt_vencimento',
