@@ -820,6 +820,15 @@ class PedidoService
                 if ($contadorUsuario6 == 1 && count($fluxoArray) == 1) {
                     Pedido::where('id', $idPedido)->update(['id_status' => 6]);
                 }
+
+                // Se o id_usuario for 13, insere automaticamente um fluxo para o usuário 65
+                if ($item['id_usuario'] == 13) {
+                    DB::table('fluxos')->insert([
+                        'id_usuario' => 65,
+                        'id_pedido' => $idPedido,
+                        'assinado' => $assinado, // Mantém o mesmo status de "assinado"
+                    ]);
+                }
             } else {
                 return ['resposta' => 'Ocorreu Falgum problema, tente mais tarde!', 'status' => Response::HTTP_BAD_REQUEST];
             }
