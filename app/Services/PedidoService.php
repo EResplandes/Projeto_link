@@ -694,7 +694,7 @@ class PedidoService
                 'id_status' => 6,
                 'id_criador' => $request->input('id_criador'),
                 'id_local' => $request->input('id_local'),
-                'id_metodo' => $request->input('id_metodo', null),
+                'id_metodo' => $request->input('id_metodo', 5),
                 'protheus' => intval($request->input('protheus')),
                 'tipo_pedido' => 'Com Fluxo',
             ];
@@ -711,7 +711,7 @@ class PedidoService
                 'id_status' => 7,
                 'id_criador' => $request->input('id_criador'),
                 'id_local' => $request->input('id_local'),
-                'id_metodo' => $request->input('id_metodo', null),
+                'id_metodo' => $request->input('id_metodo', 5),
                 'protheus' => intval($request->input('protheus')),
                 'tipo_pedido' => 'Com Fluxo',
             ];
@@ -893,7 +893,7 @@ class PedidoService
                     'id_status' => $idStatus,
                     'id_criador' => $request->input('id_criador'),
                     'id_local' => $request->input('id_local'),
-                    'id_metodo' => $request->input('id_metodo', null),
+                    'id_metodo' => $request->input('id_metodo', 5),
                     'protheus' => intval($request->input('protheus')),
                     'tipo_pedido' => 'Sem Fluxo'
                 ];
@@ -910,7 +910,7 @@ class PedidoService
                     'id_status' => 6,
                     'id_criador' => $request->input('id_criador'),
                     'id_local' => $request->input('id_local'),
-                    'id_metodo' => $request->input('id_metodo', null),
+                    'id_metodo' => $request->input('id_metodo', 5),
                     'protheus' => intval($request->input('protheus')),
                     'tipo_pedido' => 'Sem Fluxo'
                 ];
