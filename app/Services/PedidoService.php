@@ -793,8 +793,10 @@ class PedidoService
             }
 
             // Insere os itens na tabela fluxos
-            if ($fluxoArray != null || $fluxoArray != '') {
+            if (!empty($fluxoArray)) {
                 $contadorUsuario6 = 0;
+                $inserirUsuario65 = false;
+                $inserirUsuario13 = false;
 
                 foreach ($fluxoArray as $item) {
                     $assinado = $item['id_usuario'] == 6 ? 1 : 0;
@@ -812,8 +814,15 @@ class PedidoService
                         $contadorUsuario6++;
                     }
 
-                    // Insere o fluxowha
+                    // Insere o fluxo
                     DB::table('fluxos')->insert($data);
+
+                    // Verifica se precisa inserir fluxos adicionais
+                    if ($item['id_usuario'] == 13) {
+                        $inserirUsuario65 = true;
+                    } elseif ($item['id_usuario'] == 65) {
+                        $inserirUsuario13 = true;
+                    }
                 }
 
                 // Verifica se somente o fluxo do id_usuario == 6 foi inserido
@@ -821,23 +830,24 @@ class PedidoService
                     Pedido::where('id', $idPedido)->update(['id_status' => 6]);
                 }
 
-                // Se o id_usuario for 13, insere automaticamente um fluxo para o usuário 65
-                if ($item['id_usuario'] == 13) {
+                // Insere automaticamente o fluxo para o usuário 65, se necessário
+                if ($inserirUsuario65) {
                     DB::table('fluxos')->insert([
                         'id_usuario' => 65,
                         'id_pedido' => $idPedido,
-                        'assinado' => $assinado, // Mantém o mesmo status de "assinado"
+                        'assinado' => 0, // Define como não assinado por padrão
                     ]);
                 }
 
-                // Se o id_usuario for 13, insere automaticamente um fluxo para o usuário 65
-                if ($item['id_usuario'] == 65) {
+                // Insere automaticamente o fluxo para o usuário 13, se necessário
+                if ($inserirUsuario13) {
                     DB::table('fluxos')->insert([
                         'id_usuario' => 13,
                         'id_pedido' => $idPedido,
-                        'assinado' => $assinado, // Mantém o mesmo status de "assinado"
+                        'assinado' => 0, // Define como não assinado por padrão
                     ]);
                 }
+                
             } else {
                 return ['resposta' => 'Ocorreu Falgum problema, tente mais tarde!', 'status' => Response::HTTP_BAD_REQUEST];
             }
