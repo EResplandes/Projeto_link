@@ -27,17 +27,17 @@ use App\Http\Controllers\LmController;
 use App\Http\Controllers\MetodoController;
 use App\Models\Pedido;
 
-Route::get('/pdf/{id}', function ($id) {
-    $diretorioPdf = Pedido::where('id', $id)->pluck('anexo')->first();
+// Route::get('/pdf/{id}', function ($id) {
+//     $diretorioPdf = Pedido::where('id', $id)->pluck('anexo')->first();
 
-    $path = storage_path('app/public/' . $diretorioPdf);
+//     $path = storage_path('app/public/' . $diretorioPdf);
 
-    if (!file_exists($path)) {
-        abort(404);
-    }
+//     if (!file_exists($path)) {
+//         abort(404);
+//     }
 
-    return response()->file($path);
-});
+//     return response()->file($path);
+// });
 
 // Módulo de Autenticação
 Route::prefix("/autenticacao")->group(function () {
