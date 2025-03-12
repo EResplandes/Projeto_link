@@ -1118,6 +1118,23 @@ class PedidoService
             // 2º Passo -> Pegar id do pedido referente a esse fluxo
             $idPedido = Fluxo::where('id', $id)->pluck('id_pedido');
 
+            $fluxo = Fluxo::find($id);
+
+            $idGerente = $fluxo->id_usuario;
+
+            if ($idGerente == 13 || $idGerente == 65) {
+                // Encontrar o outro fluxo correspondente
+                $outroIdGerente = $idGerente == 13 ? 65 : 13;
+                $outroFluxo = Fluxo::where('id_pedido', $fluxo->id_pedido)
+                    ->where('id_usuario', $outroIdGerente)
+                    ->first();
+
+                if ($outroFluxo) {
+                    $outroFluxo->update(['assinado' => 1]);
+                }
+            }
+
+
             // 3º Passo -> Verificar se todo o fluxo referente a esse pedido foi aprovado
             $this->pedidosQuery->verificaFluxoAprovado($idPedido);
 
