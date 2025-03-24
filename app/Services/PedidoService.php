@@ -2330,7 +2330,7 @@ class PedidoService
                     'assinado' => 1
                 ]);
             } else {
-                Pedido::where('id', $id)->update(['id_status' => 15]);
+                Pedido::where('id', $id)->update(['id_status' => 4]);
             }
 
             // 2º Passo -> Gerar histórico de pedido aprovado

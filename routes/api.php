@@ -307,7 +307,6 @@ Route::prefix('bancos')->middleware('jwt.auth')->group(function () {
     });
 });
 
-
 // Rotas do Sistema de Controle de Pagamentos - SCP
 Route::prefix('externo')->middleware('jwt.auth')->group(function () {
     Route::controller(ExternoController::class)->group(function () {
@@ -320,7 +319,6 @@ Route::prefix('externo')->middleware('jwt.auth')->group(function () {
         Route::get('/consultar-status/{id}', 'consultaStatusPedido');
     });
 });
-
 
 // Módulo de Caixa
 Route::prefix('caixas')->middleware('jwt.auth')->group(function () {
