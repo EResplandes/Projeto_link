@@ -800,7 +800,7 @@ class PedidoService
                 $inserirUsuario52 = false;
 
                 foreach ($fluxoArray as $item) {
-                    $assinado = in_array($item['id_usuario'], [6, 52]) ? 1 : 0;
+                    $assinado = $item['id_usuario'] == 6 ? 1 : 0;
 
                     // Prepara o array de dados a serem inseridos
                     $data = [
