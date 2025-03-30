@@ -797,7 +797,6 @@ class PedidoService
                 $contadorUsuario6 = 0;
                 $inserirUsuario65 = false;
                 $inserirUsuario13 = false;
-                $inserirUsuario52 = false;
 
                 foreach ($fluxoArray as $item) {
                     $assinado = $item['id_usuario'] == 6 ? 1 : 0;
@@ -815,6 +814,11 @@ class PedidoService
                         $contadorUsuario6++;
                     }
 
+                    // Duplicata perfil Soleni
+                    if ($item['id_usuario'] == 52) {
+                        $data['id_usuario'] = 4;
+                    }
+
                     // Insere o fluxo
                     DB::table('fluxos')->insert($data);
 
@@ -823,8 +827,6 @@ class PedidoService
                         $inserirUsuario65 = true;
                     } elseif ($item['id_usuario'] == 65) {
                         $inserirUsuario13 = true;
-                    } elseif ($item['id_usuario'] == 52) {
-                        $inserirUsuario52 = true;
                     }
                 }
 
@@ -850,21 +852,6 @@ class PedidoService
                         'assinado' => 0, // Define como não assinado por padrão
                     ]);
                 }
-
-                // Insere automaticamente o fluxo para o usuário 13, se necessário
-                if ($inserirUsuario52) {
-                    DB::table('fluxos')->insert([
-                        'id_usuario' => 4,
-                        'id_pedido' => $idPedido,
-                        'assinado' => 0, // Define como não assinado por padrão
-                    ]);
-
-
-                    DB::table('fluxos')->where('id_pedido', $idPedido)->where('id_usuario', '52')([
-                        'assinado ' => 1
-                    ]);
-                }
-                
             } else {
                 return ['resposta' => 'Ocorreu Falgum problema, tente mais tarde!', 'status' => Response::HTTP_BAD_REQUEST];
             }
