@@ -797,7 +797,6 @@ class PedidoService
                 $contadorUsuario6 = 0;
                 $inserirUsuario65 = false;
                 $inserirUsuario13 = false;
-                $inserirUsuario52 = false;
 
                 foreach ($fluxoArray as $item) {
                     $assinado = $item['id_usuario'] == 6 ? 1 : 0;
@@ -824,7 +823,17 @@ class PedidoService
                     } elseif ($item['id_usuario'] == 65) {
                         $inserirUsuario13 = true;
                     } elseif ($item['id_usuario' == 52]) {
-                        $inserirUsuario52 = true;
+
+                        DB::table('fluxos')->insert([
+                            'id_usuario' => 4,
+                            'id_pedido' => $idPedido,
+                            'assinado' => 0, // Define como não assinado por padrão
+                        ]);
+
+                        DB::table('fluxos')->where('id_pedido', $idPedido)->where('id_usuario', '52')->update([
+                            'assinado' => 1
+                        ]);
+                        
                     }
                 }
 
@@ -846,15 +855,6 @@ class PedidoService
                 if ($inserirUsuario13) {
                     DB::table('fluxos')->insert([
                         'id_usuario' => 13,
-                        'id_pedido' => $idPedido,
-                        'assinado' => 0, // Define como não assinado por padrão
-                    ]);
-                }
-
-                // Insere automaticamente o fluxo para o usuário 13, se necessário
-                if ($inserirUsuario52) {
-                    DB::table('fluxos')->insert([
-                        'id_usuario' => 4,
                         'id_pedido' => $idPedido,
                         'assinado' => 0, // Define como não assinado por padrão
                     ]);
