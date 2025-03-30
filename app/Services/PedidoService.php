@@ -822,18 +822,6 @@ class PedidoService
                         $inserirUsuario65 = true;
                     } elseif ($item['id_usuario'] == 65) {
                         $inserirUsuario13 = true;
-                    } elseif ($item['id_usuario' == 52]) {
-
-                        DB::table('fluxos')->insert([
-                            'id_usuario' => 4,
-                            'id_pedido' => $idPedido,
-                            'assinado' => 0, // Define como não assinado por padrão
-                        ]);
-
-                        DB::table('fluxos')->where('id_pedido', $idPedido)->where('id_usuario', '52')->update([
-                            'assinado' => 1
-                        ]);
-                        
                     }
                 }
 
