@@ -23,6 +23,53 @@ class PedidosQuery
         } else {
 
             $verificaCriador = Pedido::where('id', $idPedido[0])->pluck('id_criador')->first();
+            $verificaGerente = Fluxo::where('id_pedido', $idPedido[0])->pluck('id_usuario')->first();
+
+            if ($verificaGerente == 4) {
+
+                // 1º Passo -> Verificar para qual link foi enviar o pedido
+                $idLink = Pedido::where('id', $idPedido)
+                    ->pluck('id_link');
+
+                // Mônica
+                if ($idLink[0] == 1) {
+                    $atualizaPedido = Pedido::where('id', $idPedido)->update(['id_status' => 2]);
+
+                    $dados = [
+                        'id_pedido' => $idPedido,
+                        'id_status' => 2,
+                        'observacao' => 'O pedido foi enviado para Dr. Mônica!'
+                    ];
+
+                    $historico = HistoricoPedidos::create($dados);
+
+                    return true;
+                } else if ($idLink[0] == 3) {
+                    $atualizaPedido = Pedido::where('id', $idPedido)->update(['id_status' => 22]);
+
+                    $dados = [
+                        'id_pedido' => $idPedido,
+                        'id_status' => 22,
+                        'observacao' => 'O pedido foi enviado para Dr. Giovana!'
+                    ];
+
+                    $historico = HistoricoPedidos::create($dados);
+
+                    return true;
+                } else {
+                    $atualizaPedido = Pedido::where('id', $idPedido)->update(['id_status' => 1]);
+
+                    $dados = [
+                        'id_pedido' => $idPedido[0],
+                        'id_status' => 1,
+                        'observacao' => 'O pedido foi enviado para Dr. Emival!'
+                    ];
+
+                    $historico = HistoricoPedidos::create($dados);
+
+                    return true;
+                }
+            }
 
             if ($verificaCriador == 59) {
                 Pedido::where('id', $idPedido[0])->update(['id_status' => 22]); // Enviado para Giovana Caiado

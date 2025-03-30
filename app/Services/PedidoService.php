@@ -1157,7 +1157,6 @@ class PedidoService
                 }
             }
 
-
             // 3º Passo -> Verificar se todo o fluxo referente a esse pedido foi aprovado
             $this->pedidosQuery->verificaFluxoAprovado($idPedido);
 
