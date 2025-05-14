@@ -5,6 +5,8 @@ namespace App\Services;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use App\Repositories\LmRepositories;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\MateriaisLmImport;
 
 class LmService
 {
@@ -40,7 +42,7 @@ class LmService
         }
     }
 
-    public function cadastarLm($request)
+    public function cadastrarLm($request)
     {
         DB::beginTransaction();
 
@@ -54,12 +56,7 @@ class LmService
             $queryCadastroMensagem = $this->lmRepositories->mensagemLmCriada($request, $queryCadastroLm->id);
 
             // 3º Passo -> Cadastrar materias da LM
-            // $materiais = json_decode($request->materiais, true); // Funcionar no postman
-            $materiais = $request->materiais; // Funciona consumindo via front
-
-            foreach ($materiais as $material) {
-                $queryCadastroMateriais = $this->lmRepositories->cadastrarMateriais($material, $queryCadastroLm->id);
-            }
+            $queryCadastrarMateriais = Excel::import(new MateriaisLmImport($queryCadastroLm->id), $request->file('materiais'));
 
             // 4º Pasoo -> Retornar resposta
             DB::commit();

@@ -346,7 +346,7 @@ Route::prefix('cotacoes')->middleware('jwt.auth')->group(function () {
 Route::prefix('lm')->middleware('jwt.auth')->group(function () {
     Route::controller(LmController::class)->group(function () {
         Route::get('/listar-lms', 'listarLms');
-        Route::post('/cadastrar-lm', 'cadastarLm');
+        Route::post('/cadastrar-lm', 'cadastrarLm');
         Route::get('/listar-compradores', 'listarCompradores');
         Route::get('/associar-comprador/{idLm}/{idComprador}/{idGerente}', 'associarComprador');
         Route::get('/lm-associadas/{idComprador}', 'lmAssociadas');

@@ -21,9 +21,9 @@ class LmController extends Controller
         return response()->json($query);
     }
 
-    public function cadastarLm(Request $request)
+    public function cadastrarLm(Request $request)
     {
-        $query = $this->lmService->cadastarLm($request); // Metódo responsável por cadastrar LM
+        $query = $this->lmService->cadastrarLm($request); // Metódo responsável por cadastrar LM
         return response()->json($query);
     }
 
@@ -146,5 +146,4 @@ class LmController extends Controller
         $query = $this->lmService->listarLmsAlmoxarifado(); // Metódo responsável por listar lms do almoxarifado
         return response()->json($query);
     }
-
 }
