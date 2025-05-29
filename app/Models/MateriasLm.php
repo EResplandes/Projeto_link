@@ -15,6 +15,8 @@ class MateriasLm extends Model
         'quantidade',
         'unidade',
         'descricao',
+        'descritiva',
+        'indicador',
         'id_lm',
         'id_materiais',
         'id_pedido',

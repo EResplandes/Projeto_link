@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Http\Resources\ChatMateriaisResource;
+use App\Http\Resources\HistoricoLmResource;
 use App\Http\Resources\LmAlmoxarifadoResource;
 use App\Http\Resources\LmResource;
 use App\Models\Chat;
@@ -16,6 +17,7 @@ use App\Models\MateriasLm;
 use App\Models\StatusLm;
 use App\Models\StatusMateriais;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class LmRepositories
@@ -23,16 +25,22 @@ class LmRepositories
 
     public function cadastrarLm($request)
     {
+        $hoje = \Carbon\Carbon::now();
+        $prazo = \Carbon\Carbon::parse($request->prazo);
+        $diasRestantes = $hoje->diffInDays($prazo, false); // false para poder retornar negativo se prazo já passou
+
+        $urgente = ($diasRestantes < 7) ? 1 : 0; // 1 = urgente, 0 = padrão
+
         return ListaMateriais::create([
-            'urgente' => $request->urgente,
+            'urgente' => $urgente,
             'lm' => strtoupper($request->lm),
             'aplicacao' => $request->aplicacao,
             'prazo' => $request->prazo,
             'id_solicitante' => $request->id_solicitante,
             'id_status' => 1,
             'id_empresa' => $request->id_empresa,
-            'id_local'    => $request->id_local
-        ]); // Metódo responsável por cadastrar LM
+            'id_local' => $request->id_local
+        ]);
     }
 
     public function cadastrarHistorico($request, $id_lm)
@@ -60,6 +68,8 @@ class LmRepositories
     {
         return MateriasLm::create([
             'descricao' => $material['descricao'],
+            'descritiva' => $material['descritiva'],
+            'indicador' => $material['indicador'],
             'unidade' => $material['unidade'],
             'quantidade' => $material['quantidade'],
             'id_lm' => $id_lm
@@ -68,7 +78,7 @@ class LmRepositories
 
     public function listarLms()
     {
-        return LmResource::collection(ListaMateriais::all()); // Metódo responsável por listar LMs
+        return LmResource::collection(ListaMateriais::orderBy('id', 'desc')->get()); // Metódo responsável por listar LMs
     }
 
     public function listarInformacoesComplementares()
@@ -336,5 +346,92 @@ class LmRepositories
     public function listarLmsAlmoxarifado()
     {
         return LmAlmoxarifadoResource::collection(ListaMateriais::all()); // Metódo responsável por listar LMs do almox
+    }
+
+    public function informacoesDashboard()
+    {
+        // 1º Passo -> Buscar lms por status
+        $lmsPorStatus = ListaMateriais::select('id_status', DB::raw('count(*) as total'))
+            ->groupBy('id_status')
+            ->with('status') // Garante que o relacionamento será carregado
+            ->get();
+
+        // 2º Passo -> Buscar lms atrasadas
+        $lmsAtrasadasPorStatus = ListaMateriais::where('prazo', '<', Carbon::now())
+            ->count();
+
+        // 3º Passo -> Buscar quantidade total de Lms
+        $totalLms = ListaMateriais::count();
+
+        // 4º Passo -> Buscar Lm por comprador
+        $lmComprador = ListaMateriais::select('id_comprador', DB::raw('COUNT(*) as total'))
+            ->groupBy('id_comprador')
+            ->with('comprador') // garante que o nome do comprador será carregado
+            ->get();
+
+        // 5 Passo -> Buscar todos historicos de LM's
+        $historicos = HistoricoLmResource::collection(HistoricoLm::limit(50)->get()); // Trabalhar com resourece
+
+        return [
+            'total_lms' => $totalLms,
+            'total_lms_atrasadas' => $lmsAtrasadasPorStatus,
+            'lms_por_comprador' => $lmComprador,
+            'lms_por_status' => $lmsPorStatus,
+            'historicos' => $historicos
+        ];
+    }
+
+    public function cadastrarNovoMaterial($request)
+    {
+        DB::beginTransaction();
+
+        try {
+            // 1º Passo -> Cadastrar Novo Material
+            $cadastroMaterial = MateriasLm::create([
+                'descricao' => $request->descricao,
+                "descritiva" => $request->descritiva,
+                "indicador" => $request->indicador,
+                'unidade' => $request->unidade,
+                'quantidade' => $request->quantidade,
+                'id_lm' => $request->id_lm,
+                'id_status' => 1
+            ]);
+
+            if (!$cadastroMaterial) {
+                throw new \Exception('Falha ao cadastrar material');
+            }
+
+            // 2º Passo -> Gerar Histórico
+            $chat = ChatLms::create([
+                'id_lm' => $request->id_lm,
+                'id_usuario' => 81,
+                'mensagem' => "O material $request->descricao foi cadastrado pelo usuário $request->usuario"
+            ]);
+
+            if (!$chat) {
+                throw new \Exception('Falha ao criar registro no chat');
+            }
+
+            // 3º Passo -> Alterar status da LM
+            $alterarStatusLm = ListaMateriais::where('id', $request->id_lm)
+                ->update([
+                    'id_status' => 5,
+                ]);
+
+            if ($alterarStatusLm === 0) {
+                throw new \Exception('Falha ao atualizar status da LM');
+            }
+
+            DB::commit();
+
+            // 4º Passo -> Buscar Materias dessa LM
+            return MateriasLm::where('id_lm', $request->id_lm)->get();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            // Log do erro para debugging
+            dd($e);;
+            \Log::error("Erro ao cadastrar material: " . $e->getMessage());
+            return false; // Retorna false explicitamente em caso de erro
+        }
     }
 }

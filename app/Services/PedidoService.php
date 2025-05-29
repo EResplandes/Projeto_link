@@ -1581,6 +1581,7 @@ class PedidoService
             } else if ($link == 3) {
                 $id_status = 22;
             } else {
+
                 $id_status = 2;
             }
 

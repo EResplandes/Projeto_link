@@ -146,4 +146,16 @@ class LmController extends Controller
         $query = $this->lmService->listarLmsAlmoxarifado(); // Metódo responsável por listar lms do almoxarifado
         return response()->json($query);
     }
+
+    public function informacoesDashboard()
+    {
+        $query = $this->lmService->informacoesDashboard(); // Metódo responsável por buscar todas informações que compôe o dashboard
+        return response()->json($query);
+    }
+
+    public function cadastrarNovoMaterial(Request $request)
+    {
+        $query = $this->lmService->cadastrarNovoMaterial($request); // Metódo responsável por cadastrar um novo item a uma nova lista de material após a sua criação
+        return response()->json($query);
+    }
 }

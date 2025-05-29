@@ -24,15 +24,17 @@ class MateriaisLmSheetImport implements ToModel, WithHeadingRow, WithMapping, Wi
 
     public function map($row): array
     {
+        dd('teste');
         return [
-            'descricao'   => $row['descritiva'],
-            'quantidade'  => $row['quant.'],
-            'unidade'     => $row['un.'],
+            'descricao'   => $row['DESCRITIVA'],
+            'quantidade'  => $row['QUANT.'],
+            'unidade'     => $row['UN.'],
         ];
     }
 
     public function model(array $row)
     {
+        dd('teste 2');
         return new MateriasLm([
             'id_status'             => 1,
             'descricao'             => $row['descricao'],

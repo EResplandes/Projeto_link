@@ -367,5 +367,7 @@ Route::prefix('lm')->middleware('jwt.auth')->group(function () {
         Route::get('/liberar-material/{idMaterial}/{idComprador}', 'liberarMaterial');
         Route::get('/bloquear-material/{idMaterial}/{idComprador}', 'bloquearMaterial');
         Route::get('/listar-lms-almoxarifado', 'listarLmsAlmoxarifado');
+        Route::get('/informacoes-dashboard', 'informacoesDashboard');
+        Route::post('/cadastrar-novo-material', 'cadastrarNovoMaterial');
     });
 });

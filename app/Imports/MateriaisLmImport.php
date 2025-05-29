@@ -4,9 +4,8 @@ namespace App\Imports;
 
 use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 use Maatwebsite\Excel\Concerns\WithCalculatedFormulas;
-use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
-class MateriaisLmImport implements WithMultipleSheets, WithCalculatedFormulas, WithHeadingRow
+class MateriaisLmImport implements WithMultipleSheets, WithCalculatedFormulas
 {
     protected $id_lm;
 

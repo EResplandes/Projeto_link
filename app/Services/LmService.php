@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\DB;
 use App\Repositories\LmRepositories;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Imports\MateriaisLmImport;
+use PhpParser\Node\Expr\FuncCall;
 
 class LmService
 {
@@ -56,8 +57,12 @@ class LmService
             $queryCadastroMensagem = $this->lmRepositories->mensagemLmCriada($request, $queryCadastroLm->id);
 
             // 3º Passo -> Cadastrar materias da LM
-            $queryCadastrarMateriais = Excel::import(new MateriaisLmImport($queryCadastroLm->id), $request->file('materiais'));
+            $materiais = $request->materiais;
+            $id_lm = $queryCadastroLm->id;
 
+            foreach ($materiais as $material) {
+                $this->lmRepositories->cadastrarMateriais($material, $id_lm);
+            }
             // 4º Pasoo -> Retornar resposta
             DB::commit();
 
@@ -518,6 +523,45 @@ class LmService
             return [
                 'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
                 'erro' => $e->getMessage()
+            ];
+        }
+    }
+
+    public function informacoesDashboard()
+    {
+        try {
+            // 1ª Passo -> Buscar informações
+            $query = $this->lmRepositories->informacoesDashboard();
+
+            // 2º Passo -> Retornar resposta
+            return [
+                'status' => Response::HTTP_OK,
+                'lms' => $query
+            ];
+        } catch (\Exception $e) {
+            return [
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'erro' => $e->getMessage()
+            ];
+        }
+    }
+
+    public function cadastrarNovoMaterial($request)
+    {
+        // 1º Passo -> Cadastrar Novo Material
+        $query = $this->lmRepositories->cadastrarNovoMaterial($request);
+
+        // 2º Passo -> Retornar resposta
+        if ($query) {
+            return [
+                'status' => Response::HTTP_OK,
+                'resposta' => 'Material cadastrado com sucesso',
+                'materiais' => $query
+            ];
+        } else {
+            return [
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'erro' => $query->getMessage()
             ];
         }
     }

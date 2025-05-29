@@ -11,4 +11,8 @@ class StatusLm extends Model
 
     protected $table = 'status_lm';
 
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+    ];
 }
