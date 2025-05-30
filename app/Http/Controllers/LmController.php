@@ -177,4 +177,10 @@ class LmController extends Controller
         $query = $this->lmService->salvarAnexo($request); // Metódo responsável por salvar anexo
         return response()->json($query);
     }
+
+    public function autorizarQuantidade(Request $request)
+    {
+        $query = $this->lmService->autorizarQuantidade($request); // Metódo responsável por autorizar quantidade
+        return response()->json($query);
+    }
 }

@@ -571,12 +571,20 @@ class LmService
         // 1º Passo -> Valida permissão do usuario
         $query = $this->lmRepositories->validaFuncaoUsuario($id, $funcao);
 
-        return [
-            'status' => Response::HTTP_OK,
-            'resposta' => 'Permissão validada com sucesso',
-            'acesso' => $query['acesso'],
-            'funcao' => $query['funcao']
-        ];
+        if ($query['acesso']) {
+            return [
+                'status' => Response::HTTP_OK,
+                'resposta' => 'Permissão validada com sucesso',
+                'acesso' => $query['acesso'],
+                'funcao' => $query['funcao']
+            ];
+        } else {
+            return [
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'acesso' => $query['acesso'],
+                'funcao' => $query['funcao'],
+            ];
+        }
     }
 
     public function listarAnexos($idLm)
@@ -613,5 +621,25 @@ class LmService
                 'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
             ];
         }
+    }
+
+    public function autorizarQuantidade($request)
+    {
+        $query = $this->lmRepositories->autorizarQuantidade($request);
+
+        if ($query) {
+            return [
+                'status' => Response::HTTP_OK,
+                'resposta' => 'Quantidade autorizada com sucesso',
+                'materiais' => $query['materiais']
+            ];
+        } else {
+            return [
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+                'erro' => $query
+            ];
+        }
+
+        return $query;
     }
 }

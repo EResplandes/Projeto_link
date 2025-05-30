@@ -372,5 +372,6 @@ Route::prefix('lm')->middleware('jwt.auth')->group(function () {
         Route::get('/valida-funcao-usuario/{id}/{funcao}', 'validaFuncaoUsuario');
         Route::get('/listar-anexos/{idLm}', 'listarAnexos');
         Route::post('/salvar-anexo', 'salvarAnexo');
+        Route::post('/autorizar-quantidade', 'autorizarQuantidade');
     });
 });

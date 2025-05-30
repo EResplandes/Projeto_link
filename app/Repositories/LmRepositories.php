@@ -21,6 +21,7 @@ use App\Models\StatusMateriais;
 use App\Models\User;
 use App\Models\AnexosLm;
 use Carbon\Carbon;
+use GuzzleHttp\Psr7\Response;
 use Illuminate\Support\Facades\DB;
 
 class LmRepositories
@@ -40,7 +41,7 @@ class LmRepositories
             'aplicacao' => strtoupper($request->aplicacao),
             'prazo' => $request->prazo,
             'id_solicitante' => $request->id_solicitante,
-            'id_status' => 1,
+            'id_status' => 7, // Validção de Quantitativo
             'id_empresa' => $request->id_empresa,
             'id_local' => $request->id_local
         ]);
@@ -446,7 +447,7 @@ class LmRepositories
 
             $idFuncao = User::where('id', $id)->pluck('id_funcao')->first();
 
-            $funcaoValidada = Funcao::where('id', $idFuncao)->pluck('funcao')->get();
+            $funcaoValidada = Funcao::where('id', $idFuncao)->pluck('funcao')->first();
 
             if ($funcao == $funcaoValidada) {
                 return [
@@ -506,6 +507,68 @@ class LmRepositories
 
             DB::commit();
             return true;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error("Erro: " . $e->getMessage());
+            return false; // Retorna false explicitamente em caso de erro
+        }
+    }
+
+    public function autorizarQuantidade($request)
+    {
+
+        DB::beginTransaction();
+
+        try {
+            $materiais = $request->input('materiais');
+
+            if (is_string($materiais)) {
+                $materiais = json_decode($materiais, true);
+            }
+
+
+            if (is_array($materiais)) {
+                foreach ($materiais as $material) {
+                    MateriasLm::where('id', $material['id'])
+                        ->update(['quantidade_autorizada' => $material['quantidade_autorizada']]);
+                }
+            }
+
+            $idLm = MateriasLm::where('id', $materiais[0]['id'])->pluck('id_lm')->first();
+
+            DB::table('materiais_lm')
+                ->where('id_lm', $idLm)
+                ->whereNull('quantidade_autorizada')
+                ->update([
+                    'quantidade_autorizada' => DB::raw('quantidade')
+                ]);
+
+            $novosMateriais = MateriasLm::where('id_lm', $idLm)->get();
+
+            ChatLms::create([
+                'mensagem' => "Quantidade de materiais validada pelo usuário $request->usuario",
+                'id_lm' => $idLm,
+                'id_usuario' => 81
+            ]);
+
+            ListaMateriais::where('id', $idLm)
+                ->update([
+                    'id_status' => 1
+                ]);
+
+            DB::commit();
+
+            if ($idLm) {
+                return [
+                    'materiais' => $novosMateriais,
+                    'status' => true
+                ];
+            } else {
+                return [
+                    'materiais' => $novosMateriais,
+                    'status' => false
+                ];
+            }
         } catch (\Exception $e) {
             DB::rollBack();
             \Log::error("Erro: " . $e->getMessage());

@@ -13,6 +13,7 @@ class MateriasLm extends Model
 
     protected $fillable = [
         'quantidade',
+        'quantidade_autorizada',
         'unidade',
         'descricao',
         'descritiva',

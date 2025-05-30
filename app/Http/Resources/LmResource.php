@@ -28,16 +28,17 @@ class LmResource extends JsonResource
             "local"          => $this->local->local,
             "materiais"      => $this->materiais->map(function ($material) {
                 return [
-                    "id"               => $material->id,
-                    "indicador"        => $material->indicador,
-                    "descricao"        => $material->descricao,
-                    "descritiva"       => $material->descritiva,
-                    "quantidade"       => $material->quantidade,
-                    "unidade"          => $material->unidade,
-                    "id_pedido"           => $material->id_pedido,
-                    "id_status"           => $material->id_status,
-                    "liberado_almoxarife" => $material->liberado_almoxarife,
-                    "quantidade_entregue" => $material->lancamentosMateriais()->sum('quantidade_entregue'), // Soma os lançamentos
+                    "id"                    => $material->id,
+                    "indicador"             => $material->indicador,
+                    "descricao"             => $material->descricao,
+                    "descritiva"            => $material->descritiva,
+                    "quantidade"            => $material->quantidade,
+                    "quantidade_autorizada" => $material->quantidade_autorizada,
+                    "unidade"               => $material->unidade,
+                    "id_pedido"             => $material->id_pedido,
+                    "id_status"             => $material->id_status,
+                    "liberado_almoxarife"   => $material->liberado_almoxarife,
+                    "quantidade_entregue"   => $material->lancamentosMateriais()->sum('quantidade_entregue'), // Soma os lançamentos
                 ];
             }),
             "dt_solicitacao" => $this->created_at
