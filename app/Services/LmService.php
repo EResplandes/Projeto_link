@@ -565,4 +565,53 @@ class LmService
             ];
         }
     }
+
+    public function validaFuncaoUsuario($id, $funcao)
+    {
+        // 1º Passo -> Valida permissão do usuario
+        $query = $this->lmRepositories->validaFuncaoUsuario($id, $funcao);
+
+        return [
+            'status' => Response::HTTP_OK,
+            'resposta' => 'Permissão validada com sucesso',
+            'acesso' => $query['acesso'],
+            'funcao' => $query['funcao']
+        ];
+    }
+
+    public function listarAnexos($idLm)
+    {
+        // 1º Passo -> Buscar todos anexos
+        $query = $this->lmRepositories->listarAnexos($idLm);
+
+        // 2º Passo -> Retornar resposta
+        return [
+            'status' => Response::HTTP_OK,
+            'anexos' => $query
+        ];
+    }
+
+    public function salvarAnexo($request)
+    {
+        // 1º Passo -> Salvar anexo
+        $diretorio = '/listas-materias/' . $request->id_lm;
+
+        $extensao = $request->file('anexo')->getClientOriginalExtension();
+
+        $caminhoAnexo = $request->file('anexo')->store($diretorio, 'public');
+
+        // 2º Passo -> Cadastrar informações de onde está o anexo, observacao e a id da lm na tabela anexos_lm
+        $query = $this->lmRepositories->salvarAnexo($request, $caminhoAnexo, $extensao);
+
+        if ($query) {
+            return [
+                'status' => Response::HTTP_OK,
+                'resposta' => 'Anexo cadastrado com sucesso',
+            ];
+        } else {
+            return [
+                'status' => Response::HTTP_INTERNAL_SERVER_ERROR,
+            ];
+        }
+    }
 }

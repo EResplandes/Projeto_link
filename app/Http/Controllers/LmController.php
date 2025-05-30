@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\AnexoRequest;
 use Illuminate\Http\Request;
 use App\Services\LmService;
 
@@ -156,6 +157,24 @@ class LmController extends Controller
     public function cadastrarNovoMaterial(Request $request)
     {
         $query = $this->lmService->cadastrarNovoMaterial($request); // Metódo responsável por cadastrar um novo item a uma nova lista de material após a sua criação
+        return response()->json($query);
+    }
+
+    public function validaFuncaoUsuario($id, $funcao)
+    {
+        $query = $this->lmService->validaFuncaoUsuario($id, $funcao); // Metódo responsável por validar funcao do usuario
+        return response()->json($query);
+    }
+
+    public function listarAnexos($idLM)
+    {
+        $query = $this->lmService->listarAnexos($idLM); // Metódo responsável por listar materiais
+        return response()->json($query);
+    }
+
+    public function salvarAnexo(Request $request)
+    {
+        $query = $this->lmService->salvarAnexo($request); // Metódo responsável por salvar anexo
         return response()->json($query);
     }
 }

@@ -73,4 +73,9 @@ class ListaMateriais extends Model
     {
         return $this->belongsTo(LocaisLm::class, 'id_local', 'id');
     }
+
+    public function anexos()
+    {
+        return $this->hasMany(AnexosLm::class, 'id_lm', 'id');
+    }
 }

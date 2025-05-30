@@ -35,6 +35,7 @@ class Pedido extends Model
 
     protected $hidden = ['updated_at'];
 
+    // Relacionamentos com outras tabelas
     public function empresa()
     {
         return $this->belongsTo(Empresa::class, 'id_empresa');

@@ -369,5 +369,8 @@ Route::prefix('lm')->middleware('jwt.auth')->group(function () {
         Route::get('/listar-lms-almoxarifado', 'listarLmsAlmoxarifado');
         Route::get('/informacoes-dashboard', 'informacoesDashboard');
         Route::post('/cadastrar-novo-material', 'cadastrarNovoMaterial');
+        Route::get('/valida-funcao-usuario/{id}/{funcao}', 'validaFuncaoUsuario');
+        Route::get('/listar-anexos/{idLm}', 'listarAnexos');
+        Route::post('/salvar-anexo', 'salvarAnexo');
     });
 });

@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Http\Resources\AnexosResource;
 use App\Http\Resources\ChatMateriaisResource;
 use App\Http\Resources\HistoricoLmResource;
 use App\Http\Resources\LmAlmoxarifadoResource;
@@ -9,6 +10,7 @@ use App\Http\Resources\LmResource;
 use App\Models\Chat;
 use App\Models\ChatLms;
 use App\Models\ChatMateriais;
+use App\Models\Funcao;
 use App\Models\ListaMateriais;
 use App\Models\HistoricoLm;
 use App\Models\LancamentosMateriais;
@@ -17,6 +19,7 @@ use App\Models\MateriasLm;
 use App\Models\StatusLm;
 use App\Models\StatusMateriais;
 use App\Models\User;
+use App\Models\AnexosLm;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -34,7 +37,7 @@ class LmRepositories
         return ListaMateriais::create([
             'urgente' => $urgente,
             'lm' => strtoupper($request->lm),
-            'aplicacao' => $request->aplicacao,
+            'aplicacao' => strtoupper($request->aplicacao),
             'prazo' => $request->prazo,
             'id_solicitante' => $request->id_solicitante,
             'id_status' => 1,
@@ -67,10 +70,10 @@ class LmRepositories
     public function cadastrarMateriais($material, $id_lm)
     {
         return MateriasLm::create([
-            'descricao' => $material['descricao'],
-            'descritiva' => $material['descritiva'],
-            'indicador' => $material['indicador'],
-            'unidade' => $material['unidade'],
+            'descricao' => strtoupper($material['descricao']),
+            'descritiva' => strtoupper($material['descritiva']),
+            'indicador' => strtoupper($material['indicador']),
+            'unidade' => strtoupper($material['unidade']),
             'quantidade' => $material['quantidade'],
             'id_lm' => $id_lm
         ]); // Metódo responsável por cadastrar materiais
@@ -388,10 +391,10 @@ class LmRepositories
         try {
             // 1º Passo -> Cadastrar Novo Material
             $cadastroMaterial = MateriasLm::create([
-                'descricao' => $request->descricao,
-                "descritiva" => $request->descritiva,
-                "indicador" => $request->indicador,
-                'unidade' => $request->unidade,
+                'descricao' => strtoupper($request->descricao),
+                "descritiva" => strtoupper($request->descritiva),
+                "indicador" => strtoupper($request->indicador),
+                'unidade' => strtoupper($request->unidade),
                 'quantidade' => $request->quantidade,
                 'id_lm' => $request->id_lm,
                 'id_status' => 1
@@ -431,6 +434,81 @@ class LmRepositories
             // Log do erro para debugging
             dd($e);;
             \Log::error("Erro ao cadastrar material: " . $e->getMessage());
+            return false; // Retorna false explicitamente em caso de erro
+        }
+    }
+
+    public function validaFuncaoUsuario($id, $funcao)
+    {
+        DB::beginTransaction();
+
+        try {
+
+            $idFuncao = User::where('id', $id)->pluck('id_funcao')->first();
+
+            $funcaoValidada = Funcao::where('id', $idFuncao)->pluck('funcao')->get();
+
+            if ($funcao == $funcaoValidada) {
+                return [
+                    'funcao' => $funcaoValidada,
+                    'acesso' => true
+                ];
+            } else {
+                return [
+                    'funcao' => $funcaoValidada,
+                    'acesso' => false
+                ];
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error("Erro: " . $e->getMessage());
+            return false; // Retorna false explicitamente em caso de erro
+        }
+    }
+
+    public function listarAnexos($idLM)
+    {
+        return AnexosResource::collection(
+            AnexosLm::where('id_lm', $idLM)
+                ->get()
+        );
+    }
+
+    public function salvarAnexo($request, $caminhoAnexo, $extensao)
+    {
+
+        DB::beginTransaction();
+        try {
+
+            $queryInsertAnexo = AnexosLm::create([
+                'id_lm' => $request->id_lm,
+                'id_usuario' => $request->id_usuario,
+                'anexo' => $caminhoAnexo,
+                'observacao' => $request->observacao,
+                'extensao' => $extensao
+
+            ]);
+
+            if (!$queryInsertAnexo) {
+                throw new \Exception('Falha ao salvar anexo');
+            }
+
+            // Cria a mensagem no ChatLms
+            $queryInsertChat = ChatLms::create([
+                'mensagem' => "Foi adicionado um novo anexo pelo usuário $request->usuario, com a seguinte observação: $request->observacao",
+                'id_lm' => $request->id_lm,
+                'id_usuario' => 81 // Usuário de LOG
+            ]); // Método responsável por cadastrar mensagem sobre a criação da LM
+
+            if (!$queryInsertChat) {
+                throw new \Exception('Falha ao criar registro no chat');
+            }
+
+            DB::commit();
+            return true;
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error("Erro: " . $e->getMessage());
             return false; // Retorna false explicitamente em caso de erro
         }
     }
