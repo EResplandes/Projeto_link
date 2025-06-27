@@ -909,11 +909,18 @@ class PedidoService
 
             // 2º Passo -> Montar array a ser inserido
             $idLink = $request->input('id_link');
-            $idStatus = match ($idLink) {
-                2 => 1,
-                3 => 22,
-                default => 2,
-            };
+
+            switch ($idLink) {
+                case 2:
+                    $idStatus = 1;
+                    break;
+                case 3:
+                    $idStatus = 22;
+                    break;
+                default:
+                    $idStatus = 2;
+                    break;
+            }
 
             if ($request->input('id_criador') == 4) {
                 $dadosPedido = [
