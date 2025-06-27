@@ -799,7 +799,7 @@ class PedidoService
                 $inserirUsuario13 = false;
 
                 foreach ($fluxoArray as $item) {
-                    $assinado = $item['id_usuario'] == 6 ? 1 : 0;
+                    $assinado = in_array($item['id_usuario'], [6, 13, 65]) ? 1 : 0;
 
                     // Prepara o array de dados a serem inseridos
                     $data = [
@@ -830,8 +830,16 @@ class PedidoService
                     }
                 }
 
-                // Verifica se somente o fluxo do id_usuario == 6 foi inserido
-                if ($contadorUsuario6 == 1 && count($fluxoArray) == 1) {
+                // IDs dos usuários que podem seguir esse fluxo individual
+                $usuariosIndividuais = [6, 13, 65];
+
+                // Extrai todos os id_usuario do fluxo
+                $usuariosNoFluxo = array_column($fluxoArray, 'id_usuario');
+
+                // Verifica se todos os usuários no fluxo estão no array permitido
+                $soUsuariosPermitidos = count(array_diff($usuariosNoFluxo, $usuariosIndividuais)) === 0;
+
+                if ($soUsuariosPermitidos) {
                     Pedido::where('id', $idPedido)->update(['id_status' => 6]);
                 }
 
@@ -840,7 +848,7 @@ class PedidoService
                     DB::table('fluxos')->insert([
                         'id_usuario' => 65,
                         'id_pedido' => $idPedido,
-                        'assinado' => 0, // Define como não assinado por padrão
+                        'assinado' => 1, // Define como não assinado por padrão
                     ]);
                 }
 
@@ -849,7 +857,7 @@ class PedidoService
                     DB::table('fluxos')->insert([
                         'id_usuario' => 13,
                         'id_pedido' => $idPedido,
-                        'assinado' => 0, // Define como não assinado por padrão
+                        'assinado' => 1, // Define como não assinado por padrão
                     ]);
                 }
             } else {
@@ -901,7 +909,11 @@ class PedidoService
 
             // 2º Passo -> Montar array a ser inserido
             $idLink = $request->input('id_link');
-            $idStatus = ($idLink == 2) ? 1 : 2;
+            $idStatus = match ($idLink) {
+                2 => 1,
+                3 => 22,
+                default => 2,
+            };
 
             if ($request->input('id_criador') == 4) {
                 $dadosPedido = [
@@ -1366,9 +1378,9 @@ class PedidoService
 
             // 3º Passo -> Gerar chat com mensagem do presidente
             $dadosChat = [
-                'id_pedido'  => $id,
+                'id_pedido' => $id,
                 'id_usuario' => $idUsuario,
-                'mensagem'   => $mensagem
+                'mensagem' => $mensagem
             ];
 
             Chat::create($dadosChat);
@@ -1405,9 +1417,9 @@ class PedidoService
 
             // 3º Passo -> Gerar chat com mensagem do presidente
             $dadosChat = [
-                'id_pedido'  => $id,
+                'id_pedido' => $id,
                 'id_usuario' => $idUsuario,
-                'mensagem'   => $mensagem
+                'mensagem' => $mensagem
             ];
 
             Chat::create($dadosChat);
@@ -2056,14 +2068,14 @@ class PedidoService
             // 2º Passo -> Gerar chat com motivo da reprovacao
             Chat::create([
                 'id_usuario' => $request->input('id_usuario'),
-                'id_pedido'  => intval($id),
-                'mensagem'   => $request->input('mensagem')
+                'id_pedido' => intval($id),
+                'mensagem' => $request->input('mensagem')
             ]);
 
             // 3º Passo -> Gerar Histórico da reprovação
             HistoricoPedidos::create([
                 'id_pedido' => $id,
-                'id_status'  => 19,
+                'id_status' => 19,
                 'observacao' => 'Pedido reprovado pelo financeiro!'
             ]);
 
@@ -2091,14 +2103,14 @@ class PedidoService
             // 2º Passo -> Gerar chat com motivo da reprovacao
             Chat::create([
                 'id_usuario' => $request->input('id_usuario'),
-                'id_pedido'  => $id,
-                'mensagem'   => $request->input('mensagem')
+                'id_pedido' => $id,
+                'mensagem' => $request->input('mensagem')
             ]);
 
             // 3º Passo -> Gerar Histórico da reprovação
             HistoricoPedidos::create([
                 'id_pedido' => $id,
-                'id_status'  => 20,
+                'id_status' => 20,
                 'observacao' => 'Pedido reprovado pelo financeiro!'
             ]);
 
@@ -2127,7 +2139,7 @@ class PedidoService
         if ($query) {
             return ['resposta' => 'Pedidos listados com sucesso!', 'pedidos' => $query, 'status' => Response::HTTP_OK];
         } else {
-            return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador',  'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+            return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador', 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
         }
     }
 
@@ -2140,7 +2152,7 @@ class PedidoService
         if ($query) {
             return ['resposta' => 'Pedido foi definido como urgente com sucesso!', 'status' => Response::HTTP_OK];
         } else {
-            return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador',  'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+            return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
         }
     }
 
@@ -2153,7 +2165,7 @@ class PedidoService
         if ($query) {
             return ['resposta' => 'Pedido foi definido como normal com sucesso!', 'status' => Response::HTTP_OK];
         } else {
-            return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador',  'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+            return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
         }
     }
 
@@ -2181,7 +2193,7 @@ class PedidoService
                 ->count();
 
             // 3º Passo -> Ver valor
-            $totalValor =  Pedido::orderBy('created_at', 'desc')
+            $totalValor = Pedido::orderBy('created_at', 'desc')
                 ->where('id_link', 2)
                 ->where('id_status', '!=', 3)
                 ->where('id_status', '!=', 8)
@@ -2263,7 +2275,7 @@ class PedidoService
                 ->count();
 
             // 3º Passo -> Ver valor
-            $totalValor =  Pedido::orderBy('created_at', 'desc')
+            $totalValor = Pedido::orderBy('created_at', 'desc')
                 ->where('id_link', 2)
                 ->where('id_status', '!=', 3)
                 ->take(500)
@@ -2442,7 +2454,7 @@ class PedidoService
         if ($query) {
             return ['resposta' => 'Pedido enviado para comprador com sucesso!', 'status' => Response::HTTP_OK];
         } else {
-            return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador',  'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+            return ['resposta' => 'Ocorreu algum erro, entre em contato com o Administrador', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
         }
     }
 
