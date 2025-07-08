@@ -1470,6 +1470,13 @@ class PedidoService
                 ->where('valor', '>', 1000) // Filtro para valores abaixo de 500
                 ->count();
 
+            $quantidades['qtd_pendentes'] = Pedido::whereIn('id_status', [1, 5, 23, 24])
+                ->whereHas('historicos', function ($query) {
+                    $query->where('id_status', 5); // aprovado com ressalva
+                })
+                ->where('id_link', 2)
+                ->count();
+
             // 2º Passo -> Retornar resposta
             DB::commit();
             return ['resposta' => 'Quantidades listadas com sucesso!', 'quantidades' => $quantidades, 'status' => Response::HTTP_OK];
@@ -2662,5 +2669,77 @@ class PedidoService
         } else {
             return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
         }
+    }
+
+    public function listarPedidosPendentesEmival()
+    {
+        // 1ª Passo -> Buscar todos os pedidos com status 1
+        $query = PedidoResource::collection(
+            Pedido::whereIn('id_status', [1, 5, 23, 24])
+                ->whereHas('historicos', function ($query) {
+                    $query->where('id_status', 5);
+                })
+                ->where('id_link', 2)
+                ->get()
+        );
+
+        // 2º Passo -> Retornar resposta
+        if ($query) {
+            return ['resposta' => 'Pedidos para o Dr. Emival Caiado!', 'pedidos' => $query, 'status' => Response::HTTP_OK];
+        } else {
+            return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+    }
+
+    public function cobrarResposta($request)
+    {
+        DB::beginTransaction();
+
+        try {
+            $questionamento = $request->input('mensagem');
+
+            $pedido = Pedido::where('id', $request->input('id_pedido'))->update(['id_status' => 25]);
+
+            $chat = Chat::create([
+                'id_pedido' => $request->input('id_pedido'),
+                'id_usuario' => 1,
+                'mensagem' => $questionamento
+            ]);
+
+            if ($pedido) {
+                DB::commit();
+                return ['resposta' => 'Pedido cobrado com sucesso!', 'status' => Response::HTTP_OK];
+            } else {
+                return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+
+
+    }
+
+    public function finalizarRessalva($request)
+    {
+
+        DB::beginTransaction();
+
+        try {
+            $query = Pedido::where('id', $request->id_pedido)->update(['id_status' => 4]);
+
+            HistoricoPedidos::create([
+                'id_pedido' => $request->input('id_pedido'),
+                'id_status' => 4,
+                'observacao' => 'O pedido foi aprovado pelo Dr. Emival!'
+            ]);
+
+            DB::commit();
+            return ['resposta' => 'Pedido finalizado com sucesso!', 'status' => Response::HTTP_OK];
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
+
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Models\Chat;
+use App\Models\HistoricoPedidos;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\DB;
@@ -18,25 +19,26 @@ class PedidoResource extends JsonResource
     public function toArray($request)
     {
         return [
-            "id"                    => $this->id,
-            "descricao"             => $this->descricao,
-            "valor"                 => $this->valor,
-            "protheus"              => $this->protheus,
-            "urgente"               => $this->urgente,
-            "anexo"                 => $this->anexo,
-            "dt_inclusao"           => $this->created_at,
-            "dt_assinatura"         => $this->updated_at,
-            "local"                 => $this->local,
-            "criador"               => $this->criador->name,
-            "nota"                  => $this->notas,
-            "compra_antecipada"     => $this->compra_antecipada,
-            "empresa"               => new EmpresaResource($this->empresa),
-            "status"                => new StatusResource($this->status),
-            "link"                  => new LinkResource($this->link),
-            "pendentes"             => $this->getPendentesComNomeUsuario(),
-            "assinados"             => $this->getAssinadosComNomeUsuario(),
-            "verifica_chat"         => $this->checkChatRecordForUser($this->id),
-            "quantidade_mensagens"  => $this->contaQauntidadeMensagensPorPedido($this->id),
+            "id" => $this->id,
+            "descricao" => $this->descricao,
+            "valor" => $this->valor,
+            "protheus" => $this->protheus,
+            "urgente" => $this->urgente,
+            "anexo" => $this->anexo,
+            "dt_inclusao" => $this->created_at,
+            "dt_assinatura" => $this->updated_at,
+            "local" => $this->local,
+            "criador" => $this->criador->name,
+            "nota" => $this->notas,
+            "compra_antecipada" => $this->compra_antecipada,
+            "dt_aprovacao_emival" => $this->dtAprovacaoEmival($this->id),
+            "empresa" => new EmpresaResource($this->empresa),
+            "status" => new StatusResource($this->status),
+            "link" => new LinkResource($this->link),
+            "pendentes" => $this->getPendentesComNomeUsuario(),
+            "assinados" => $this->getAssinadosComNomeUsuario(),
+            "verifica_chat" => $this->checkChatRecordForUser($this->id),
+            "quantidade_mensagens" => $this->contaQauntidadeMensagensPorPedido($this->id),
         ];
     }
 
@@ -83,5 +85,12 @@ class PedidoResource extends JsonResource
     public function contaQauntidadeMensagensPorPedido($idPedido)
     {
         return Chat::where('id_pedido', $idPedido)->count();
+    }
+
+    public function dtAprovacaoEmival($id)
+    {
+        return HistoricoPedidos::where('id_pedido', $id)
+            ->where('id_status', 5)
+            ->pluck('created_at')->first();
     }
 }

@@ -27,7 +27,7 @@ class GerenteService
         DB::beginTransaction();
 
         try {
-            $pedidosComFluxo = PedidoResource::collection(Pedido::whereIn('id_status', [3, 5, 24])
+            $pedidosComFluxo = PedidoResource::collection(Pedido::whereIn('id_status', [3, 5, 24, 25])
                 ->where('id_criador', '!=', 7)
                 ->whereHas('fluxo', function ($query) use ($id) {
                     $query->where('id_usuario', $id);
@@ -35,7 +35,7 @@ class GerenteService
                 ->get());
 
             $pedidosSemFluxo = PedidoResource::collection(
-                Pedido::whereIn('id_status', [3, 5, 24])
+                Pedido::whereIn('id_status', [3, 5, 24, 25])
                     ->where('id_criador', '!=', 7)
                     ->where('tipo_pedido', 'Sem Fluxo')
                     ->get()

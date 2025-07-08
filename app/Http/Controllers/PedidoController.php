@@ -461,4 +461,22 @@ class PedidoController extends Controller
         $query = $this->pedidoService->ressalvaPedidoEmivalTemp($request);
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
+
+    public function listarPedidosPendentesEmival()
+    {
+        $query = $this->pedidoService->listarPedidosPendentesEmival();
+        return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
+    }
+
+    public function cobrarResposta(Request $request)
+    {
+        $query = $this->pedidoService->cobrarResposta($request);
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
+
+    public function finalizarRessalva(Request $request)
+    {
+        $query = $this->pedidoService->finalizarRessalva($request);
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
 }

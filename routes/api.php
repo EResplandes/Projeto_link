@@ -142,6 +142,7 @@ Route::prefix('/app')->group(function () {
         Route::get('/listarEmivalMenorQuinhentos', 'listarEmivalMenorQuinhentos');
         Route::get('/listarEmivalMenorMil', 'listarEmivalMenorMil');
         Route::get('/listarEmivalMaiorMil', 'listarEmivalMaiorMil');
+        Route::get('/listarPedidosPendentesEmival', 'listarPedidosPendentesEmival');
         Route::get('/listarQuantidades', 'listarQuantidades');
         Route::put('/aprovar-ressalva/{id}', 'aprovarRessalva');
         Route::put('/aprovar', 'aprovarPedido');
@@ -154,6 +155,8 @@ Route::prefix('/app')->group(function () {
         Route::get('/aprovar-pedido-emival-temp/{id}', 'aprovarPedidoEmivalTemp');
         Route::post('/reprovar-pedido-emival-temp', 'reprovarPedidoEmivalTemp');
         Route::post('/ressalva-pedido-emival-temp', 'ressalvaPedidoEmivalTemp');
+        Route::post('/cobrar-resposta', 'cobrarResposta');
+        Route::post('/finalizar-ressalva', 'finalizarRessalva');
     });
 });
 
