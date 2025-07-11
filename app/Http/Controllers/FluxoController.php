@@ -44,4 +44,16 @@ class FluxoController extends Controller
         $query = $this->fluxoService->verificaFluxo($id_pedido, $id_usuario); // Metódo responsável por verificar se fluxo ainda existe
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
+
+    public function indicadores()
+    {
+        $query = $this->fluxoService->indicadores(); // Metódo responsável por buscar indicadores
+        return response()->json(['resposta' => $query['resposta'], 'indicadores' => $query['indicadores']], $query['status']);
+    }
+
+    public function aprovarFluxoComRessalva(Request $request)
+    {
+        $query = $this->fluxoService->aprovarFluxoComRessalva($request); // Metódo responsável por aprovar fluxo e enviar devolta para criador do pedido
+        return response()->json(['resposta' => $query['resposta']], $query['status']);
+    }
 }

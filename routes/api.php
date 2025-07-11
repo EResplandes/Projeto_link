@@ -234,6 +234,8 @@ Route::prefix('/fluxo')->middleware('jwt.auth')->group(function () {
         Route::put('/reprovar-fluxo/{id}/{idUsuario}/{mensagem}', 'reprovarFluxo');
         Route::post('/cadastrar-fluxo', 'cadastrarFluxo');
         Route::get('/verifica-fluxo/{id_pedido}/{id_usuario}', 'verificaFluxo');
+        Route::get('/indicadores', 'indicadores');
+        Route::post('/aprovar-fluxo-com-ressalva', 'aprovarFluxoComRessalva');
     });
 });
 
