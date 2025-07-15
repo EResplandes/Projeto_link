@@ -1148,7 +1148,7 @@ class PedidoService
         }
     }
 
-    public function aprovaEmFluxo($id)
+    public function aprovaEmFluxo($id, $urgente)
     {
         DB::beginTransaction();
 
@@ -1177,7 +1177,7 @@ class PedidoService
             }
 
             // 3º Passo -> Verificar se todo o fluxo referente a esse pedido foi aprovado
-            $this->pedidosQuery->verificaFluxoAprovado($idPedido);
+            $this->pedidosQuery->verificaFluxoAprovado($idPedido, $urgente);
 
             // 4º Passo -> Cadastra histórico
             $dados = [

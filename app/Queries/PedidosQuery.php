@@ -10,12 +10,18 @@ use Illuminate\Support\Facades\Http;
 
 class PedidosQuery
 {
-    public function verificaFluxoAprovado($idPedido)
+    public function verificaFluxoAprovado($idPedido, $urgente)
     {
         // 1º  Passo -> Verifica se todo o fluxo referente a esse pedido está assinado
         $query = Fluxo::where('id_pedido', $idPedido[0])
             ->where('assinado', 0)
             ->count();
+
+        $urgente = $urgente;
+
+        if ($urgente == 1) {
+            $query = Pedido::where('id', $idPedido[0])->update(['urgente' => 1]);
+        }
 
         // 2º Passo -> Verificar se ainda existe fluxo não aprovado referente a esse pedido
         if ($query > 0) {
