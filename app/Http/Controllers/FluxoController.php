@@ -56,4 +56,10 @@ class FluxoController extends Controller
         $query = $this->fluxoService->aprovarFluxoComRessalva($request); // Metódo responsável por aprovar fluxo e enviar devolta para criador do pedido
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
+
+    public function listarGerentesPedidos($id)
+    {
+        $query = $this->fluxoService->listarGerentesPedidos($id); // Metódo responsável por buscar pedidos
+        return response()->json(['resposta' => $query['resposta'], 'gerentes' => $query['gerentes']], $query['status']);
+    }
 }

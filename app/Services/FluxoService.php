@@ -263,11 +263,9 @@ class FluxoService
             ];
 
             return ['resposta' => 'Indicadores carregados com sucesso!', 'indicadores' => $indicadores, 'status' => Response::HTTP_OK];
-
         } catch (\Exception $e) {
             return ['resposta' => $e, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
         }
-
     }
 
     public function aprovarFluxoComRessalva($request)
@@ -389,6 +387,18 @@ class FluxoService
             // Retorna a resposta de erro
             return ['resposta' => $e, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
         }
+    }
 
+    public function listarGerentesPedidos($id)
+    {
+        try {
+
+            $gerentes = FluxoResource::collection(Fluxo::where('id_pedido', $id)->get());
+
+            return ['resposta' => 'Gerentes listados com sucesso!', 'gerentes' => $gerentes, 'status' => Response::HTTP_OK];
+            
+        } catch (\Exception $e) {
+            return ['resposta' => $e, 'gerentes' => [], 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
     }
 }
