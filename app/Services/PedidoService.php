@@ -25,6 +25,7 @@ use App\Queries\PedidosQuery;
 use App\Models\Fluxo;
 use App\Models\NotasFiscais;
 use App\Models\Parcela;
+use App\Models\User;
 use Carbon\Carbon;
 
 
@@ -1853,7 +1854,7 @@ class PedidoService
             Pedido::where('id', $idPedido[0])->update(['id_link' => $idLink, 'urgente' => $urgente]);
 
             // 4º Passo -> Verificar se todo o fluxo referente a esse pedido foi aprovado
-            $this->pedidosQuery->verificaFluxoAprovado($idPedido);
+            $this->pedidosQuery->verificaFluxoAprovado($idPedido, $urgente);
 
             // 5º Passo -> Cadastra histórico
             $dados = [
@@ -2716,8 +2717,6 @@ class PedidoService
             DB::rollBack();
             return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
         }
-
-
     }
 
     public function finalizarRessalva($request)
@@ -2740,6 +2739,34 @@ class PedidoService
             DB::rollBack();
             return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
         }
+    }
 
+    public function verificaPedidoExiste($request)
+    {
+        try {
+
+            $primeiraVerificacao = Pedido::where('protheus', $request->input('protheus'))->exists();
+
+            $segundaVerificacao = Pedido::where('protheus', $request->input('protheus'))->where('valor', $request->input('valor'))->exists();
+
+            $fornecedor = Pedido::where('protheus', $request->input('protheus'))->where('valor', $request->input('valor'))->pluck('descricao')->first();
+
+            $idComprador = Pedido::where('protheus', $request->input('protheus'))->pluck('id_criador')->first();
+
+            $comprador = User::where('id', $idComprador)->pluck('name')->first();
+
+            if ($primeiraVerificacao && $segundaVerificacao) {
+                return [
+                    'resposta' => 'O pedido de número Protheus ' . $request->input('protheus') . ' já consta no sistema, vinculado ao usuário ' . $comprador . '.' . ' Fornecedor: ' . $fornecedor,
+                    'seguimento' => true,
+                    'status' => Response::HTTP_OK
+                ];
+            } else {
+                return ['resposta' => 'O pedido de número de protheus ' . $request->input('protheus') . ' nao foi encontrado no sistema!', 'seguimento' => false, 'status' => Response::HTTP_OK];
+            }
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'seguimento' => $e, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
+        }
     }
 }

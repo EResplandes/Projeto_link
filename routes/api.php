@@ -113,6 +113,7 @@ Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
         Route::get('/listar-pedidos-reprovados-emival/{id}', 'listarReprovadosEmivalGerente'); // ID do usuário (Gerente)
         Route::get('/listar-pedidos-respondidos-para-emival', 'listarPedidosRespondidosParaEmival');
         Route::get('/enviar-pedido-comprador/{id}', 'enviarParaComprador'); // ID do pedido
+        Route::post('/verifica-pedido-existe', 'verificaPedidoExiste');
     });
 });
 

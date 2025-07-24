@@ -479,4 +479,10 @@ class PedidoController extends Controller
         $query = $this->pedidoService->finalizarRessalva($request);
         return response()->json(['resposta' => $query['resposta']], $query['status']);
     }
+
+    public function verificaPedidoExiste(Request $request)
+    {
+        $query = $this->pedidoService->verificaPedidoExiste($request);
+        return response()->json(['resposta' => $query['resposta'], 'seguimento' => $query['seguimento']], $query['status']);
+    }
 }
