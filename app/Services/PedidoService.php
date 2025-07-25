@@ -2745,9 +2745,9 @@ class PedidoService
     {
         try {
 
-            $primeiraVerificacao = Pedido::where('protheus', $request->input('protheus'))->exists();
+            $primeiraVerificacao = Pedido::where('protheus', $request->input('protheus'))->where('id_status', '!=', '8')->exists();
 
-            $segundaVerificacao = Pedido::where('protheus', $request->input('protheus'))->where('valor', $request->input('valor'))->exists();
+            $segundaVerificacao = Pedido::where('protheus', $request->input('protheus'))->where('id_status', '!=', '8')->where('valor', $request->input('valor'))->exists();
 
             $fornecedor = Pedido::where('protheus', $request->input('protheus'))->where('valor', $request->input('valor'))->pluck('descricao')->first();
 
