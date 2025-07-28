@@ -2751,7 +2751,7 @@ class PedidoService
 
             $fornecedor = Pedido::where('protheus', $request->input('protheus'))->where('valor', $request->input('valor'))->pluck('descricao')->first();
 
-            $idComprador = Pedido::where('protheus', $request->input('protheus'))->pluck('id_criador')->first();
+            $idComprador = Pedido::where('protheus', $request->input('protheus'))->where('id_status', '!=', '8')->where('valor', $request->input('valor'))->pluck('id_criador')->first();
 
             $comprador = User::where('id', $idComprador)->pluck('name')->first();
 
