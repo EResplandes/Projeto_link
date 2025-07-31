@@ -1918,22 +1918,8 @@ class PedidoService
             $dados['anexo'] = $pdf;
         }
 
-        // 3º Passo -> Verificar se o Status atual é igual a 23, se for enviar direto último status. Podendo ser eles o de Reprovado ou Aprovado com Ressalva
-        $statusAtual = Pedido::where('id', $id)->pluck('id_status')->first();
-
-        if ($statusAtual == 23) {
-            $historicoPedido = Historicopedidos::whereIn('id_status', [3, 5, 24])
-                ->orderBy('id', 'desc')
-                ->first();
-
-            if ($historicoPedido) {
-                $pedido = Pedido::find($id); // Substitua $pedidoId pelo ID do pedido que deseja atualizar
-                if ($pedido) {
-                    $pedido->id_status = $historicoPedido->id_status; // Ajuste o nome do campo na tabela 'pedidos' para o campo correto
-                    $pedido->save();
-                }
-            }
-        }
+        // 3º Passo -> Bloqueia o pedido para edição
+        Pedido::where('id', $id)->update(['compra_antecipada' => 'Não']);
 
         if (!empty($dados)) {
             $query = Pedido::where('id', $id)->update($dados);
@@ -2463,7 +2449,7 @@ class PedidoService
     public function enviarParaComprador($id)
     {
         // 1º Passo -> Alterar id do status do pedido para 23
-        $query = Pedido::where('id', $id)->update(['id_status' => 23]);
+        $query = Pedido::where('id', $id)->update(['compra_antecipada' => 'Sim']);
 
         // 2º Passo -> Retornar resposta
         if ($query) {
