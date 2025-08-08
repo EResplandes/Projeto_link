@@ -51,7 +51,7 @@ class PedidoController extends Controller
     public function listarTodosPedidosLocais()
     {
         $query = $this->pedidoService->listarTodosLocais(); // Metódo responsável por listar pedidos
-        return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos']], $query['status']);
+        return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos'], 'ultimo_pedido' => $query['ultimo_pedido']], $query['status']);
     }
 
     public function listarTodosPedidosLocaisFiltro(Request $request)
@@ -484,5 +484,11 @@ class PedidoController extends Controller
     {
         $query = $this->pedidoService->verificaPedidoExiste($request);
         return response()->json(['resposta' => $query['resposta'], 'seguimento' => $query['seguimento']], $query['status']);
+    }
+
+    public function carregarMaislistarTodosLocais($id)
+    {
+        $query = $this->pedidoService->carregarMaislistarTodosLocais($id);
+        return response()->json(['resposta' => $query['resposta'], 'pedidos' => $query['pedidos'], 'ultimo_pedido' => $query['ultimo_pedido']], $query['status']);
     }
 }

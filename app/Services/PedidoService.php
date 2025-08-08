@@ -150,20 +150,39 @@ class PedidoService
                 ->get()
         );
 
+        $ultimoPedido = $query->last();
+
         // 2º Passo -> Retornar resposta
         if ($query) {
-            return ['resposta' => 'Pedidos listados com sucesso!', 'pedidos' => $query, 'status' => Response::HTTP_OK];
+            return ['resposta' => 'Pedidos listados com sucesso!', 'pedidos' => $query, 'ultimo_pedido' => $ultimoPedido, 'status' => Response::HTTP_OK];
         } else {
             return ['resposta' => 'Ocorreu algum problema, entre em contato com o Administrador!', 'pedidos' => null, 'status' => Response::HTTP_INTERNAL_SERVER_ERROR];
         }
     }
 
+    public function carregarMaislistarTodosLocais($id)
+    {
+        $pedidos = PedidoResource::collection(
+            Pedido::orderBy('id', 'desc') // ordena pelo id decrescente
+                ->where('id_status', '!=', 8)
+                ->where('id_criador', '!=', 7)
+                ->where('id', '<', $id) // pegar pedidos com id menor que o último carregado
+                ->take(750)
+                ->get()
+        );
+
+        $ultimoPedido = $pedidos->last();
+
+        return [
+            'resposta' => 'Pedidos listados com sucesso!',
+            'pedidos' => $pedidos,
+            'ultimo_pedido' => $ultimoPedido,
+            'status' => Response::HTTP_OK
+        ];
+    }
+
     public function listarTodosLocaisFiltro($request)
     {
-        // Convertendo as datas para o formato Y-m-d se necessário
-        $dtInicio = \Carbon\Carbon::parse($request->input('dt_inicio'))->startOfDay();
-        $dtFim = \Carbon\Carbon::parse($request->input('dt_fim'))->endOfDay();
-
         // 1º Passo -> Buscar todos os pedidos cadastrados
         $query = Pedido::orderBy('created_at', 'desc')
             ->where('id_status', '!=', 8)
@@ -174,8 +193,12 @@ class PedidoService
             $query->where('protheus', intval($request->input('numero_pedido')));
         }
 
-        if ($request->input('dt_inicio') != false && $request->input('dt_fim') != false) {
-            $query->whereBetween('created_at', [$dtInicio, $dtFim]);
+        if ($request->input('fornecedor')) {
+            $query->where('descricao', 'like', '%' . $request->input('fornecedor') . '%');
+        }
+
+        if ($request->input('valor_min') && $request->input('valor_max')) {
+            $query->whereBetween('valor', [$request->input('valor_min'), $request->input('valor_max')]);
         }
 
         // Obtém os resultados

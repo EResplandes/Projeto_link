@@ -58,6 +58,7 @@ Route::prefix("/pedidos")->middleware('jwt.auth')->group(function () {
         Route::get('/listar-pedidos-por-comprador-status/{id}/{idStatus}', 'listarPedidosPorCompradorStatus'); // ID do comprador
         Route::get('/listar-pedidos-externos', 'listarPedidosExternos');
         Route::get('/listar-pedidos', 'listarTodosPedidosLocais');
+        Route::get('/carrega-mais-pedidos/{id}', 'carregarMaislistarTodosLocais'); // ID do último pedido
         Route::post('/listar-pedidos-filtro', 'listarTodosPedidosLocaisFiltro');
         Route::post('/listar-pedidos-filtro-comprador-externo', 'listarTodosPedidosCompradorExternoFiltro');
         Route::get('/filtro-emival', 'listarEmivalFiltro');
